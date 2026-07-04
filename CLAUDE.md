@@ -144,6 +144,13 @@ On les enveloppe dans un petit hook dédié par usage, ex.
 - **Routing : `react-router-dom`.** Guards par groupe (public / non-authentifié /
   authentifié) quand l'auth arrivera.
 - **Strings de l'UI en anglais, en dur.** Pas de i18n / Lingui pour l'instant.
+- **Design system** dans `src/index.css` : tokens Tailwind v4 (`@theme`) extraits
+  du design produit. Marque indigo `brand-*` (#0501F0), neutres chauds `paper` /
+  `sand` / `ink`, univers verre sombre `night-*` / `glass-*`, statuts
+  `success` / `warn` / `danger`, ombres signature (`shadow-glass`, `shadow-brand`,
+  `shadow-well`), rayons `rounded-well` (14px) / `rounded-card` (28px). Les
+  variables sémantiques shadcn sont retunées sur la marque. Surfaces verre
+  réutilisables : classes `.glass-card`, `.glass-well`, `.glass-hairline`.
 - Gestion d'erreur : enums par opération côté API → `switch` sur `error.message`
   dans le hook → toast clair pour l'utilisateur.
 

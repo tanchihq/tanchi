@@ -1,20 +1,42 @@
 /**
  * Root API wiring.
  *
- * Each module (mirroring a backend module) exports curried functions of the
- * form `(axios: AxiosInstance) => (data) => Promise<Result>`. Here we bind the
- * shared axios instance once and re-export ready-to-call `*Axios` functions
- * that components consume through `useAsync` / `useAsyncEvent`.
- *
- * Pattern (once a module exists):
- *
- *   import * as company from './company';
- *   const getCompanyAxios = company.getOneCompany(instances.axiosInstance);
- *   export { getCompanyAxios };
+ * Chaque module (miroir d'un module back) exporte des fonctions curryfiées
+ * `(axios) => (data) => Promise<Result>`. On lie ici l'instance axios partagée
+ * et on réexporte des fonctions `*Axios` prêtes à l'emploi, consommées par les
+ * composants via `useAsync` / `useAsyncEvent`.
  */
 import * as instances from './utils';
+import * as auth from './auth';
+import * as onboarding from './onboarding';
 
-// Referenced so the import is retained until the first module is wired.
-void instances;
+// AUTH
+const signInAxios = auth.signIn(instances.axiosInstance);
+const getSessionAxios = auth.getSession(instances.axiosInstance);
+const signOutAxios = auth.signOut(instances.axiosInstance);
+const resendVerificationEmailAxios = auth.resendVerificationEmail(
+  instances.axiosInstance,
+);
 
-export {};
+// ONBOARDING
+const signUpAxios = onboarding.signUp(instances.axiosInstance);
+const getOnboardingStateAxios = onboarding.getOnboardingState(
+  instances.axiosInstance,
+);
+const saveOnboardingProgressAxios = onboarding.saveOnboardingProgress(
+  instances.axiosInstance,
+);
+const completeOnboardingAxios = onboarding.completeOnboarding(
+  instances.axiosInstance,
+);
+
+export {
+  signInAxios,
+  getSessionAxios,
+  signOutAxios,
+  resendVerificationEmailAxios,
+  signUpAxios,
+  getOnboardingStateAxios,
+  saveOnboardingProgressAxios,
+  completeOnboardingAxios,
+};
