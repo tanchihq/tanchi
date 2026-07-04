@@ -158,7 +158,8 @@ Deux classes empilées : `Postgres` (SQL brut) enveloppée par `Repository` (API
 - `strict: true`, plus `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, `noUnusedLocals` / `noUnusedParameters`.
 - **Aucun `any`, aucun `unknown`** non justifié. Un `as never` isolé est toléré uniquement pour le pont `db.json(...)` de postgres.js.
 - **Tout est immuable** : `Readonly<{}>` pour les objets, `ReadonlyArray<>` pour les tableaux, `ReadonlyMap<>` pour les maps. Aucun type mutable exposé.
-- **Pas de `for`, pas de `forEach`.** On utilise `map` / `filter` / `reduce` / `some` / `Promise.all`. Seule exception : une boucle indispensable à la performance, justifiée par un commentaire.
+- **Pas de `for`, pas de `forEach`.** On utilise `map` / `filter` / `reduce` / `some` / `Promise.all`. Seule exception : une itération purement impérative où map/filter/reduce n'a pas de sens (performance, I/O, écriture d'en-têtes, migrations séquentielles).
+- **Aucun commentaire.** Pas de JSDoc, pas d'inline, pas de TODO, pas de commentaire SQL. Un commentaire est le signe d'un code pas assez explicite : nomme mieux, extrais une fonction nommée.
 - IDs via `Bun.randomUUIDv7()`. Imports de fichiers `.ts` explicites, alias `@shared/*` pour le partagé.
 
 ### Nommage
@@ -185,6 +186,7 @@ Deux classes empilées : `Postgres` (SQL brut) enveloppée par `Repository` (API
 - Importer le repository d'un autre module. On duplique le repo dans le module courant.
 - Exposer un type mutable, un `any` ou un `unknown` non justifié.
 - Écrire une boucle `for`/`forEach` là où `map`/`filter`/`reduce` suffit.
+- Écrire un commentaire. Le code doit se suffire par le nommage et la structure.
 
 ---
 

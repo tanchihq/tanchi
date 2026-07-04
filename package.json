@@ -1,12 +1,20 @@
 {
   "name": "sweeleads-api",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "migrate": "bun scripts/migrate.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
   },
   "dependencies": {
-    "hono": "^4.12.27"
+    "@hono/zod-validator": "^0.7.6",
+    "better-auth": "^1.6.9",
+    "hono": "^4.12.27",
+    "postgres": "^3.4.9",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "typescript": "^6.0.3"
   }
 }
