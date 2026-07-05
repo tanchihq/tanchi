@@ -10,8 +10,6 @@ export type AuthUser = Readonly<{
 
 export type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
-// 'unknown' : session résolue mais statut d'onboarding pas encore connu
-// (ex. échec transitoire du fetch) — traité comme "à compléter".
 export type OnboardingStatusState = 'unknown' | 'in_progress' | 'completed';
 
 export type AuthState = Readonly<{

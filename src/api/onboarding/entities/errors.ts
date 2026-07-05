@@ -1,5 +1,3 @@
-// Miroir de `SignUpErrors` du back (module onboarding). Le back renvoie le code
-// dans `error.message` de la réponse d'erreur AppError.
 export enum SignUpErrors {
   invalidEmail = 'invalidEmail',
   invalidPassword = 'invalidPassword',
@@ -11,7 +9,6 @@ export enum SignUpErrors {
   organizationCreationFailed = 'organizationCreationFailed',
 }
 
-// Miroir (à venir) de `CompleteOnboardingErrors` du back — voir le prompt back.
 export enum CompleteOnboardingErrors {
   noActiveOrganization = 'noActiveOrganization',
   invalidCompanyName = 'invalidCompanyName',

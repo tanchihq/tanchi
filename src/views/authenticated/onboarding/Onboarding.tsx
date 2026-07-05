@@ -16,6 +16,7 @@ import { IdealClientsStep } from './steps/IdealClientsStep';
 import { useCompleteOnboarding } from './hooks/useCompleteOnboarding';
 import { useOnboardingState } from './hooks/useOnboardingState';
 import { useSaveOnboardingProgress } from './hooks/useSaveOnboardingProgress';
+import useGenerateOnboardingProfile from './hooks/useGenerateOnboardingProfile';
 
 const MAX_ICPS = 3;
 const AUTOSAVE_DELAY_MS = 800;
@@ -51,6 +52,7 @@ const INITIAL_DRAFT: CompleteOnboardingDto = {
   website: '',
   productPageUrl: '',
   salesDeckUrl: '',
+  companyProfile: '',
   icps: [],
 };
 
@@ -78,6 +80,10 @@ const Onboarding = () => {
   const { onFetch: completeFetch, isLoading: isCompleting } =
     useCompleteOnboarding();
   const { onFetch: saveProgress } = useSaveOnboardingProgress();
+  const { onFetch: generateProfile, isLoading: generatingProfile } =
+    useGenerateOnboardingProfile({
+      onGenerated: (companyProfile) => setField({ companyProfile }),
+    });
 
   const onLoaded = (state: OnboardingStateDto) => {
     if (state.status === 'completed') {
@@ -90,12 +96,10 @@ const Onboarding = () => {
     setHydrated(true);
   };
 
-  // Si l'état ne peut pas être récupéré, on démarre un onboarding vierge.
   const onFailed = () => setHydrated(true);
 
   const { status } = useOnboardingState({ onLoaded, onFailed });
 
-  // Autosave debounced du brouillon dès qu'il change (une fois hydraté).
   useEffect(() => {
     if (!hydrated) return;
     const timer = setTimeout(
@@ -196,7 +200,17 @@ const Onboarding = () => {
         <ResourcesStep
           productPageUrl={draft.productPageUrl}
           salesDeckUrl={draft.salesDeckUrl}
+          companyProfile={draft.companyProfile}
+          generating={generatingProfile}
           onChange={setField}
+          onGenerate={() =>
+            generateProfile({
+              companyName: draft.companyName,
+              website: draft.website,
+              productPageUrl: draft.productPageUrl,
+              salesDeckUrl: draft.salesDeckUrl,
+            })
+          }
         />
       )}
       {stepIndex === 2 && (

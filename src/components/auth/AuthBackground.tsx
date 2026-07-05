@@ -1,7 +1,5 @@
 import { type CSSProperties } from 'react';
 
-// Fond d'ambiance des écrans auth : nuit profonde + halos aurora dérivants +
-// balayage radar. Purement décoratif, non interactif.
 const layer: CSSProperties = {
   position: 'fixed',
   inset: 0,

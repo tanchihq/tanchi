@@ -4,8 +4,6 @@ import { SignUpErrors } from './entities/errors';
 import { type SignUpDto } from './entities/request.entities';
 import { type SignedUpDto } from './entities/response.entities';
 
-// Le back renvoie les erreurs au format AppError : { statusCode, error, message }
-// où `message` porte le code métier (SignUpErrors).
 const extractErrorCode = (error: AxiosError): string | undefined => {
   const data = error.response?.data;
   if (

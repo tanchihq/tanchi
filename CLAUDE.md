@@ -47,7 +47,30 @@ Exigence produit de premier ordre. Un commercial ouvre l'appli le soir, valide s
 ## Conventions de code
 
 Ces conventions sont alignées sur le repo `Sweescape/SweeBadge`. Quand un doute
-subsiste, on va voir comment c'est fait là-bas.
+subsiste, on va voir comment c'est fait là-bas. Le projet est destiné à devenir
+open source : le code doit être exemplaire.
+
+### Clarté : aucun commentaire
+
+- **Aucun commentaire dans le code.** Un commentaire = un aveu que le code n'est
+  pas clair. On rend le code clair à la place : noms de variables/fonctions/types
+  explicites et simples. Zéro `//` et zéro `/* */`.
+
+### Structure des vues & composants
+
+Calquée sur `SweeBadge/src/views/authenticated/event`.
+
+- Une vue (route) = un dossier avec **`index.tsx`** (composant principal, export
+  default), **`utils.ts`** pour les helpers, un dossier **`hooks/`** pour les
+  appels API (un hook par fichier, `useXxx`, export default, wrappant
+  `useAsync`/`useAsyncEvent`).
+- Chaque sous-composant vit dans son dossier **kebab-case** (`prospect-card/`)
+  avec son fichier **PascalCase** (`ProspectCard.tsx`, export default), et ses
+  propres `utils.ts` / `hooks/` co-localisés s'il en a.
+- **Co-localisation** : ce qu'un composant utilise vit au même niveau que lui.
+  Pas de dossiers fourre-tout `components/` ou `data/` dans une vue.
+- **Réutilisable → remonte en global** : composants partagés dans
+  `src/components/`, utils/formatage partagés dans `src/utils/`.
 
 ### Typage : strict et immuable
 
@@ -65,8 +88,7 @@ subsiste, on va voir comment c'est fait là-bas.
 ### Style fonctionnel
 
 - **Pas de `for` ni de `forEach`.** On utilise `map`, `filter`, `reduce`,
-  `find`, etc. Exception tolérée uniquement pour une raison de perf réelle et
-  justifiée par un commentaire.
+  `find`, etc. Exception uniquement pour une raison de perf réelle.
 - Composants fonctionnels + hooks. Pas de classes.
 - Fonctions fléchées (`const f = () => ...`), pas de `function`.
 
@@ -114,9 +136,16 @@ dossier sous `src/api/`.
   partagée aux fonctions du module et réexporte des fonctions prêtes à l'emploi
   suffixées `*Axios` (ex. `getOneCompanyAxios`).
 - **`src/api/utils.ts`** contient l'instance axios (une seule, le back est un
-  seul service Hono ; les modules sont des préfixes de route). Auth par cookie
-  via Better Auth → `withCredentials: true`. Intercepteur de réponse pour les
-  erreurs d'auth.
+  seul service Hono ; les modules sont des préfixes de route). Base URL :
+  `${import.meta.env.VITE_API_URL}/api/v1`. Auth par cookie via Better Auth →
+  `withCredentials: true`. Intercepteur de réponse pour les erreurs d'auth.
+- **Exception auth** : `sign-in` / `sign-out` passent par le **client Better
+  Auth** (`src/api/auth-client.ts`, `authClient.signIn.email` / `signOut`), pas
+  par un module axios. Le reste (session `/me`, sign-up, tout le domaine) reste
+  en modules axios curryfiés.
+- **Helper d'erreur** : `src/api/shared/extract-error.ts` (`throwApiError`) mappe
+  l'AppError back (`message` = code) ; les hooks switchent sur ce code → toast.
+  Enums partagés du domaine dans `src/api/shared/enums.ts`.
 - **Aucun secret ni clé API côté front.**
 
 ### Appels API : toujours via un hook
@@ -137,10 +166,22 @@ On les enveloppe dans un petit hook dédié par usage, ex.
 
 - **shadcn/ui + Tailwind CSS v4** (config CSS-first dans `src/index.css`,
   variables de thème en `oklch`, plugin `@tailwindcss/vite`). Composants dans
-  `src/components/ui/`.
+  `src/components/ui/`. **On maximise l'usage des composants shadcn**, customisés
+  à nos besoins, pour une UX/UI stable.
+- **`Button` a une prop `isLoading`** : on y branche directement le `isLoading`
+  d'un `useAsyncEvent` → spinner intégré + `disabled`. Tout bouton qui déclenche
+  un appel API montre son chargement (jamais l'impression qu'il ne se passe rien).
 - `cn()` (clsx + tailwind-merge) dans `src/utils/lib/utils.ts`.
-- Icônes : `lucide-react`. Toasts : `sonner` (`<Toaster />` monté dans
-  `main.tsx`). Formulaires : `react-hook-form` + `zod` + `@hookform/resolvers`.
+- Icônes : **`lucide-react` uniquement** (glyphes de marque absents de lucide v1
+  → SVG inline dans `ChannelIcon`). Toasts : `sonner` (`<Toaster />` monté dans
+  `main.tsx`).
+- **Formulaires : `react-hook-form` + `zod` systématiquement**, avec le composant
+  shadcn `Form` (`Form` / `FormField` / `FormItem` / `FormLabel` / `FormControl` /
+  `FormMessage` dans `@/components/ui/form`). Le **schéma zod vit dans le `utils.ts`**
+  de la vue (avec le type `z.infer` + les valeurs par défaut), jamais inline dans le
+  composant. `useForm({ resolver: zodResolver(schema), mode: 'onChange' })`, erreurs
+  typées affichées par `<FormMessage />`, submit `disabled={!form.formState.isValid}`
+  + `isLoading`. Listes dynamiques via `useFieldArray`.
 - **Routing : `react-router-dom`.** Guards par groupe (public / non-authentifié /
   authentifié) quand l'auth arrivera.
 - **Strings de l'UI en anglais, en dur.** Pas de i18n / Lingui pour l'instant.

@@ -2,7 +2,6 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/store/context/auth.context';
 import { FullPageLoader } from '@/components/FullPageLoader';
 
-// Point d'entrée "/" : oriente selon la session et le statut d'onboarding.
 const AuthLanding = () => {
   const { state } = useAuth();
 

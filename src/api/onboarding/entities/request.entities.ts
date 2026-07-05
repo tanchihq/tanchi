@@ -6,7 +6,6 @@ export type SignUpDto = Readonly<{
   company: string;
 }>;
 
-// Un profil client idéal (ICP) tel que défini pendant l'onboarding.
 export type IcpDraft = Readonly<{
   name: string;
   archetype: string;
@@ -16,17 +15,22 @@ export type IcpDraft = Readonly<{
   goldenRule: string;
 }>;
 
-// Payload de fin d'onboarding. Le nom de l'organisation est déjà posé au
-// sign-up ; on autorise ici son édition + les ressources + les ICP.
 export type CompleteOnboardingDto = Readonly<{
   companyName: string;
   website: string;
   productPageUrl: string;
   salesDeckUrl: string;
+  companyProfile: string;
   icps: ReadonlyArray<IcpDraft>;
 }>;
 
-// Sauvegarde partielle (autosave) : le brouillon peut être incomplet.
+export type GenerateProfileDto = Readonly<{
+  companyName: string;
+  website: string;
+  productPageUrl: string;
+  salesDeckUrl: string;
+}>;
+
 export type SaveOnboardingProgressDto = Readonly<{
   step: number;
   draft: CompleteOnboardingDto;

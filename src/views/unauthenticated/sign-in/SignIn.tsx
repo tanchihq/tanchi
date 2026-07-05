@@ -2,35 +2,32 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Eye, EyeOff, Lock, LogIn, Mail } from 'lucide-react';
 import { AuthShell } from '@/components/auth/AuthShell';
-import { AuthSubmit } from '@/components/auth/AuthSubmit';
 import { GlassField } from '@/components/auth/GlassField';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form';
+import { signInSchema, type SignInValues } from './utils';
 import { useSignIn } from './hooks/useSignIn';
-
-const schema = z.object({
-  email: z.email('Invalid email.'),
-  password: z.string().min(1, 'Password is required.'),
-});
-
-type FormValues = z.infer<typeof schema>;
 
 const SignIn = () => {
   const navigate = useNavigate();
   const [showPw, setShowPw] = useState(false);
   const { onFetch, isLoading } = useSignIn();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+  const form = useForm<SignInValues>({
+    resolver: zodResolver(signInSchema),
+    mode: 'onChange',
     defaultValues: { email: '', password: '' },
   });
 
-  const submit = (values: FormValues) =>
+  const submit = (values: SignInValues) =>
     onFetch(values, { onSuccess: () => navigate('/') });
 
   return (
@@ -42,55 +39,73 @@ const SignIn = () => {
       footerLinkLabel="Create one"
       footerTo="/sign-up"
     >
-      <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1">
-          <GlassField
-            icon={<Mail size={18} />}
-            type="email"
-            placeholder="Email"
-            autoComplete="email"
-            {...register('email')}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-3">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <GlassField
+                    icon={<Mail size={18} />}
+                    type="email"
+                    placeholder="Email"
+                    autoComplete="email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {errors.email && (
-            <span className="text-danger px-0.5 text-xs">
-              {errors.email.message}
-            </span>
-          )}
-        </div>
 
-        <div className="flex flex-col gap-1">
-          <GlassField
-            icon={<Lock size={18} />}
-            type={showPw ? 'text' : 'password'}
-            placeholder="Password"
-            autoComplete="current-password"
-            {...register('password')}
-            suffix={
-              <button
-                type="button"
-                onClick={() => setShowPw((v) => !v)}
-                className="text-glass-dim flex p-1"
-                aria-label={showPw ? 'Hide password' : 'Show password'}
-              >
-                {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            }
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <GlassField
+                    icon={<Lock size={18} />}
+                    type={showPw ? 'text' : 'password'}
+                    placeholder="Password"
+                    autoComplete="current-password"
+                    {...field}
+                    suffix={
+                      <button
+                        type="button"
+                        onClick={() => setShowPw((value) => !value)}
+                        className="text-glass-dim flex p-1"
+                        aria-label={showPw ? 'Hide password' : 'Show password'}
+                      >
+                        {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {errors.password && (
-            <span className="text-danger px-0.5 text-xs">
-              {errors.password.message}
-            </span>
-          )}
-        </div>
 
-        <div className="-mt-0.5 text-right">
-          <a href="#" className="text-[13px] font-medium text-[#C4C8D2] no-underline">
-            Forgot password?
-          </a>
-        </div>
+          <div className="-mt-0.5 text-right">
+            <a href="#" className="text-[13px] font-medium text-[#C4C8D2] no-underline">
+              Forgot password?
+            </a>
+          </div>
 
-        <AuthSubmit loading={isLoading}>Sign in</AuthSubmit>
-      </form>
+          <Button
+            type="submit"
+            size="lg"
+            className="mt-2 h-[52px] w-full"
+            isLoading={isLoading}
+            disabled={!form.formState.isValid}
+          >
+            Sign in
+          </Button>
+        </form>
+      </Form>
     </AuthShell>
   );
 };

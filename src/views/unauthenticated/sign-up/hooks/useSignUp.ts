@@ -32,8 +32,6 @@ const useSignUp = () => {
       }
     },
     onSuccess: () => {
-      // Recharge la session : le nouvel utilisateur est authentifié, onboarding
-      // "in_progress".
       refreshSession();
       toast.success('Account created.');
     },

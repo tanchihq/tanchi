@@ -7,8 +7,6 @@ type Params = Readonly<{
   onFailed: () => void;
 }>;
 
-// Récupère l'état d'onboarding persistant au montage (reprise après avoir
-// quitté la page).
 const useOnboardingState = ({ onLoaded, onFailed }: Params) =>
   useAsync({
     promise: () => getOnboardingStateAxios(),

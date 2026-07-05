@@ -3,32 +3,17 @@ import { ProtectedAuthenticatedRoute } from './routes/ProtectedAuthenticatedRout
 import { ProtectedUnauthenticatedRoute } from './routes/ProtectedUnauthenticatedRoute';
 import { RequireOnboarded } from './routes/RequireOnboarded';
 import { AuthLanding } from './routes/AuthLanding';
-import { useAuth } from '@/store/context/auth.context';
-import { Button } from '@/components/ui/button';
 import SignIn from './views/unauthenticated/sign-in/SignIn';
 import SignUp from './views/unauthenticated/sign-up/SignUp';
-import VerifyEmail from './views/authenticated/verify-email/VerifyEmail';
 import Onboarding from './views/authenticated/onboarding/Onboarding';
-
-// Placeholder for the authenticated app — replaced by the dashboard later.
-const AppHome = () => {
-  const { state, signOut } = useAuth();
-
-  return (
-    <main className="flex min-h-svh flex-col items-center justify-center gap-4">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold">SweeLeads</h1>
-        <p className="text-muted-foreground text-sm">
-          Signed in{state.user ? ` as ${state.user.name}` : ''}. Dashboard coming
-          soon.
-        </p>
-      </div>
-      <Button variant="outline" onClick={signOut}>
-        Sign out
-      </Button>
-    </main>
-  );
-};
+import AppLayout from './views/authenticated/app/AppLayout';
+import Pipeline from './views/authenticated/app/pipeline';
+import Messages from './views/authenticated/app/messages';
+import Learnings from './views/authenticated/app/learnings';
+import Suppression from './views/authenticated/app/suppression';
+import Mailbox from './views/authenticated/app/mailbox';
+import Settings from './views/authenticated/app/settings';
+import LeadPanel from './views/authenticated/app/lead';
 
 const App = () => (
   <Routes>
@@ -38,10 +23,17 @@ const App = () => (
     </Route>
 
     <Route element={<ProtectedAuthenticatedRoute />}>
-      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<RequireOnboarded />}>
-        <Route path="/app" element={<AppHome />} />
+        <Route path="/app" element={<AppLayout />}>
+          <Route index element={<Pipeline />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="learnings" element={<Learnings />} />
+          <Route path="suppression" element={<Suppression />} />
+          <Route path="mailbox" element={<Mailbox />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="lead/:id" element={<LeadPanel />} />
+        </Route>
       </Route>
     </Route>
 

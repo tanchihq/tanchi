@@ -16,8 +16,6 @@ export const isEmpty = (
   return Object.keys(data).length === 0;
 };
 
-// Error boundary: `unknown` is only tolerated here and in `catch` clauses,
-// where the runtime cannot guarantee the shape of a thrown value.
 const sanitizeError = (maybeError: unknown): Error => {
   if (maybeError instanceof Error) {
     return maybeError;
