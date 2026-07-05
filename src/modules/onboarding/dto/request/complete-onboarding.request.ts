@@ -2,6 +2,7 @@ import { z } from "zod";
 import { CompleteOnboardingErrors } from "../../onboarding.errors.ts";
 import {
   MAX_COMPANY_LENGTH,
+  MAX_COMPANY_PROFILE_LENGTH,
   MAX_ICP_DESCRIPTION_LENGTH,
   MAX_ICP_NAME_LENGTH,
   MAX_ICP_SHORT_FIELD_LENGTH,
@@ -77,6 +78,12 @@ export const CompleteOnboardingDto = z.object({
   website: websiteSchema,
   productPageUrl: optionalResourceUrlSchema,
   salesDeckUrl: optionalResourceUrlSchema,
+  companyProfile: z
+    .string({ error: CompleteOnboardingErrors.invalidCompanyName })
+    .max(MAX_COMPANY_PROFILE_LENGTH, {
+      message: CompleteOnboardingErrors.invalidCompanyName,
+    })
+    .default(""),
   icps: z
     .array(icpSchema, { error: CompleteOnboardingErrors.invalidIcp })
     .min(1, { message: CompleteOnboardingErrors.invalidIcp })

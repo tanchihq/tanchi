@@ -1,0 +1,38 @@
+import type { PgEngineIcp } from "../../repository/engine/engine.entities.ts";
+import type { EngineOffer } from "../../engine.types.ts";
+
+export function buildDiscoveryPrompt(
+  icp: PgEngineIcp,
+  offer: EngineOffer,
+  count: number
+): string {
+  return [
+    "You are a B2B prospect hunter. You identify REAL companies that match a target profile.",
+    "",
+    "Our client sells:",
+    `- Company: ${offer.companyName}`,
+    `- Website: ${offer.website}`,
+    offer.productPageUrl === "" ? "" : `- Product: ${offer.productPageUrl}`,
+    offer.companyProfile === ""
+      ? ""
+      : `- Company profile: ${offer.companyProfile}`,
+    "",
+    "Target profile (ICP) to match:",
+    `- Name: ${icp.name}`,
+    icp.archetype === null ? "" : `- Archetype: ${icp.archetype}`,
+    `- Description: ${icp.description}`,
+    icp.perceived_value === null
+      ? ""
+      : `- Perceived value: ${icp.perceived_value}`,
+    "",
+    `Target market / language: ${offer.outreachLanguage} — find companies from this market.`,
+    "",
+    `Find ${count} real, verifiable companies (via the web) that match this ICP and would be good prospects for this offer.`,
+    "Do not invent any company. Each company must exist and have a real web domain.",
+    "",
+    "Respond with ONLY this JSON object, no surrounding text:",
+    '{ "companies": [ { "name": "...", "domain": "example.com", "sector": "... or null", "size": "... or null", "hq": "... or null" } ] }',
+  ]
+    .filter((line) => line !== "")
+    .join("\n");
+}

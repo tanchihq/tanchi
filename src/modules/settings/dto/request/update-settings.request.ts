@@ -1,0 +1,89 @@
+import { z } from "zod";
+import { UpdateSettingsErrors } from "../../settings.errors.ts";
+import {
+  MAX_COMPANY_NAME_LENGTH,
+  MAX_COMPANY_PROFILE_LENGTH,
+  MAX_ICP_DESCRIPTION_LENGTH,
+  MAX_ICP_NAME_LENGTH,
+  MAX_ICP_SHORT_FIELD_LENGTH,
+  MAX_ICPS,
+  MAX_URL_LENGTH,
+} from "../../settings.constants.ts";
+import { isValidHttpUrl, normalizeUrl } from "../../settings.utils.ts";
+
+const websiteSchema = z
+  .string({ error: UpdateSettingsErrors.invalidWebsite })
+  .trim()
+  .min(1, { message: UpdateSettingsErrors.invalidWebsite })
+  .max(MAX_URL_LENGTH, { message: UpdateSettingsErrors.invalidWebsite })
+  .transform(normalizeUrl)
+  .refine(isValidHttpUrl, { message: UpdateSettingsErrors.invalidWebsite });
+
+const optionalResourceUrlSchema = z
+  .string({ error: UpdateSettingsErrors.invalidResource })
+  .trim()
+  .max(MAX_URL_LENGTH, { message: UpdateSettingsErrors.invalidResource })
+  .transform((value) => (value === "" ? "" : normalizeUrl(value)))
+  .refine((value) => value === "" || isValidHttpUrl(value), {
+    message: UpdateSettingsErrors.invalidResource,
+  });
+
+const shortIcpField = z
+  .string({ error: UpdateSettingsErrors.invalidIcp })
+  .trim()
+  .max(MAX_ICP_SHORT_FIELD_LENGTH, {
+    message: UpdateSettingsErrors.invalidIcp,
+  });
+
+const icpSchema = z.object({
+  name: z
+    .string({ error: UpdateSettingsErrors.invalidIcp })
+    .trim()
+    .min(1, { message: UpdateSettingsErrors.invalidIcp })
+    .max(MAX_ICP_NAME_LENGTH, { message: UpdateSettingsErrors.invalidIcp }),
+  archetype: shortIcpField,
+  description: z
+    .string({ error: UpdateSettingsErrors.invalidIcp })
+    .trim()
+    .min(1, { message: UpdateSettingsErrors.invalidIcp })
+    .max(MAX_ICP_DESCRIPTION_LENGTH, {
+      message: UpdateSettingsErrors.invalidIcp,
+    }),
+  perceivedValue: shortIcpField,
+  angle: shortIcpField,
+  goldenRule: shortIcpField,
+});
+
+export const UpdateSettingsDto = z.object({
+  company: z.object({
+    name: z
+      .string({ error: UpdateSettingsErrors.invalidCompanyName })
+      .trim()
+      .min(1, { message: UpdateSettingsErrors.invalidCompanyName })
+      .max(MAX_COMPANY_NAME_LENGTH, {
+        message: UpdateSettingsErrors.invalidCompanyName,
+      }),
+    website: websiteSchema,
+  }),
+  resources: z.object({
+    productPageUrl: optionalResourceUrlSchema,
+    salesDeckUrl: optionalResourceUrlSchema,
+  }),
+  outreachLanguage: z
+    .string({ error: UpdateSettingsErrors.invalidLanguage })
+    .trim()
+    .min(2, { message: UpdateSettingsErrors.invalidLanguage })
+    .max(10, { message: UpdateSettingsErrors.invalidLanguage }),
+  companyProfile: z
+    .string({ error: UpdateSettingsErrors.invalidCompanyProfile })
+    .max(MAX_COMPANY_PROFILE_LENGTH, {
+      message: UpdateSettingsErrors.invalidCompanyProfile,
+    })
+    .default(""),
+  icps: z
+    .array(icpSchema, { error: UpdateSettingsErrors.invalidIcp })
+    .min(1, { message: UpdateSettingsErrors.invalidIcp })
+    .max(MAX_ICPS, { message: UpdateSettingsErrors.tooManyIcps }),
+});
+
+export type UpdateSettingsDto = z.infer<typeof UpdateSettingsDto>;
