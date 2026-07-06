@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/form';
 import SettingsSection from './settings-section/SettingsSection';
 import IcpEditor from './icp-editor/IcpEditor';
+import FollowUpEditor from './follow-up-editor/FollowUpEditor';
 import useRetrieveSettings from './hooks/useRetrieveSettings';
 import useUpdateSettings from './hooks/useUpdateSettings';
 import useGenerateProfile from './hooks/useGenerateProfile';
@@ -199,6 +200,10 @@ const Settings = () => {
                   </FormItem>
                 )}
               />
+            </SettingsSection>
+
+            <SettingsSection title="Follow-up cadence">
+              <FollowUpEditor control={form.control} />
             </SettingsSection>
 
             <SettingsSection title="Ideal clients">

@@ -26,7 +26,7 @@ const IdealClientsStep = ({ icps, onUpdate }: IdealClientsStepProps) => (
         </div>
 
         <div className="flex flex-col gap-3">
-          <LabeledField label="Archetype">
+          <LabeledField label="Archetype (optional)">
             <DarkInput
               className="h-[42px] text-[14px]"
               placeholder="e.g. VP Growth who just raised"
@@ -46,7 +46,7 @@ const IdealClientsStep = ({ icps, onUpdate }: IdealClientsStepProps) => (
               }
             />
           </LabeledField>
-          <LabeledField label="Perceived value">
+          <LabeledField label="Perceived value (optional)">
             <DarkTextarea
               rows={2}
               placeholder="What they get from you, in their words."
@@ -56,7 +56,7 @@ const IdealClientsStep = ({ icps, onUpdate }: IdealClientsStepProps) => (
               }
             />
           </LabeledField>
-          <LabeledField label="Angle">
+          <LabeledField label="Angle (optional)">
             <DarkInput
               className="h-[42px] text-[14px]"
               placeholder="e.g. repeatability + time-to-pipeline"

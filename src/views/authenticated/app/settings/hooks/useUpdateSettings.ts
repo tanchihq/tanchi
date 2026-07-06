@@ -21,6 +21,9 @@ const useUpdateSettings = ({ onSaved }: UseUpdateSettingsProps) =>
         case SettingsErrors.invalidResource:
           toast.error('A resource URL is invalid.');
           break;
+        case SettingsErrors.invalidFollowUp:
+          toast.error('Follow-up cadence is invalid.');
+          break;
         default:
           toast.error('Some fields are invalid, please review them.');
       }

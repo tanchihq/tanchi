@@ -3,7 +3,9 @@ import { useAsyncEvent } from '@/hooks/useAsyncEvent';
 import { runEngineAxios } from '@/api/api';
 import { EngineErrors, type EngineRunSummaryDto } from '@/api/engine';
 
-const useRunEngine = () =>
+type UseRunEngineProps = Readonly<{ onDone: () => void }>;
+
+const useRunEngine = ({ onDone }: UseRunEngineProps) =>
   useAsyncEvent<EngineRunSummaryDto, void>({
     onError: ({ error }) => {
       switch (error.message) {
@@ -14,10 +16,12 @@ const useRunEngine = () =>
           toast.error("Couldn't run the engine, please try again.");
       }
     },
-    onSuccess: ({ returnedData }) =>
+    onSuccess: ({ returnedData }) => {
+      onDone();
       toast.success(
         `Engine done · ${returnedData.sourced} sourced, ${returnedData.drafted} drafted.`,
-      ),
+      );
+    },
     promise: () => runEngineAxios(),
   });
 

@@ -7,11 +7,17 @@ export type SettingsIcp = Readonly<{
   goldenRule: string;
 }>;
 
+export type SettingsFollowUp = Readonly<{
+  intervals: ReadonlyArray<number>;
+  excludedWeekdays: ReadonlyArray<number>;
+}>;
+
 export type SettingsDto = Readonly<{
   company: Readonly<{ name: string; website: string }>;
   resources: Readonly<{ productPageUrl: string; salesDeckUrl: string }>;
   outreachLanguage: string;
   companyProfile: string;
+  followUp: SettingsFollowUp;
   icps: ReadonlyArray<SettingsIcp>;
 }>;
 

@@ -18,13 +18,21 @@ type LeadConversationProps = Readonly<{
   onQualify: (stage: Stage) => void;
 }>;
 
-const hasDraft = (lead: LeadDetailDto): boolean =>
+const isPendingDraft = (lead: LeadDetailDto): boolean =>
   lead.message !== null &&
-  (lead.stage === 'identified' ||
-    lead.stage === 'contacted' ||
-    lead.stage === 'following-up');
+  (lead.message.status === 'draft' || lead.message.status === 'edited');
 
-const LeadConversation = ({ lead, senders, sending, onSend, onQualify }: LeadConversationProps) => {
+const isWaiting = (lead: LeadDetailDto): boolean =>
+  (lead.stage === 'contacted' || lead.stage === 'following-up') &&
+  !isPendingDraft(lead);
+
+const LeadConversation = ({
+  lead,
+  senders,
+  sending,
+  onSend,
+  onQualify,
+}: LeadConversationProps) => {
   const channel = CHANNEL_META[lead.channel];
   const isEmail = lead.channel === 'email';
   const closed = CLOSED_COPY[lead.stage];
@@ -37,7 +45,8 @@ const LeadConversation = ({ lead, senders, sending, onSend, onQualify }: LeadCon
   const chosenSenderId = multipleSenders ? senderId : undefined;
 
   const send = () => {
-    const edited = lead.message !== null && draft !== lead.message.body ? draft : null;
+    const edited =
+      lead.message !== null && draft !== lead.message.body ? draft : null;
     onSend(edited, chosenSenderId);
     setEditing(false);
   };
@@ -54,12 +63,19 @@ const LeadConversation = ({ lead, senders, sending, onSend, onQualify }: LeadCon
             {lead.timeline.map((event, index) => (
               <div key={index} className="flex gap-3 pb-3.5">
                 <div className="flex flex-col items-center pt-[3px]">
-                  <span className="size-2 rounded-full" style={{ background: timelineDotColor(event.kind) }} />
+                  <span
+                    className="size-2 rounded-full"
+                    style={{ background: timelineDotColor(event.kind) }}
+                  />
                   <span className="mt-[3px] w-px flex-1 bg-white/8" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[13.5px] text-[#F3F2F8]">{event.title}</div>
-                  <div className="mt-px text-xs text-[#6F6C85]">{timeAgo(event.at)}</div>
+                  <div className="text-[13.5px] text-[#F3F2F8]">
+                    {event.title}
+                  </div>
+                  <div className="mt-px text-xs text-[#6F6C85]">
+                    {timeAgo(event.at)}
+                  </div>
                 </div>
                 <span className="h-fit rounded-md border border-white/8 px-[7px] py-0.5 text-[10.5px] text-[#6F6C85]">
                   {event.origin === 'auto' ? 'auto' : 'you'}
@@ -69,14 +85,17 @@ const LeadConversation = ({ lead, senders, sending, onSend, onQualify }: LeadCon
           </div>
         )}
 
-        {hasDraft(lead) && lead.message && (
+        {isPendingDraft(lead) && lead.message && (
           <>
             <div className="my-[6px] mb-2.5 flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.06em] text-[#6F6C85]">
-                <ChannelIcon channel={lead.channel} size={13} /> Proposed message
+                <ChannelIcon channel={lead.channel} size={13} /> Proposed
+                message
               </span>
               {lead.message.subject && (
-                <span className="text-xs text-[#6F6C85]">{lead.message.subject}</span>
+                <span className="text-xs text-[#6F6C85]">
+                  {lead.message.subject}
+                </span>
               )}
             </div>
             {editing ? (
@@ -97,7 +116,10 @@ const LeadConversation = ({ lead, senders, sending, onSend, onQualify }: LeadCon
             )}
             {multipleSenders && isEmail && (
               <div className="mt-3">
-                <SelectNative value={senderId} onChange={(event) => setSenderId(event.target.value)}>
+                <SelectNative
+                  value={senderId}
+                  onChange={(event) => setSenderId(event.target.value)}
+                >
                   {senders.map((sender) => (
                     <option key={sender.id} value={sender.id}>
                       Send from {sender.fromEmail}
@@ -128,14 +150,16 @@ const LeadConversation = ({ lead, senders, sending, onSend, onQualify }: LeadCon
         )}
 
         {lead.stage === 'identified' && lead.message === null && (
-          <>
-            <div className="mb-4 text-[13.5px] leading-relaxed text-[#ABA8C0]">
-              Dossier ready. No message has been drafted yet.
-            </div>
-            <Button size="lg" isLoading={sending} onClick={() => onSend(null, chosenSenderId)}>
-              Start contact
-            </Button>
-          </>
+          <div className="text-[13.5px] leading-relaxed text-[#ABA8C0]">
+            Dossier ready. The agent is preparing a message.
+          </div>
+        )}
+
+        {isWaiting(lead) && (
+          <div className="text-[13.5px] leading-relaxed text-[#ABA8C0]">
+            Message sent. Waiting for a reply — the agent will draft a follow-up
+            if none comes.
+          </div>
         )}
 
         {lead.stage === 'replied' && (
@@ -173,8 +197,12 @@ const LeadConversation = ({ lead, senders, sending, onSend, onQualify }: LeadCon
 
         {isClosedStage(lead) && closed && (
           <>
-            <div className="mb-1.5 text-[15px] font-medium text-[#F3F2F8]">{closed.title}</div>
-            <div className="text-[13.5px] leading-relaxed text-[#ABA8C0]">{closed.note}</div>
+            <div className="mb-1.5 text-[15px] font-medium text-[#F3F2F8]">
+              {closed.title}
+            </div>
+            <div className="text-[13.5px] leading-relaxed text-[#ABA8C0]">
+              {closed.note}
+            </div>
           </>
         )}
       </div>

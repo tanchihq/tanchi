@@ -79,14 +79,15 @@ const ProspectCard = ({
         </span>
       </div>
 
-      {prospect.stage === 'following-up' && follow && (
-        <div
-          className="mt-2 flex items-center gap-1 text-[11px]"
-          style={{ color: follow === 'today' || follow === 'overdue' ? '#7c79f6' : '#6f6c85' }}
-        >
-          <RotateCcw size={11} /> follow-up {follow}
-        </div>
-      )}
+      {follow &&
+        (prospect.stage === 'contacted' || prospect.stage === 'following-up') && (
+          <div
+            className="mt-2 flex items-center gap-1 text-[11px]"
+            style={{ color: follow === 'today' || follow === 'overdue' ? '#7c79f6' : '#6f6c85' }}
+          >
+            <RotateCcw size={11} /> next follow-up {follow}
+          </div>
+        )}
 
       {prospect.stage === 'replied' && (
         <div

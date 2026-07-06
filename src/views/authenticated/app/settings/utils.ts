@@ -21,6 +21,13 @@ export const settingsSchema = z.object({
   }),
   outreachLanguage: z.string().min(2).max(10),
   companyProfile: z.string().max(5000),
+  followUp: z.object({
+    intervals: z
+      .array(z.number('Enter a number of days.').int().min(1).max(60))
+      .min(1, 'Add at least one follow-up.')
+      .max(10),
+    excludedWeekdays: z.array(z.number().int().min(0).max(6)),
+  }),
   icps: z.array(icpSchema).min(1, 'Add at least one ICP.').max(3),
 });
 
@@ -40,14 +47,29 @@ export const DEFAULT_SETTINGS: SettingsFormValues = {
   resources: { productPageUrl: '', salesDeckUrl: '' },
   outreachLanguage: 'fr',
   companyProfile: '',
+  followUp: { intervals: [3, 4], excludedWeekdays: [6, 0] },
   icps: [],
 };
+
+export const WEEKDAYS: ReadonlyArray<Readonly<{ value: number; label: string }>> = [
+  { value: 1, label: 'Mon' },
+  { value: 2, label: 'Tue' },
+  { value: 3, label: 'Wed' },
+  { value: 4, label: 'Thu' },
+  { value: 5, label: 'Fri' },
+  { value: 6, label: 'Sat' },
+  { value: 0, label: 'Sun' },
+];
 
 export const toFormValues = (data: SettingsDto): SettingsFormValues => ({
   company: { ...data.company },
   resources: { ...data.resources },
   outreachLanguage: data.outreachLanguage,
   companyProfile: data.companyProfile,
+  followUp: {
+    intervals: [...data.followUp.intervals],
+    excludedWeekdays: [...data.followUp.excludedWeekdays],
+  },
   icps: data.icps.map((icp) => ({ ...icp })),
 });
 

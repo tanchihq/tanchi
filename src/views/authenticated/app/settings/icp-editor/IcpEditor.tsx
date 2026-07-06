@@ -66,7 +66,7 @@ const IcpEditor = ({ control, fields, append, remove }: IcpEditorProps) => (
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input className="h-[38px]" placeholder="Archetype" {...field} />
+                  <Input className="h-[38px]" placeholder="Archetype (optional)" {...field} />
                 </FormControl>
               </FormItem>
             )}
@@ -89,7 +89,7 @@ const IcpEditor = ({ control, fields, append, remove }: IcpEditorProps) => (
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Textarea rows={2} placeholder="Perceived value" {...field} />
+                  <Textarea rows={2} placeholder="Perceived value (optional)" {...field} />
                 </FormControl>
               </FormItem>
             )}
@@ -100,7 +100,7 @@ const IcpEditor = ({ control, fields, append, remove }: IcpEditorProps) => (
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input className="h-[38px]" placeholder="Angle" {...field} />
+                  <Input className="h-[38px]" placeholder="Angle (optional)" {...field} />
                 </FormControl>
               </FormItem>
             )}
