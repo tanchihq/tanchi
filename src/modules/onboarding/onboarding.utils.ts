@@ -26,21 +26,6 @@ export function convertToSignedUpDto(
   return { user, organization };
 }
 
-export function normalizeUrl(value: string): string {
-  const trimmed = value.trim();
-  if (trimmed === "") return "";
-  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-}
-
-export function isValidHttpUrl(value: string): boolean {
-  try {
-    const parsed = new URL(value);
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }

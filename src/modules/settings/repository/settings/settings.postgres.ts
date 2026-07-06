@@ -86,8 +86,8 @@ export class SettingsPostgres {
             ${emptyToNull(input.salesDeckUrl)},
             ${input.outreachLanguage},
             ${input.companyProfile},
-            ${this.db.array([...input.followUpIntervals])},
-            ${this.db.array([...input.excludedWeekdays])}
+            ${[...input.followUpIntervals]}::int[],
+            ${[...input.excludedWeekdays]}::int[]
           )
           ON CONFLICT (organization_id) DO UPDATE SET
             website = EXCLUDED.website,

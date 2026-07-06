@@ -155,8 +155,8 @@ export class OnboardingService {
         draft: utils.normalizeDraft(dto),
         profile: {
           website: dto.website,
-          productPageUrl: dto.productPageUrl,
-          salesDeckUrl: dto.salesDeckUrl,
+          productPageUrl: dto.productPageUrl ?? "",
+          salesDeckUrl: dto.salesDeckUrl ?? "",
           companyProfile: dto.companyProfile,
         },
         icps: dto.icps,
@@ -178,10 +178,10 @@ export class OnboardingService {
   ): Promise<ResponseDto.GeneratedProfileDto | GenerateProfileErrors> {
     try {
       const companyProfile = await generateCompanyProfile({
-        companyName: dto.companyName,
+        companyName: dto.companyName ?? "",
         website: dto.website,
-        productPageUrl: dto.productPageUrl,
-        salesDeckUrl: dto.salesDeckUrl,
+        productPageUrl: dto.productPageUrl ?? "",
+        salesDeckUrl: dto.salesDeckUrl ?? "",
       });
       return { companyProfile };
     } catch (error) {

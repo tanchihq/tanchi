@@ -9,24 +9,14 @@ import {
   MAX_ICPS,
   MAX_URL_LENGTH,
 } from "../../onboarding.constants.ts";
-import { isValidHttpUrl, normalizeUrl } from "../../onboarding.utils.ts";
-
 const websiteSchema = z
-  .string({ error: CompleteOnboardingErrors.invalidWebsite })
-  .trim()
-  .min(1, { message: CompleteOnboardingErrors.invalidWebsite })
-  .max(MAX_URL_LENGTH, { message: CompleteOnboardingErrors.invalidWebsite })
-  .transform(normalizeUrl)
-  .refine(isValidHttpUrl, { message: CompleteOnboardingErrors.invalidWebsite });
+  .url({ error: CompleteOnboardingErrors.invalidWebsite })
+  .max(MAX_URL_LENGTH, { message: CompleteOnboardingErrors.invalidWebsite });
 
 const optionalResourceUrlSchema = z
-  .string({ error: CompleteOnboardingErrors.invalidResource })
-  .trim()
+  .url({ error: CompleteOnboardingErrors.invalidResource })
   .max(MAX_URL_LENGTH, { message: CompleteOnboardingErrors.invalidResource })
-  .transform((value) => (value === "" ? "" : normalizeUrl(value)))
-  .refine((value) => value === "" || isValidHttpUrl(value), {
-    message: CompleteOnboardingErrors.invalidResource,
-  });
+  .nullish();
 
 const icpSchema = z.object({
   name: z

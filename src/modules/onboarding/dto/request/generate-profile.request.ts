@@ -7,17 +7,10 @@ export const GenerateProfileDto = z.object({
     .string({ error: GenerateProfileErrors.invalidWebsite })
     .trim()
     .max(MAX_COMPANY_LENGTH)
-    .default(""),
-  website: z
-    .url({ error: GenerateProfileErrors.invalidWebsite }),
-  productPageUrl: z
-    .url()
-    .optional()
-    .transform((value) => value ?? ""),
-  salesDeckUrl: z
-    .url()
-    .optional()
-    .transform((value) => value ?? ""),
+    .nullish(),
+  website: z.url({ error: GenerateProfileErrors.invalidWebsite }),
+  productPageUrl: z.url({ error: GenerateProfileErrors.invalidWebsite }).nullish(),
+  salesDeckUrl: z.url({ error: GenerateProfileErrors.invalidWebsite }).nullish(),
 });
 
 export type GenerateProfileDto = z.infer<typeof GenerateProfileDto>;

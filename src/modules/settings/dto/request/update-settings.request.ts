@@ -11,24 +11,14 @@ import {
   MAX_ICPS,
   MAX_URL_LENGTH,
 } from "../../settings.constants.ts";
-import { isValidHttpUrl, normalizeUrl } from "../../settings.utils.ts";
-
 const websiteSchema = z
-  .string({ error: UpdateSettingsErrors.invalidWebsite })
-  .trim()
-  .min(1, { message: UpdateSettingsErrors.invalidWebsite })
-  .max(MAX_URL_LENGTH, { message: UpdateSettingsErrors.invalidWebsite })
-  .transform(normalizeUrl)
-  .refine(isValidHttpUrl, { message: UpdateSettingsErrors.invalidWebsite });
+  .url({ error: UpdateSettingsErrors.invalidWebsite })
+  .max(MAX_URL_LENGTH, { message: UpdateSettingsErrors.invalidWebsite });
 
 const optionalResourceUrlSchema = z
-  .string({ error: UpdateSettingsErrors.invalidResource })
-  .trim()
+  .url({ error: UpdateSettingsErrors.invalidResource })
   .max(MAX_URL_LENGTH, { message: UpdateSettingsErrors.invalidResource })
-  .transform((value) => (value === "" ? "" : normalizeUrl(value)))
-  .refine((value) => value === "" || isValidHttpUrl(value), {
-    message: UpdateSettingsErrors.invalidResource,
-  });
+  .nullish();
 
 const shortIcpField = z
   .string({ error: UpdateSettingsErrors.invalidIcp })
