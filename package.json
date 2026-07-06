@@ -3,6 +3,7 @@
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "migrate": "bun scripts/migrate.ts",
+    "reset": "bun scripts/reset.ts",
     "typecheck": "tsc --noEmit",
     "test": "bun test"
   },

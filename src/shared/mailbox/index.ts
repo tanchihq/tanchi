@@ -17,18 +17,27 @@ export type MailboxVerifyResult =
   | Readonly<{ ok: true }>
   | Readonly<{ ok: false; error: string }>;
 
-async function verifySmtp(
-  credentials: MailboxCredentials
-): Promise<MailboxVerifyResult> {
-  const transporter = nodemailer.createTransport({
+const SMTP_CONNECTION_TIMEOUT_MS = 10000;
+const SMTP_GREETING_TIMEOUT_MS = 10000;
+const SMTP_SOCKET_TIMEOUT_MS = 20000;
+
+function createSmtpTransport(credentials: MailboxCredentials) {
+  return nodemailer.createTransport({
     host: credentials.smtpHost,
     port: credentials.smtpPort,
     secure: credentials.smtpSecure,
-    auth: {
-      user: credentials.username,
-      pass: credentials.secret,
-    },
+    requireTLS: !credentials.smtpSecure,
+    connectionTimeout: SMTP_CONNECTION_TIMEOUT_MS,
+    greetingTimeout: SMTP_GREETING_TIMEOUT_MS,
+    socketTimeout: SMTP_SOCKET_TIMEOUT_MS,
+    auth: { user: credentials.username, pass: credentials.secret },
   });
+}
+
+async function verifySmtp(
+  credentials: MailboxCredentials
+): Promise<MailboxVerifyResult> {
+  const transporter = createSmtpTransport(credentials);
   try {
     await transporter.verify();
     return { ok: true };
@@ -87,12 +96,7 @@ export async function sendEmail(
   credentials: MailboxCredentials,
   message: MailboxSendMessage
 ): Promise<void> {
-  const transporter = nodemailer.createTransport({
-    host: credentials.smtpHost,
-    port: credentials.smtpPort,
-    secure: credentials.smtpSecure,
-    auth: { user: credentials.username, pass: credentials.secret },
-  });
+  const transporter = createSmtpTransport(credentials);
   try {
     await transporter.sendMail({
       from: `"${message.fromName}" <${message.fromEmail}>`,

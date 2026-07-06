@@ -3,6 +3,8 @@ import { UpdateSettingsErrors } from "../../settings.errors.ts";
 import {
   MAX_COMPANY_NAME_LENGTH,
   MAX_COMPANY_PROFILE_LENGTH,
+  MAX_FOLLOW_UP_INTERVAL_DAYS,
+  MAX_FOLLOW_UPS,
   MAX_ICP_DESCRIPTION_LENGTH,
   MAX_ICP_NAME_LENGTH,
   MAX_ICP_SHORT_FIELD_LENGTH,
@@ -80,6 +82,31 @@ export const UpdateSettingsDto = z.object({
       message: UpdateSettingsErrors.invalidCompanyProfile,
     })
     .default(""),
+  followUp: z.object({
+    intervals: z
+      .array(
+        z
+          .number({ error: UpdateSettingsErrors.invalidFollowUp })
+          .int({ message: UpdateSettingsErrors.invalidFollowUp })
+          .min(1, { message: UpdateSettingsErrors.invalidFollowUp })
+          .max(MAX_FOLLOW_UP_INTERVAL_DAYS, {
+            message: UpdateSettingsErrors.invalidFollowUp,
+          }),
+        { error: UpdateSettingsErrors.invalidFollowUp }
+      )
+      .min(1, { message: UpdateSettingsErrors.invalidFollowUp })
+      .max(MAX_FOLLOW_UPS, { message: UpdateSettingsErrors.invalidFollowUp }),
+    excludedWeekdays: z
+      .array(
+        z
+          .number({ error: UpdateSettingsErrors.invalidFollowUp })
+          .int({ message: UpdateSettingsErrors.invalidFollowUp })
+          .min(0, { message: UpdateSettingsErrors.invalidFollowUp })
+          .max(6, { message: UpdateSettingsErrors.invalidFollowUp }),
+        { error: UpdateSettingsErrors.invalidFollowUp }
+      )
+      .max(7, { message: UpdateSettingsErrors.invalidFollowUp }),
+  }),
   icps: z
     .array(icpSchema, { error: UpdateSettingsErrors.invalidIcp })
     .min(1, { message: UpdateSettingsErrors.invalidIcp })

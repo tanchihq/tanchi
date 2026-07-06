@@ -227,6 +227,12 @@ export class ProspectsPostgres {
             ${input.leadId}, 'sent'
           )
         `;
+        await tx`
+          UPDATE leads
+          SET sequence_step = sequence_step + 1, next_follow_up_at = NULL,
+              updated_at = NOW()
+          WHERE id = ${input.leadId}
+        `;
       });
     } catch (error) {
       return throwSanitizeError(error);

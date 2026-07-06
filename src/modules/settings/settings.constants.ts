@@ -6,3 +6,8 @@ export const MAX_ICP_NAME_LENGTH = 120;
 export const MAX_ICP_DESCRIPTION_LENGTH = 2000;
 export const MAX_ICP_SHORT_FIELD_LENGTH = 500;
 export const MAX_COMPANY_PROFILE_LENGTH = 5000;
+
+export const DEFAULT_FOLLOW_UP_INTERVALS: ReadonlyArray<number> = [3, 4];
+export const DEFAULT_EXCLUDED_WEEKDAYS: ReadonlyArray<number> = [0, 6];
+export const MAX_FOLLOW_UPS = 10;
+export const MAX_FOLLOW_UP_INTERVAL_DAYS = 60;

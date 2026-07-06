@@ -12,6 +12,7 @@ import { prospectsRouter } from "./modules/prospects/prospects.module.ts";
 import { queueRouter } from "./modules/queue/queue.module.ts";
 import { engineRouter, startEngineWorkers } from "./modules/engine/engine.module.ts";
 import { startRewardWorkers } from "./modules/reward/reward.module.ts";
+import { startSequencesWorkers } from "./modules/sequences/sequences.module.ts";
 import { activityRouter } from "./modules/activity/activity.module.ts";
 import { suppressionRouter } from "./modules/suppression/suppression.module.ts";
 import { messagesRouter } from "./modules/messages/messages.module.ts";
@@ -69,7 +70,8 @@ app.route("/api/v1", api);
 if (env.RUN_WORKERS === "true") {
   startEngineWorkers();
   startRewardWorkers();
-  console.log("[workers] engine-nightly + reward-poll démarrés");
+  startSequencesWorkers();
+  console.log("[workers] engine-nightly + reward-poll + sequences démarrés");
 }
 
 const shutdown = async (signal: string): Promise<void> => {

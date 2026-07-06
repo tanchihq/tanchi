@@ -92,30 +92,17 @@ function convertMessage(
 }
 
 function buildTimeline(
-  messages: ReadonlyArray<PgProspectMessage>,
   outcomes: ReadonlyArray<PgProspectOutcome>,
   origin: ResponseDto.OriginDto
 ): ReadonlyArray<ResponseDto.LeadDetailTimelineEntryDto> {
-  const sentEvents = messages
-    .filter(
-      (message): message is PgProspectMessage & { sent_at: Date } =>
-        message.sent_at !== null
-    )
-    .map((message) => ({
-      kind: "sent",
-      at: message.sent_at.toISOString(),
-      title: titleForSignal("sent"),
+  return outcomes
+    .map((outcome) => ({
+      kind: outcome.stage_signal,
+      at: outcome.created_at.toISOString(),
+      title: titleForSignal(outcome.stage_signal),
       origin,
-    }));
-  const outcomeEvents = outcomes.map((outcome) => ({
-    kind: outcome.stage_signal,
-    at: outcome.created_at.toISOString(),
-    title: titleForSignal(outcome.stage_signal),
-    origin,
-  }));
-  return [...sentEvents, ...outcomeEvents].sort((a, b) =>
-    a.at < b.at ? -1 : a.at > b.at ? 1 : 0
-  );
+    }))
+    .sort((a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : 0));
 }
 
 export function convertToLeadDetailDto(
@@ -157,7 +144,7 @@ export function convertToLeadDetailDto(
     facts: facts.map(convertFact),
     sourcesCount: sourceUrls.size,
     angles: angles.map(convertAngle),
-    timeline: buildTimeline(messages, outcomes, lead.origin),
+    timeline: buildTimeline(outcomes, lead.origin),
     message: latestMessage === undefined ? null : convertMessage(latestMessage),
     reply: reply ?? null,
     createdAt: lead.created_at.toISOString(),

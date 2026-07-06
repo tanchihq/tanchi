@@ -3,6 +3,10 @@ import type {
   PgIcp,
   PgOrganizationProfile,
 } from "./repository/settings/settings.entities.ts";
+import {
+  DEFAULT_EXCLUDED_WEEKDAYS,
+  DEFAULT_FOLLOW_UP_INTERVALS,
+} from "./settings.constants.ts";
 
 export function normalizeUrl(value: string): string {
   const trimmed = value.trim();
@@ -48,6 +52,10 @@ export function convertToSettingsDto(
     },
     outreachLanguage: profile?.outreach_language ?? "fr",
     companyProfile: profile?.company_profile ?? "",
+    followUp: {
+      intervals: profile?.follow_up_intervals ?? DEFAULT_FOLLOW_UP_INTERVALS,
+      excludedWeekdays: profile?.excluded_weekdays ?? DEFAULT_EXCLUDED_WEEKDAYS,
+    },
     icps: icps.map(convertPgIcpToSettingsIcpDto),
   };
 }

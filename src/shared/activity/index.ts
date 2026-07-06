@@ -7,7 +7,9 @@ export type ActivityType =
   | "profiled"
   | "drafted"
   | "sent"
-  | "reply";
+  | "reply"
+  | "follow_up"
+  | "closed";
 
 export type ActivityInput = Readonly<{
   organizationId: string;

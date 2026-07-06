@@ -5,6 +5,8 @@ type PgOrganizationProfile = Readonly<{
   sales_deck_url: string | null;
   outreach_language: string;
   company_profile: string;
+  follow_up_intervals: ReadonlyArray<number>;
+  excluded_weekdays: ReadonlyArray<number>;
   onboarded_at: Date | null;
   created_at: Date;
   updated_at: Date;
@@ -31,6 +33,8 @@ type UpdateSettingsInput = Readonly<{
   salesDeckUrl: string;
   outreachLanguage: string;
   companyProfile: string;
+  followUpIntervals: ReadonlyArray<number>;
+  excludedWeekdays: ReadonlyArray<number>;
   icps: ReadonlyArray<
     Readonly<{
       name: string;

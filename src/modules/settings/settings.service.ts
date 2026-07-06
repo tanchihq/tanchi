@@ -40,6 +40,8 @@ export class SettingsService {
         salesDeckUrl: dto.resources.salesDeckUrl,
         outreachLanguage: dto.outreachLanguage,
         companyProfile: dto.companyProfile,
+        followUpIntervals: dto.followUp.intervals,
+        excludedWeekdays: dto.followUp.excludedWeekdays,
         icps: dto.icps,
       });
     } catch (error) {

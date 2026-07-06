@@ -18,6 +18,10 @@ export type SettingsDto = Readonly<{
   }>;
   outreachLanguage: string;
   companyProfile: string;
+  followUp: Readonly<{
+    intervals: ReadonlyArray<number>;
+    excludedWeekdays: ReadonlyArray<number>;
+  }>;
   icps: ReadonlyArray<SettingsIcpDto>;
 }>;
 

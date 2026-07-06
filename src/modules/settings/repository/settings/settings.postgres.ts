@@ -77,7 +77,7 @@ export class SettingsPostgres {
         await tx`
           INSERT INTO organization_profile (
             organization_id, website, product_page_url, sales_deck_url,
-            outreach_language, company_profile
+            outreach_language, company_profile, follow_up_intervals, excluded_weekdays
           )
           VALUES (
             ${input.organizationId},
@@ -85,7 +85,9 @@ export class SettingsPostgres {
             ${emptyToNull(input.productPageUrl)},
             ${emptyToNull(input.salesDeckUrl)},
             ${input.outreachLanguage},
-            ${input.companyProfile}
+            ${input.companyProfile},
+            ${this.db.array([...input.followUpIntervals])},
+            ${this.db.array([...input.excludedWeekdays])}
           )
           ON CONFLICT (organization_id) DO UPDATE SET
             website = EXCLUDED.website,
@@ -93,6 +95,8 @@ export class SettingsPostgres {
             sales_deck_url = EXCLUDED.sales_deck_url,
             outreach_language = EXCLUDED.outreach_language,
             company_profile = EXCLUDED.company_profile,
+            follow_up_intervals = EXCLUDED.follow_up_intervals,
+            excluded_weekdays = EXCLUDED.excluded_weekdays,
             updated_at = NOW()
         `;
 
