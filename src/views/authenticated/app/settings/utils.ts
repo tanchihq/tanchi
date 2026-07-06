@@ -63,7 +63,10 @@ export const WEEKDAYS: ReadonlyArray<Readonly<{ value: number; label: string }>>
 
 export const toFormValues = (data: SettingsDto): SettingsFormValues => ({
   company: { ...data.company },
-  resources: { ...data.resources },
+  resources: {
+    productPageUrl: data.resources.productPageUrl ?? '',
+    salesDeckUrl: data.resources.salesDeckUrl ?? '',
+  },
   outreachLanguage: data.outreachLanguage,
   companyProfile: data.companyProfile,
   followUp: {

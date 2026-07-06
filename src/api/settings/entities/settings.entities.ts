@@ -14,7 +14,7 @@ export type SettingsFollowUp = Readonly<{
 
 export type SettingsDto = Readonly<{
   company: Readonly<{ name: string; website: string }>;
-  resources: Readonly<{ productPageUrl: string; salesDeckUrl: string }>;
+  resources: Readonly<{ productPageUrl: string | null; salesDeckUrl: string | null }>;
   outreachLanguage: string;
   companyProfile: string;
   followUp: SettingsFollowUp;

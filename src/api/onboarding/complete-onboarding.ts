@@ -1,5 +1,6 @@
 import { AxiosError, type AxiosInstance } from 'axios';
 import { throwSanitizeError } from '@/utils/lib/utils';
+import { normalizeOptionalUrl, normalizeUrl } from '@/utils/url';
 import { CompleteOnboardingErrors } from './entities/errors';
 import { type CompleteOnboardingDto } from './entities/request.entities';
 
@@ -19,7 +20,12 @@ const completeOnboarding =
   (axios: AxiosInstance) =>
   async (dto: CompleteOnboardingDto): Promise<void> => {
     try {
-      await axios.post('/onboarding/complete', dto);
+      await axios.post('/onboarding/complete', {
+        ...dto,
+        website: normalizeUrl(dto.website),
+        productPageUrl: normalizeOptionalUrl(dto.productPageUrl),
+        salesDeckUrl: normalizeOptionalUrl(dto.salesDeckUrl),
+      });
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         switch (extractErrorCode(error)) {
