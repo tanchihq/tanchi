@@ -23,6 +23,18 @@ const envSchema = z.object({
   HUNTER_API_KEY: z.string().optional(),
 
   RUN_WORKERS: z.enum(["true", "false"]).default("true"),
+
+  REQUIRE_EMAIL_VERIFICATION: z.enum(["true", "false"]).default("true"),
+  RESEND_API_KEY: z.string().optional(),
+  RESEND_FROM_EMAIL: z
+    .string()
+    .min(1)
+    .default("SweeLeads <onboarding@resend.dev>"),
+  MAIL_SMTP_HOST: z.string().optional(),
+  MAIL_SMTP_PORT: z.coerce.number().int().positive().default(587),
+  MAIL_SMTP_USER: z.string().optional(),
+  MAIL_SMTP_PASS: z.string().optional(),
+  MAIL_SMTP_SECURE: z.enum(["true", "false"]).default("false"),
 });
 
 export type Env = z.infer<typeof envSchema>;

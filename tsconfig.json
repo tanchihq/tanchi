@@ -5,7 +5,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx",
+    "jsxImportSource": "react",
 
     "noUnusedLocals": true,
     "noUnusedParameters": true,

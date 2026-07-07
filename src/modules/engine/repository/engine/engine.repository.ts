@@ -34,6 +34,21 @@ export class EngineRepository {
     return this.enginePostgres.getOrganizationName(organizationId);
   }
 
+  async getOrganizationRecipient(
+    organizationId: string
+  ): Promise<
+    Readonly<{ email: string; name: string; organizationName: string }> | null
+  > {
+    const recipient =
+      await this.enginePostgres.getOrganizationRecipient(organizationId);
+    if (recipient === null) return null;
+    return {
+      email: recipient.email,
+      name: recipient.name ?? "",
+      organizationName: recipient.organization_name,
+    };
+  }
+
   getLatestPlaybook(
     organizationId: string,
     icpId: string

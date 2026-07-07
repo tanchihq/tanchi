@@ -3,6 +3,9 @@ import type { ChasseurService } from "./agents/chasseur/chasseur.service.ts";
 import type { ProfilerService } from "./agents/profiler/profiler.service.ts";
 import type { CopywriterService } from "./agents/copywriter/copywriter.service.ts";
 import { recordActivity } from "@shared/activity";
+import { sendSystemEmail } from "@shared/mailer";
+import { buildAgentRecapEmail } from "@shared/emails";
+import { env } from "../../env.ts";
 import type { EngineOffer } from "./engine.types.ts";
 import type { PgEngineLead } from "./repository/engine/engine.entities.ts";
 import type * as ResponseDto from "./dto/response/index.ts";
@@ -60,12 +63,41 @@ export class EngineService {
         type: "run_done",
         title: `Run complete — ${sourced} sourced, ${profiled} researched, ${drafted} drafted`,
       });
+      await this.notifyRunComplete(organizationId, {
+        sourced,
+        profiled,
+        drafted,
+      });
       return { sourced, profiled, drafted };
     } catch (error) {
       console.error(
         `[engine] run failed orgId=${organizationId}: ${errorMessage(error)}`
       );
       return RunEngineErrors.runFailed;
+    }
+  }
+
+  private async notifyRunComplete(
+    organizationId: string,
+    summary: Readonly<{ sourced: number; profiled: number; drafted: number }>
+  ): Promise<void> {
+    try {
+      const recipient =
+        await this.engineRepository.getOrganizationRecipient(organizationId);
+      if (recipient === null) return;
+      const email = await buildAgentRecapEmail({
+        firstName: recipient.name.trim().split(/\s+/)[0] ?? "",
+        organizationName: recipient.organizationName,
+        sourced: summary.sourced,
+        profiled: summary.profiled,
+        drafted: summary.drafted,
+        appUrl: env.APP_URL,
+      });
+      await sendSystemEmail({ to: recipient.email, ...email });
+    } catch (error) {
+      console.error(
+        `[engine] recap email failed orgId=${organizationId}: ${errorMessage(error)}`
+      );
     }
   }
 
