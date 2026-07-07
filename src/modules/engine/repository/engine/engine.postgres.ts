@@ -67,6 +67,39 @@ export class EnginePostgres {
     }
   }
 
+  async getOrganizationRecipient(
+    organizationId: string
+  ): Promise<
+    Readonly<{
+      email: string;
+      name: string | null;
+      organization_name: string;
+    }> | null
+  > {
+    try {
+      const result = await this.db<
+        ReadonlyArray<
+          Readonly<{
+            email: string;
+            name: string | null;
+            organization_name: string;
+          }>
+        >
+      >`
+        SELECT u.email AS email, u.name AS name, o.name AS organization_name
+        FROM member m
+        JOIN "user" u ON u.id = m.user_id
+        JOIN organization o ON o.id = m.organization_id
+        WHERE m.organization_id = ${organizationId}
+        ORDER BY (m.role = 'owner') DESC, m.created_at ASC
+        LIMIT 1
+      `;
+      return result[ARRAY.FIRST_INDEX] ?? null;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
   async getLatestPlaybook(
     organizationId: string,
     icpId: string
