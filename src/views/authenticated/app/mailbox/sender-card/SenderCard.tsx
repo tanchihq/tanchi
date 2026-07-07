@@ -1,0 +1,57 @@
+import { Server, Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { type SenderStatus } from '@/api/shared/enums';
+import { type SenderDto } from '@/api/senders/entities/response.entities';
+import useTestSender from '../hooks/useTestSender';
+import useDeleteSender from '../hooks/useDeleteSender';
+
+const STATUS_VARIANT: Readonly<
+  Record<SenderStatus, 'warning' | 'success' | 'danger'>
+> = {
+  unverified: 'warning',
+  active: 'success',
+  error: 'danger',
+};
+
+type SenderCardProps = Readonly<{
+  sender: SenderDto;
+  onChanged: () => void;
+}>;
+
+const SenderCard = ({ sender, onChanged }: SenderCardProps) => {
+  const { onFetch: test, isLoading: testing } = useTestSender({ onDone: onChanged });
+  const { onFetch: remove, isLoading: removing } = useDeleteSender({ onDone: onChanged });
+
+  return (
+    <div className="flex items-center gap-3 rounded-[14px] border border-white/[0.07] bg-[#171733] p-[16px_18px]">
+      <Server size={18} className="text-glass-dim shrink-0" />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="truncate text-sm font-medium text-[#F3F2F8]">
+            {sender.fromName}
+          </span>
+          <Badge variant={STATUS_VARIANT[sender.status]}>{sender.status}</Badge>
+        </div>
+        <div className="truncate text-xs text-[#6F6C85]">
+          {sender.fromEmail} · {sender.smtpHost} · cap {sender.dailyCap}/day
+        </div>
+      </div>
+      <Button variant="outline" size="sm" isLoading={testing} onClick={() => test(sender.id)}>
+        Test
+      </Button>
+      <Button
+        variant="outline"
+        size="icon"
+        className="size-8 hover:text-[#ff8a80]"
+        isLoading={removing}
+        onClick={() => remove(sender.id)}
+        aria-label="Delete mailbox"
+      >
+        {!removing && <Trash2 size={15} />}
+      </Button>
+    </div>
+  );
+};
+
+export default SenderCard;
