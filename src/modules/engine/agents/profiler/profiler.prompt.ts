@@ -19,6 +19,7 @@ export function buildProfilerPrompt(
     "- Never a client, logo or reference unless it appears on the prospect's OWN website or LinkedIn (provenance 'own_source'). A fact from press or a third party = 'third_party'.",
     "- WebFetch the real website; prefer it over search snippets.",
     "- Anything unverifiable does not go in. No 'probably', no inference. A short dossier beats a false one.",
+    "- linkedinUrl / instagramUrl: include the prospect's real profile URL ONLY if you actually found it on their own website or a source you fetched. Never guess, never build a URL from the name. If not found, use null.",
     "",
     "Prospect to research:",
     `- Name: ${fullName(lead) || "unknown"}`,
@@ -49,6 +50,8 @@ export function buildProfilerPrompt(
         score: 0,
         channel: "email|linkedin|whatsapp|instagram|sms|call",
         channelReason: "...",
+        linkedinUrl: "https://www.linkedin.com/in/... or null",
+        instagramUrl: "https://www.instagram.com/... or null",
         facts: [
           {
             text: "...",

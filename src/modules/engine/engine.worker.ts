@@ -33,4 +33,26 @@ export function startEngineWorker(
   });
 
   void scheduleRepeatable(queue, "nightly", ENGINE_NIGHTLY_CRON);
+  void resumeUnfinishedRuns(queue, engineRepository);
+}
+
+async function resumeUnfinishedRuns(
+  queue: Queue,
+  engineRepository: EngineRepository
+): Promise<void> {
+  const organizationIds =
+    await engineRepository.getOrganizationIdsWithUnfinishedRun();
+  if (organizationIds.length === 0) return;
+  await Promise.all(
+    organizationIds.map((organizationId) =>
+      queue.add(
+        "resume",
+        { organizationId },
+        { removeOnComplete: true, removeOnFail: 100 }
+      )
+    )
+  );
+  console.log(
+    `[engine:resume] ${organizationIds.length} run(s) inachevé(s) repris`
+  );
 }

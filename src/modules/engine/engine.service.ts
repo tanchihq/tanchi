@@ -43,33 +43,42 @@ export class EngineService {
       await this.engineRepository.getIcpsByOrganization(organizationId);
     if (icps.length === 0) return RunEngineErrors.noIcps;
 
+    const run = await this.engineRepository.getOrCreateActiveRun(organizationId);
+
     try {
-      await recordActivity({
-        organizationId,
-        type: "run_started",
-        title: "Engine run started",
-      });
       const offer = await this.buildOffer(organizationId);
-      const sourced = await this.chasseur.source(organizationId, icps, offer);
-      await recordActivity({
-        organizationId,
-        type: "sourced",
-        title: `${sourced} new prospect(s) sourced`,
-      });
+      if (!run.sourced) {
+        await recordActivity({
+          organizationId,
+          type: "run_started",
+          title: "Engine run started",
+        });
+        const sourced = await this.chasseur.source(organizationId, icps, offer);
+        await this.engineRepository.markRunSourced(run.id, sourced);
+        await recordActivity({
+          organizationId,
+          type: "sourced",
+          title: `${sourced} new prospect(s) sourced`,
+        });
+      }
       const profiled = await this.profileLeads(organizationId, offer);
       const drafted = await this.draftLeads(organizationId, offer);
+      await this.engineRepository.addRunProgress(run.id, profiled, drafted);
+      const completed = await this.engineRepository.completeRun(run.id);
+      const summary = {
+        sourced: completed?.sourcedCount ?? run.sourcedCount,
+        profiled: completed?.profiledCount ?? profiled,
+        drafted: completed?.draftedCount ?? drafted,
+      };
       await recordActivity({
         organizationId,
         type: "run_done",
-        title: `Run complete — ${sourced} sourced, ${profiled} researched, ${drafted} drafted`,
+        title: `Run complete — ${summary.sourced} sourced, ${summary.profiled} researched, ${summary.drafted} drafted`,
       });
-      await this.notifyRunComplete(organizationId, {
-        sourced,
-        profiled,
-        drafted,
-      });
-      return { sourced, profiled, drafted };
+      await this.notifyRunComplete(organizationId, summary);
+      return summary;
     } catch (error) {
+      await this.engineRepository.failRun(run.id);
       console.error(
         `[engine] run failed orgId=${organizationId}: ${errorMessage(error)}`
       );

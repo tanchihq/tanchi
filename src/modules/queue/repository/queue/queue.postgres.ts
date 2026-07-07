@@ -143,21 +143,30 @@ export class QueuePostgres {
   async applyEdit(input: ApplyEditInput): Promise<void> {
     try {
       await this.db.begin(async (tx) => {
-        await tx`
-          INSERT INTO edits (id, organization_id, message_id, ai_version, edited_version)
-          VALUES (
-            ${Bun.randomUUIDv7()},
-            ${input.organizationId},
-            ${input.messageId},
-            ${input.aiVersion},
-            ${input.editedVersion}
-          )
-        `;
+        if (input.editedVersion !== input.aiVersion) {
+          await tx`
+            INSERT INTO edits (id, organization_id, message_id, ai_version, edited_version)
+            VALUES (
+              ${Bun.randomUUIDv7()},
+              ${input.organizationId},
+              ${input.messageId},
+              ${input.aiVersion},
+              ${input.editedVersion}
+            )
+          `;
+        }
         await tx`
           UPDATE messages
           SET body = ${input.editedVersion}, status = 'edited', updated_at = NOW()
           WHERE id = ${input.messageId}
         `;
+        if (input.subject !== undefined) {
+          await tx`
+            UPDATE messages
+            SET subject = ${input.subject}, updated_at = NOW()
+            WHERE id = ${input.messageId}
+          `;
+        }
       });
     } catch (error) {
       return throwSanitizeError(error);

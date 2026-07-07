@@ -10,10 +10,109 @@ import type {
   PgEngineIcp,
   PgEngineLead,
   PgEngineProfile,
+  PgEngineRun,
 } from "./engine.entities.ts";
 
 export class EnginePostgres {
   constructor(private readonly db: DbClient) {}
+
+  async getActiveRun(organizationId: string): Promise<PgEngineRun | null> {
+    try {
+      const result = await this.db<ReadonlyArray<PgEngineRun>>`
+        SELECT id, organization_id, status, sourced, sourced_count, profiled_count, drafted_count
+        FROM engine_run
+        WHERE organization_id = ${organizationId} AND status = 'running'
+        LIMIT 1
+      `;
+      return result[ARRAY.FIRST_INDEX] ?? null;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async insertRunIfNone(
+    id: string,
+    organizationId: string
+  ): Promise<PgEngineRun | null> {
+    try {
+      const result = await this.db<ReadonlyArray<PgEngineRun>>`
+        INSERT INTO engine_run (id, organization_id)
+        VALUES (${id}, ${organizationId})
+        ON CONFLICT (organization_id) WHERE status = 'running' DO NOTHING
+        RETURNING id, organization_id, status, sourced, sourced_count, profiled_count, drafted_count
+      `;
+      return result[ARRAY.FIRST_INDEX] ?? null;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async markRunSourced(runId: string, sourcedCount: number): Promise<void> {
+    try {
+      await this.db`
+        UPDATE engine_run
+        SET sourced = TRUE, sourced_count = sourced_count + ${sourcedCount}, updated_at = NOW()
+        WHERE id = ${runId}
+      `;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async addRunProgress(
+    runId: string,
+    profiledCount: number,
+    draftedCount: number
+  ): Promise<void> {
+    try {
+      await this.db`
+        UPDATE engine_run
+        SET profiled_count = profiled_count + ${profiledCount},
+            drafted_count = drafted_count + ${draftedCount},
+            updated_at = NOW()
+        WHERE id = ${runId}
+      `;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async completeRun(runId: string): Promise<PgEngineRun | null> {
+    try {
+      const result = await this.db<ReadonlyArray<PgEngineRun>>`
+        UPDATE engine_run
+        SET status = 'complete', finished_at = NOW(), updated_at = NOW()
+        WHERE id = ${runId}
+        RETURNING id, organization_id, status, sourced, sourced_count, profiled_count, drafted_count
+      `;
+      return result[ARRAY.FIRST_INDEX] ?? null;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async failRun(runId: string): Promise<void> {
+    try {
+      await this.db`
+        UPDATE engine_run
+        SET status = 'failed', finished_at = NOW(), updated_at = NOW()
+        WHERE id = ${runId}
+      `;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async getOrganizationIdsWithUnfinishedRun(): Promise<ReadonlyArray<string>> {
+    try {
+      const result = await this.db<ReadonlyArray<Readonly<{ organization_id: string }>>>`
+        SELECT DISTINCT organization_id FROM engine_run WHERE status = 'running'
+      `;
+      return result.map((row) => row.organization_id);
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
 
   async getAllOrganizationIds(): Promise<ReadonlyArray<string>> {
     try {
@@ -308,7 +407,10 @@ export class EnginePostgres {
         await tx`
           UPDATE leads
           SET qualification = ${input.qualification}, score = ${input.score},
-              channel = ${input.channel}, updated_at = NOW()
+              channel = ${input.channel},
+              linkedin_url = COALESCE(${input.linkedinUrl}, linkedin_url),
+              instagram_url = COALESCE(${input.instagramUrl}, instagram_url),
+              updated_at = NOW()
           WHERE id = ${input.leadId}
         `;
       });

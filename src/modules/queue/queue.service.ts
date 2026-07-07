@@ -80,6 +80,7 @@ export class QueueService {
         messageId: row.message_id,
         aiVersion: row.body,
         editedVersion: dto.message,
+        ...(dto.subject !== undefined && { subject: dto.subject }),
       });
     } catch (error) {
       console.error(

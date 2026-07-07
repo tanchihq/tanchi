@@ -9,7 +9,30 @@ import type {
   PgEngineIcp,
   PgEngineLead,
   PgEngineProfile,
+  PgEngineRun,
 } from "./engine.entities.ts";
+
+export type EngineRun = Readonly<{
+  id: string;
+  organizationId: string;
+  status: string;
+  sourced: boolean;
+  sourcedCount: number;
+  profiledCount: number;
+  draftedCount: number;
+}>;
+
+function toEngineRun(run: PgEngineRun): EngineRun {
+  return {
+    id: run.id,
+    organizationId: run.organization_id,
+    status: run.status,
+    sourced: run.sourced,
+    sourcedCount: run.sourced_count,
+    profiledCount: run.profiled_count,
+    draftedCount: run.drafted_count,
+  };
+}
 
 export class EngineRepository {
   constructor(private readonly enginePostgres: EnginePostgres) {}
@@ -47,6 +70,50 @@ export class EngineRepository {
       name: recipient.name ?? "",
       organizationName: recipient.organization_name,
     };
+  }
+
+  async getOrCreateActiveRun(organizationId: string): Promise<EngineRun> {
+    const existing = await this.enginePostgres.getActiveRun(organizationId);
+    if (existing !== null) return toEngineRun(existing);
+    const inserted = await this.enginePostgres.insertRunIfNone(
+      Bun.randomUUIDv7(),
+      organizationId
+    );
+    if (inserted !== null) return toEngineRun(inserted);
+    const active = await this.enginePostgres.getActiveRun(organizationId);
+    if (active === null) {
+      throw new Error("[engine] active run introuvable après conflit d'insert");
+    }
+    return toEngineRun(active);
+  }
+
+  markRunSourced(runId: string, sourcedCount: number): Promise<void> {
+    return this.enginePostgres.markRunSourced(runId, sourcedCount);
+  }
+
+  addRunProgress(
+    runId: string,
+    profiledCount: number,
+    draftedCount: number
+  ): Promise<void> {
+    return this.enginePostgres.addRunProgress(
+      runId,
+      profiledCount,
+      draftedCount
+    );
+  }
+
+  async completeRun(runId: string): Promise<EngineRun | null> {
+    const completed = await this.enginePostgres.completeRun(runId);
+    return completed === null ? null : toEngineRun(completed);
+  }
+
+  failRun(runId: string): Promise<void> {
+    return this.enginePostgres.failRun(runId);
+  }
+
+  getOrganizationIdsWithUnfinishedRun(): Promise<ReadonlyArray<string>> {
+    return this.enginePostgres.getOrganizationIdsWithUnfinishedRun();
   }
 
   getLatestPlaybook(
