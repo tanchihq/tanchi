@@ -1,3 +1,6 @@
+export const appUrl = (path: string): string =>
+  `${window.location.origin}${path}`;
+
 export const normalizeUrl = (value: string): string => {
   const trimmed = value.trim();
   if (trimmed === '') return trimmed;

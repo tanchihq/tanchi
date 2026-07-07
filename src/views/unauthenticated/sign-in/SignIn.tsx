@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Lock, LogIn, Mail } from 'lucide-react';
@@ -17,7 +17,6 @@ import { signInSchema, type SignInValues } from './utils';
 import { useSignIn } from './hooks/useSignIn';
 
 const SignIn = () => {
-  const navigate = useNavigate();
   const [showPw, setShowPw] = useState(false);
   const { onFetch, isLoading } = useSignIn();
 
@@ -27,8 +26,7 @@ const SignIn = () => {
     defaultValues: { email: '', password: '' },
   });
 
-  const submit = (values: SignInValues) =>
-    onFetch(values, { onSuccess: () => navigate('/') });
+  const submit = (values: SignInValues) => onFetch(values);
 
   return (
     <AuthShell
@@ -90,9 +88,12 @@ const SignIn = () => {
           />
 
           <div className="-mt-0.5 text-right">
-            <a href="#" className="text-[13px] font-medium text-[#C4C8D2] no-underline">
+            <Link
+              to="/forgot-password"
+              className="text-[13px] font-medium text-[#C4C8D2] no-underline"
+            >
               Forgot password?
-            </a>
+            </Link>
           </div>
 
           <Button
