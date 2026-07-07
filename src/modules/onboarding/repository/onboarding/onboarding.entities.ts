@@ -30,6 +30,7 @@ type CompleteOnboardingInput = Readonly<{
     website: string;
     productPageUrl: string;
     salesDeckUrl: string;
+    companyProfile: string;
   }>;
   icps: ReadonlyArray<
     Readonly<{

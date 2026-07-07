@@ -7,6 +7,7 @@ import type { OnboardingService } from "./onboarding.service.ts";
 import * as RequestDto from "./dto/request/index.ts";
 import {
   CompleteOnboardingErrors,
+  GenerateProfileErrors,
   OnboardingStateErrors,
   SaveOnboardingProgressErrors,
   SignUpErrors,
@@ -107,6 +108,24 @@ export function createOnboardingRouter(onboardingService: OnboardingService) {
           case CompleteOnboardingErrors.noActiveOrganization:
             return sendError(context, 409, result);
           case CompleteOnboardingErrors.onboardingFailed:
+            return sendError(context, 500, result);
+        }
+
+        return context.json(result);
+      }
+    )
+    .post(
+      "/generate-profile",
+      requireAuth(),
+      zValidator("json", RequestDto.GenerateProfileDto, zodValidationHook),
+      async (context) => {
+        const dto = context.req.valid("json");
+        const result = await onboardingService.generateProfile(dto);
+
+        switch (result) {
+          case GenerateProfileErrors.invalidWebsite:
+            return sendError(context, 400, result);
+          case GenerateProfileErrors.generationFailed:
             return sendError(context, 500, result);
         }
 

@@ -27,3 +27,8 @@ export enum CompleteOnboardingErrors {
   tooManyIcps = "tooManyIcps",
   onboardingFailed = "onboardingFailed",
 }
+
+export enum GenerateProfileErrors {
+  invalidWebsite = "invalidWebsite",
+  generationFailed = "generationFailed",
+}

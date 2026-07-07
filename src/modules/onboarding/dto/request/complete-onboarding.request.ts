@@ -2,30 +2,21 @@ import { z } from "zod";
 import { CompleteOnboardingErrors } from "../../onboarding.errors.ts";
 import {
   MAX_COMPANY_LENGTH,
+  MAX_COMPANY_PROFILE_LENGTH,
   MAX_ICP_DESCRIPTION_LENGTH,
   MAX_ICP_NAME_LENGTH,
   MAX_ICP_SHORT_FIELD_LENGTH,
   MAX_ICPS,
   MAX_URL_LENGTH,
 } from "../../onboarding.constants.ts";
-import { isValidHttpUrl, normalizeUrl } from "../../onboarding.utils.ts";
-
 const websiteSchema = z
-  .string({ error: CompleteOnboardingErrors.invalidWebsite })
-  .trim()
-  .min(1, { message: CompleteOnboardingErrors.invalidWebsite })
-  .max(MAX_URL_LENGTH, { message: CompleteOnboardingErrors.invalidWebsite })
-  .transform(normalizeUrl)
-  .refine(isValidHttpUrl, { message: CompleteOnboardingErrors.invalidWebsite });
+  .url({ error: CompleteOnboardingErrors.invalidWebsite })
+  .max(MAX_URL_LENGTH, { message: CompleteOnboardingErrors.invalidWebsite });
 
 const optionalResourceUrlSchema = z
-  .string({ error: CompleteOnboardingErrors.invalidResource })
-  .trim()
+  .url({ error: CompleteOnboardingErrors.invalidResource })
   .max(MAX_URL_LENGTH, { message: CompleteOnboardingErrors.invalidResource })
-  .transform((value) => (value === "" ? "" : normalizeUrl(value)))
-  .refine((value) => value === "" || isValidHttpUrl(value), {
-    message: CompleteOnboardingErrors.invalidResource,
-  });
+  .nullish();
 
 const icpSchema = z.object({
   name: z
@@ -77,6 +68,12 @@ export const CompleteOnboardingDto = z.object({
   website: websiteSchema,
   productPageUrl: optionalResourceUrlSchema,
   salesDeckUrl: optionalResourceUrlSchema,
+  companyProfile: z
+    .string({ error: CompleteOnboardingErrors.invalidCompanyName })
+    .max(MAX_COMPANY_PROFILE_LENGTH, {
+      message: CompleteOnboardingErrors.invalidCompanyName,
+    })
+    .default(""),
   icps: z
     .array(icpSchema, { error: CompleteOnboardingErrors.invalidIcp })
     .min(1, { message: CompleteOnboardingErrors.invalidIcp })

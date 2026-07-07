@@ -1,0 +1,28 @@
+# deps & build artefacts
+node_modules/
+dist/
+build/
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# vcs & tooling
+.git/
+.gitignore
+.claude/
+.vscode/
+.idea/
+
+# docs & meta
+*.md
+!README.md
+
+# os junk
+.DS_Store
+Thumbs.db
+
+# tests / scratch
+coverage/
+*.log

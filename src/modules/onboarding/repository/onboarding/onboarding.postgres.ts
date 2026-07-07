@@ -113,19 +113,22 @@ export class OnboardingPostgres {
       await this.db.begin(async (tx) => {
         await tx`
           INSERT INTO organization_profile (
-            organization_id, website, product_page_url, sales_deck_url, onboarded_at
+            organization_id, website, product_page_url, sales_deck_url,
+            company_profile, onboarded_at
           )
           VALUES (
             ${input.organizationId},
             ${input.profile.website},
             ${emptyToNull(input.profile.productPageUrl)},
             ${emptyToNull(input.profile.salesDeckUrl)},
+            ${input.profile.companyProfile},
             NOW()
           )
           ON CONFLICT (organization_id) DO UPDATE SET
             website = EXCLUDED.website,
             product_page_url = EXCLUDED.product_page_url,
             sales_deck_url = EXCLUDED.sales_deck_url,
+            company_profile = EXCLUDED.company_profile,
             onboarded_at = NOW(),
             updated_at = NOW()
         `;

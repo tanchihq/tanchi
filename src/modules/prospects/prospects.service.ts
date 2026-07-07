@@ -1,0 +1,292 @@
+import { recordActivity } from "@shared/activity";
+import { decryptSecret } from "@shared/crypto";
+import { sendEmail, type MailboxCredentials } from "@shared/mailbox";
+import type { ProspectsRepository } from "./repository/prospects/prospects.repository.ts";
+import type {
+  PgLeadRow,
+  PgProspectAngle,
+  PgProspectFact,
+  PgSenderCred,
+} from "./repository/prospects/prospects.entities.ts";
+import {
+  ContactProspectErrors,
+  GetProspectErrors,
+  GetProspectsErrors,
+  UpdateStageErrors,
+  ValidateProspectErrors,
+} from "./prospects.errors.ts";
+import type * as RequestDto from "./dto/request/index.ts";
+import type * as ResponseDto from "./dto/response/index.ts";
+import * as utils from "./prospects.utils.ts";
+
+type SendResult =
+  | Readonly<{ ok: true }>
+  | Readonly<{ ok: false; reason: "noDraft" | "noSender" | "sendFailed" }>;
+
+function toCredentials(sender: PgSenderCred): MailboxCredentials {
+  return {
+    smtpHost: sender.smtp_host,
+    smtpPort: sender.smtp_port,
+    smtpSecure: sender.smtp_secure,
+    imapHost: sender.imap_host,
+    imapPort: sender.imap_port,
+    imapSecure: sender.imap_secure,
+    username: sender.username,
+    secret: decryptSecret(sender.secret_encrypted),
+  };
+}
+
+export class ProspectsService {
+  constructor(private readonly prospectsRepository: ProspectsRepository) {}
+
+  async getProspects(
+    activeOrganizationId: string | null | undefined
+  ): Promise<ReadonlyArray<ResponseDto.ProspectDto> | GetProspectsErrors> {
+    const organizationId = resolveActiveOrganization(activeOrganizationId);
+    if (organizationId === null) {
+      return GetProspectsErrors.noActiveOrganization;
+    }
+    const leads =
+      await this.prospectsRepository.getManyLeadsByOrganization(
+        organizationId
+      );
+    return leads.map(utils.convertPgLeadListRowToProspectDto);
+  }
+
+  async getProspect(
+    id: string,
+    activeOrganizationId: string | null | undefined
+  ): Promise<ResponseDto.LeadDetailDto | GetProspectErrors> {
+    const organizationId = resolveActiveOrganization(activeOrganizationId);
+    if (organizationId === null) {
+      return GetProspectErrors.noActiveOrganization;
+    }
+
+    const lead = await this.prospectsRepository.getOneLeadById(id);
+    if (lead === null) return GetProspectErrors.inexistingProspect;
+    if (lead.organization_id !== organizationId) {
+      return GetProspectErrors.notInMyOrg;
+    }
+
+    return this.assembleDetail(lead);
+  }
+
+  async updateStage(
+    id: string,
+    dto: RequestDto.UpdateStageDto,
+    activeOrganizationId: string | null | undefined
+  ): Promise<ResponseDto.ProspectDto | UpdateStageErrors> {
+    const organizationId = resolveActiveOrganization(activeOrganizationId);
+    if (organizationId === null) {
+      return UpdateStageErrors.noActiveOrganization;
+    }
+
+    const lead = await this.prospectsRepository.getOneLeadById(id);
+    if (lead === null) return UpdateStageErrors.inexistingProspect;
+    if (lead.organization_id !== organizationId) {
+      return UpdateStageErrors.notInMyOrg;
+    }
+
+    try {
+      await this.prospectsRepository.updateOneLeadStage(
+        id,
+        dto.stage,
+        dto.origin
+      );
+    } catch (error) {
+      console.error(
+        `[prospects] updateStage failed leadId=${id}: ${errorMessage(error)}`
+      );
+      return UpdateStageErrors.updateFailed;
+    }
+
+    const refreshed = await this.prospectsRepository.getOneLeadById(id);
+    if (refreshed === null) return UpdateStageErrors.inexistingProspect;
+    return utils.convertPgLeadRowToProspectDto(refreshed);
+  }
+
+  async contactProspect(
+    id: string,
+    activeOrganizationId: string | null | undefined,
+    senderId: string | undefined
+  ): Promise<ResponseDto.LeadDetailDto | ContactProspectErrors> {
+    const organizationId = resolveActiveOrganization(activeOrganizationId);
+    if (organizationId === null) {
+      return ContactProspectErrors.noActiveOrganization;
+    }
+
+    const lead = await this.prospectsRepository.getOneLeadById(id);
+    if (lead === null) return ContactProspectErrors.inexistingProspect;
+    if (lead.organization_id !== organizationId) {
+      return ContactProspectErrors.notInMyOrg;
+    }
+
+    const send = await this.sendDraft(lead, organizationId, senderId);
+    if (!send.ok) return contactReason(send.reason);
+
+    await this.prospectsRepository.updateOneLeadStage(id, "contacted", "manual");
+    const refreshed = await this.prospectsRepository.getOneLeadById(id);
+    if (refreshed === null) return ContactProspectErrors.inexistingProspect;
+    return this.assembleDetail(refreshed);
+  }
+
+  async validateProspect(
+    id: string,
+    activeOrganizationId: string | null | undefined,
+    senderId: string | undefined
+  ): Promise<ResponseDto.LeadDetailDto | ValidateProspectErrors> {
+    const organizationId = resolveActiveOrganization(activeOrganizationId);
+    if (organizationId === null) {
+      return ValidateProspectErrors.noActiveOrganization;
+    }
+
+    const lead = await this.prospectsRepository.getOneLeadById(id);
+    if (lead === null) return ValidateProspectErrors.inexistingProspect;
+    if (lead.organization_id !== organizationId) {
+      return ValidateProspectErrors.notInMyOrg;
+    }
+
+    const send = await this.sendDraft(lead, organizationId, senderId);
+    if (!send.ok) return validateReason(send.reason);
+
+    await this.prospectsRepository.updateOneLeadStage(
+      id,
+      "following-up",
+      "manual"
+    );
+    const refreshed = await this.prospectsRepository.getOneLeadById(id);
+    if (refreshed === null) return ValidateProspectErrors.inexistingProspect;
+    return this.assembleDetail(refreshed);
+  }
+
+  private async sendDraft(
+    lead: PgLeadRow,
+    organizationId: string,
+    senderId: string | undefined
+  ): Promise<SendResult> {
+    const draft = await this.prospectsRepository.getLatestDraftMessageByLead(
+      lead.id
+    );
+    if (draft === null) return { ok: false, reason: "noDraft" };
+
+    if (lead.channel !== "email" || lead.email === null) {
+      return { ok: true };
+    }
+
+    const sender =
+      senderId === undefined
+        ? await this.prospectsRepository.getFirstActiveSenderByOrganization(
+            organizationId
+          )
+        : await this.prospectsRepository.getActiveSenderById(
+            organizationId,
+            senderId
+          );
+    if (sender === null) return { ok: false, reason: "noSender" };
+
+    try {
+      await sendEmail(toCredentials(sender), {
+        fromName: sender.from_name,
+        fromEmail: sender.from_email,
+        to: lead.email,
+        subject: draft.subject ?? "",
+        text: appendSignature(draft.body, sender.signature),
+      });
+    } catch (error) {
+      console.error(
+        `[prospects] sendDraft failed leadId=${lead.id}: ${errorMessage(error)}`
+      );
+      return { ok: false, reason: "sendFailed" };
+    }
+
+    await this.prospectsRepository.markMessageSentAndRecord({
+      messageId: draft.id,
+      senderId: sender.id,
+      organizationId,
+      leadId: lead.id,
+    });
+    await recordActivity({
+      organizationId,
+      type: "sent",
+      title: `Email sent to ${lead.email}`,
+      leadId: lead.id,
+    });
+    return { ok: true };
+  }
+
+  private async assembleDetail(
+    lead: PgLeadRow
+  ): Promise<ResponseDto.LeadDetailDto> {
+    const [dossier, messages, outcomes] = await Promise.all([
+      this.prospectsRepository.getDossierByLead(lead.id),
+      this.prospectsRepository.getMessagesByLead(lead.id),
+      this.prospectsRepository.getOutcomesByLead(lead.id),
+    ]);
+
+    const [facts, angles]: readonly [
+      ReadonlyArray<PgProspectFact>,
+      ReadonlyArray<PgProspectAngle>,
+    ] =
+      dossier === null
+        ? [[], []]
+        : await Promise.all([
+            this.prospectsRepository.getFactsByDossier(dossier.id),
+            this.prospectsRepository.getAnglesByDossier(dossier.id),
+          ]);
+
+    return utils.convertToLeadDetailDto(
+      lead,
+      facts,
+      angles,
+      messages,
+      outcomes
+    );
+  }
+}
+
+function contactReason(
+  reason: "noDraft" | "noSender" | "sendFailed"
+): ContactProspectErrors {
+  switch (reason) {
+    case "noDraft":
+      return ContactProspectErrors.noDraft;
+    case "noSender":
+      return ContactProspectErrors.noSender;
+    case "sendFailed":
+      return ContactProspectErrors.sendFailed;
+  }
+}
+
+function validateReason(
+  reason: "noDraft" | "noSender" | "sendFailed"
+): ValidateProspectErrors {
+  switch (reason) {
+    case "noDraft":
+      return ValidateProspectErrors.noDraft;
+    case "noSender":
+      return ValidateProspectErrors.noSender;
+    case "sendFailed":
+      return ValidateProspectErrors.sendFailed;
+  }
+}
+
+function appendSignature(body: string, signature: string): string {
+  return signature === "" ? body : `${body}\n\n${signature}`;
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function resolveActiveOrganization(
+  activeOrganizationId: string | null | undefined
+): string | null {
+  if (
+    activeOrganizationId === null ||
+    activeOrganizationId === undefined ||
+    activeOrganizationId === ""
+  ) {
+    return null;
+  }
+  return activeOrganizationId;
+}

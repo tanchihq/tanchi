@@ -1,8 +1,10 @@
 import { APIError } from "better-auth/api";
+import { generateCompanyProfile } from "@shared/company-profile";
 import type { auth as authInstance } from "@shared/auth";
 import type { OnboardingRepository } from "./repository/onboarding/onboarding.repository.ts";
 import {
   CompleteOnboardingErrors,
+  GenerateProfileErrors,
   OnboardingStateErrors,
   SaveOnboardingProgressErrors,
   SignUpErrors,
@@ -153,8 +155,9 @@ export class OnboardingService {
         draft: utils.normalizeDraft(dto),
         profile: {
           website: dto.website,
-          productPageUrl: dto.productPageUrl,
-          salesDeckUrl: dto.salesDeckUrl,
+          productPageUrl: dto.productPageUrl ?? "",
+          salesDeckUrl: dto.salesDeckUrl ?? "",
+          companyProfile: dto.companyProfile,
         },
         icps: dto.icps,
       });
@@ -168,6 +171,27 @@ export class OnboardingService {
     }
 
     return { status: true };
+  }
+
+  async generateProfile(
+    dto: RequestDto.GenerateProfileDto
+  ): Promise<ResponseDto.GeneratedProfileDto | GenerateProfileErrors> {
+    try {
+      const companyProfile = await generateCompanyProfile({
+        companyName: dto.companyName ?? "",
+        website: dto.website,
+        productPageUrl: dto.productPageUrl ?? "",
+        salesDeckUrl: dto.salesDeckUrl ?? "",
+      });
+      return { companyProfile };
+    } catch (error) {
+      console.error(
+        `[onboarding] generateProfile failed: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+      return GenerateProfileErrors.generationFailed;
+    }
   }
 
   private async tryCreateUser(
