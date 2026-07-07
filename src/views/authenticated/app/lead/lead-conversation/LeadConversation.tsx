@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SelectNative } from '@/components/ui/select-native';
@@ -8,13 +8,19 @@ import { type LeadDetailDto } from '@/api/prospects/entities/response.entities';
 import { type SenderDto } from '@/api/senders/entities/response.entities';
 import { CHANNEL_META } from '@/utils/prospect-display';
 import { timelineDotColor } from '@/utils/format';
-import { CLOSED_COPY, isClosedStage, timeAgo } from '../utils';
+import {
+  CLOSED_COPY,
+  SUBJECT_MAX_LENGTH,
+  isClosedStage,
+  timeAgo,
+  type EditedDraft,
+} from '../utils';
 
 type LeadConversationProps = Readonly<{
   lead: LeadDetailDto;
   senders: ReadonlyArray<SenderDto>;
   sending: boolean;
-  onSend: (editedMessage: string | null, senderId: string | undefined) => void;
+  onSend: (edited: EditedDraft | null, senderId: string | undefined) => void;
   onQualify: (stage: Stage) => void;
 }>;
 
@@ -40,13 +46,34 @@ const LeadConversation = ({
 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(lead.message?.body ?? '');
+  const [subject, setSubject] = useState(lead.message?.subject ?? '');
   const [senderId, setSenderId] = useState(senders[0]?.id ?? '');
+
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const element = bodyRef.current;
+    if (element === null) return;
+    element.style.height = 'auto';
+    element.style.height = `${element.scrollHeight}px`;
+  }, [editing, draft]);
 
   const chosenSenderId = multipleSenders ? senderId : undefined;
 
   const send = () => {
-    const edited =
-      lead.message !== null && draft !== lead.message.body ? draft : null;
+    const message = lead.message;
+    let edited: EditedDraft | null = null;
+    if (message !== null) {
+      const bodyChanged = draft !== message.body;
+      if (isEmail) {
+        const normalizedSubject = subject.trim() === '' ? null : subject;
+        if (bodyChanged || normalizedSubject !== message.subject) {
+          edited = { message: draft, subject: normalizedSubject };
+        }
+      } else if (bodyChanged) {
+        edited = { message: draft };
+      }
+    }
     onSend(edited, chosenSenderId);
     setEditing(false);
   };
@@ -87,23 +114,37 @@ const LeadConversation = ({
 
         {isPendingDraft(lead) && lead.message && (
           <>
-            <div className="my-[6px] mb-2.5 flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.06em] text-[#6F6C85]">
-                <ChannelIcon channel={lead.channel} size={13} /> Proposed
-                message
-              </span>
-              {lead.message.subject && (
-                <span className="text-xs text-[#6F6C85]">
-                  {lead.message.subject}
-                </span>
-              )}
+            <div className="my-[6px] mb-2.5 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.06em] text-[#6F6C85]">
+              <ChannelIcon channel={lead.channel} size={13} /> Proposed message
             </div>
+            {isEmail &&
+              (editing ? (
+                <input
+                  value={subject}
+                  onChange={(event) => setSubject(event.target.value)}
+                  placeholder="Subject"
+                  maxLength={SUBJECT_MAX_LENGTH}
+                  className="border-brand-600 mb-2 w-full rounded-xl border bg-[#0E0E22] p-[12px_16px] text-sm text-[#E7E6F0] outline-none"
+                  style={{ boxShadow: '0 0 0 3px rgba(5,1,240,0.16)' }}
+                />
+              ) : (
+                subject !== '' && (
+                  <div
+                    onClick={() => setEditing(true)}
+                    className="mb-2 cursor-text truncate rounded-xl border border-white/8 bg-[#0E0E22] px-4 py-2.5 text-[13px] text-[#ABA8C0]"
+                  >
+                    <span className="text-[#6F6C85]">Subject: </span>
+                    {subject}
+                  </div>
+                )
+              ))}
             {editing ? (
               <textarea
+                ref={bodyRef}
                 autoFocus
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
-                className="min-h-[168px] w-full resize-y rounded-xl border border-brand-600 bg-[#0E0E22] p-[15px_16px] text-sm leading-relaxed text-[#E7E6F0] outline-none"
+                className="min-h-[168px] w-full resize-none overflow-hidden rounded-xl border border-brand-600 bg-[#0E0E22] p-[15px_16px] text-sm leading-relaxed text-[#E7E6F0] outline-none"
                 style={{ boxShadow: '0 0 0 3px rgba(5,1,240,0.16)' }}
               />
             ) : (

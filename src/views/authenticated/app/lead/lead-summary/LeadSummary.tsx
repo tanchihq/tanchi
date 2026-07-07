@@ -1,16 +1,32 @@
 import { Check, Globe } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { ChannelIcon, LinkedinGlyph } from '@/components/ChannelIcon';
 import { type LeadDetailDto } from '@/api/prospects/entities/response.entities';
 import { CHANNEL_META, STAGE_LABEL } from '@/utils/prospect-display';
 import { fullName, initialsOf } from '@/utils/format';
+import { cn } from '@/utils/lib/utils';
 import { identityLine } from '../utils';
+import { channelBadgeAction } from './utils';
 
 type LeadSummaryProps = Readonly<{ lead: LeadDetailDto }>;
 
 const LeadSummary = ({ lead }: LeadSummaryProps) => {
   const channel = CHANNEL_META[lead.channel];
   const isEmail = lead.channel === 'email';
+  const badgeAction = channelBadgeAction(lead);
+  const badgeBaseClass =
+    'flex h-[30px] items-center gap-1.5 rounded-lg border border-white/8 bg-white/5 px-3';
+  const badgeInner = (
+    <>
+      <ChannelIcon channel={lead.channel} size={14} style={{ color: channel.color }} />
+      <span className="text-[13px] font-medium text-[#F3F2F8]">{channel.label}</span>
+    </>
+  );
 
   return (
     <div className="flex min-w-0 flex-col gap-4">
@@ -33,10 +49,26 @@ const LeadSummary = ({ lead }: LeadSummaryProps) => {
           </div>
         </div>
         <div className="mt-[15px] flex flex-wrap items-center gap-2">
-          <span className="flex h-[30px] items-center gap-1.5 rounded-lg border border-white/8 bg-white/5 px-3">
-            <ChannelIcon channel={lead.channel} size={14} style={{ color: channel.color }} />
-            <span className="text-[13px] font-medium text-[#F3F2F8]">{channel.label}</span>
-          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {badgeAction.href !== null ? (
+                <a
+                  href={badgeAction.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    badgeBaseClass,
+                    'cursor-pointer no-underline transition-colors hover:bg-white/10',
+                  )}
+                >
+                  {badgeInner}
+                </a>
+              ) : (
+                <span className={badgeBaseClass}>{badgeInner}</span>
+              )}
+            </TooltipTrigger>
+            <TooltipContent>{badgeAction.tooltip}</TooltipContent>
+          </Tooltip>
           <span
             className="flex h-[30px] items-center rounded-lg px-[11px] text-xs font-medium"
             style={{
