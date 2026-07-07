@@ -7,11 +7,12 @@ import {
 } from '@/api/api';
 import { type Stage } from '@/api/shared/enums';
 import { type LeadDetailDto } from '@/api/prospects/entities/response.entities';
+import { type EditedDraft } from '../utils';
 
 type SendDraftData = Readonly<{
   id: string;
   stage: Stage;
-  editedMessage: string | null;
+  edited: EditedDraft | null;
   senderId?: string;
 }>;
 
@@ -29,8 +30,14 @@ const useSendDraft = ({ onDone }: UseSendDraftProps) =>
       onDone();
       toast.success('Message sent.');
     },
-    promise: async ({ id, stage, editedMessage, senderId }: SendDraftData): Promise<LeadDetailDto> => {
-      if (editedMessage !== null) await editQueueItemAxios({ id, message: editedMessage });
+    promise: async ({ id, stage, edited, senderId }: SendDraftData): Promise<LeadDetailDto> => {
+      if (edited !== null) {
+        await editQueueItemAxios({
+          id,
+          message: edited.message,
+          subject: edited.subject,
+        });
+      }
       return stage === 'identified'
         ? contactProspectAxios(id, senderId)
         : validateProspectAxios(id, senderId);
