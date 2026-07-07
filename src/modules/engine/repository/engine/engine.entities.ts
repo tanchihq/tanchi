@@ -16,6 +16,16 @@ type PgEngineProfile = Readonly<{
   company_profile: string;
 }>;
 
+type PgEngineRun = Readonly<{
+  id: string;
+  organization_id: string;
+  status: string;
+  sourced: boolean;
+  sourced_count: number;
+  profiled_count: number;
+  drafted_count: number;
+}>;
+
 type PgEngineLead = Readonly<{
   id: string;
   organization_id: string;
@@ -86,6 +96,8 @@ type PersistProfileInput = Readonly<{
   qualification: "A" | "B" | "C";
   score: number;
   channel: string;
+  linkedinUrl: string | null;
+  instagramUrl: string | null;
   facts: ReadonlyArray<ProfileFactInput>;
   angles: ReadonlyArray<ProfileAngleInput>;
 }>;
@@ -127,6 +139,7 @@ export type {
   PgEngineIcp,
   PgEngineLead,
   PgEngineProfile,
+  PgEngineRun,
   ProfileAngleInput,
   ProfileFactInput,
 };

@@ -20,6 +20,13 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function onlyHost(url: string | null, domain: string): string | null {
+  if (url === null) return null;
+  const host = hostOf(url);
+  if (host === null) return null;
+  return host === domain || host.endsWith(`.${domain}`) ? url : null;
+}
+
 export class ProfilerService {
   constructor(
     private readonly engineRepository: EngineRepository,
@@ -80,6 +87,8 @@ export class ProfilerService {
       qualification: noFacts ? "C" : parsed.qualification,
       score: noFacts ? Math.min(parsed.score, NO_FACTS_MAX_SCORE) : parsed.score,
       channel: parsed.channel,
+      linkedinUrl: onlyHost(parsed.linkedinUrl, "linkedin.com"),
+      instagramUrl: onlyHost(parsed.instagramUrl, "instagram.com"),
       facts,
       angles,
     });

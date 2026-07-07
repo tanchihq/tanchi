@@ -15,6 +15,8 @@ export const ProfilerOutputSchema = z.object({
   score: z.number().min(0).max(100),
   channel: z.enum(CHANNELS),
   channelReason: z.string().nullish().transform((value) => value ?? ""),
+  linkedinUrl: z.string().nullish().transform((value) => value ?? null),
+  instagramUrl: z.string().nullish().transform((value) => value ?? null),
   facts: z.array(
     z.object({
       text: z.string().min(1),

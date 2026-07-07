@@ -5,6 +5,7 @@ export enum GetQueueErrors {
 export enum EditQueueErrors {
   invalidProspectId = "invalidProspectId",
   invalidMessage = "invalidMessage",
+  invalidSubject = "invalidSubject",
   noActiveOrganization = "noActiveOrganization",
   inexistingDraft = "inexistingDraft",
   notInMyOrg = "notInMyOrg",

@@ -57,6 +57,7 @@ type ApplyEditInput = Readonly<{
   messageId: string;
   aiVersion: string;
   editedVersion: string;
+  subject?: string | null;
 }>;
 
 export type {
