@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAsyncEvent } from '@/hooks/useAsyncEvent';
 import { authClient } from '@/api/auth-client';
@@ -7,13 +8,18 @@ import {
 } from '@/api/auth/entities/errors';
 import { type SignInDto } from '@/api/auth/entities/request.entities';
 import { useAuth } from '@/store/context/auth.context';
+import { appUrl } from '@/utils/url';
 
 const useSignIn = () => {
   const { refreshSession } = useAuth();
+  const navigate = useNavigate();
 
   return useAsyncEvent({
-    onError: ({ error }) => {
+    onError: ({ error, data }) => {
       switch (error.message) {
+        case SignInErrors.emailNotVerified:
+          navigate('/verify-email', { state: { email: data.email } });
+          break;
         case SignInErrors.invalidCredentials:
           toast.error('Incorrect email or password.');
           break;
@@ -24,13 +30,18 @@ const useSignIn = () => {
     onSuccess: () => {
       refreshSession();
       toast.success('Signed in.');
+      navigate('/');
     },
     promise: async (data: SignInDto) => {
       const { error } = await authClient.signIn.email({
         email: data.email,
         password: data.password,
+        callbackURL: appUrl('/'),
       });
       if (error) {
+        if (error.code === 'EMAIL_NOT_VERIFIED') {
+          throw new Error(SignInErrors.emailNotVerified);
+        }
         throw new Error(
           error.code !== undefined &&
           BETTER_AUTH_INVALID_CREDENTIALS_CODES.includes(error.code)

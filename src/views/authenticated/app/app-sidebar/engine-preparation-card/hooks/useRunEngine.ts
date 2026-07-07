@@ -16,11 +16,9 @@ const useRunEngine = ({ onDone }: UseRunEngineProps) =>
           toast.error("Couldn't run the engine, please try again.");
       }
     },
-    onSuccess: ({ returnedData }) => {
+    onSuccess: () => {
       onDone();
-      toast.success(
-        `Engine done · ${returnedData.sourced} sourced, ${returnedData.drafted} drafted.`,
-      );
+      toast.success(`Engine started, you will be notified when it's done.`);
     },
     promise: () => runEngineAxios(),
   });

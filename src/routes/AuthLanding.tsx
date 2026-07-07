@@ -9,6 +9,9 @@ const AuthLanding = () => {
   if (state.status === 'unauthenticated') {
     return <Navigate replace to="/sign-in" />;
   }
+  if (state.user !== null && !state.user.emailVerified) {
+    return <Navigate replace to="/verify-email" />;
+  }
   if (state.onboarding === 'completed') {
     return <Navigate replace to="/app" />;
   }

@@ -7,7 +7,7 @@ const ProtectedUnauthenticatedRoute = () => {
 
   if (state.status === 'loading') return <FullPageLoader />;
   if (state.status === 'authenticated') {
-    return <Navigate replace to="/app" />;
+    return <Navigate replace to="/" />;
   }
   return <Outlet />;
 };
