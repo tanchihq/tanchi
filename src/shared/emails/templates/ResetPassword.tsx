@@ -8,26 +8,23 @@ type ResetPasswordProps = Readonly<{
 
 export function ResetPassword({ firstName, url }: ResetPasswordProps) {
   return (
-    <EmailLayout preview="Réinitialise ton mot de passe SweeLeads">
-      <Heading style={sharedStyles.heading}>
-        Réinitialisation du mot de passe
-      </Heading>
+    <EmailLayout preview="Reset your SweeLeads password">
+      <Heading style={sharedStyles.heading}>Reset your password</Heading>
       <Text style={sharedStyles.paragraph}>
-        {firstName === "" ? "Bonjour," : `Bonjour ${firstName},`} tu as demandé
-        à réinitialiser ton mot de passe. Clique ci-dessous pour en choisir un
-        nouveau. Ce lien expire bientôt.
+        {firstName === "" ? "Hi," : `Hi ${firstName},`} you requested to reset
+        your password. Click below to choose a new one. This link expires soon.
       </Text>
       <Section style={{ padding: "8px 0 4px" }}>
         <Button href={url} style={sharedStyles.button}>
-          Choisir un nouveau mot de passe
+          Choose a new password
         </Button>
       </Section>
       <Text style={sharedStyles.paragraph}>
-        Si tu n'es pas à l'origine de cette demande, ignore cet email : ton mot
-        de passe reste inchangé.
+        If you didn't request this, just ignore this email — your password stays
+        unchanged.
       </Text>
       <Text style={sharedStyles.linkFallback}>
-        Si le bouton ne fonctionne pas, copie ce lien : {url}
+        If the button doesn't work, copy this link: {url}
       </Text>
     </EmailLayout>
   );

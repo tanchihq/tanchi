@@ -59,42 +59,41 @@ export function AgentRecap({
 }: AgentRecapProps) {
   return (
     <EmailLayout
-      preview={`Le run de cette nuit : ${drafted} message(s) prêts à relire`}
+      preview={`Last night's run: ${drafted} message(s) ready to review`}
     >
       <Heading style={sharedStyles.heading}>
-        Ton agent a terminé sa nuit
+        Your agent finished its night
       </Heading>
       <Text style={sharedStyles.paragraph}>
-        {firstName === "" ? "Bonjour," : `Bonjour ${firstName},`} voici ce que
-        l'agent a produit pour <strong>{organizationName}</strong> sur le dernier
-        run.
+        {firstName === "" ? "Hi," : `Hi ${firstName},`} here's what the agent
+        produced for <strong>{organizationName}</strong> on the latest run.
       </Text>
       <Section style={{ padding: "8px 0 4px" }}>
         <Row>
           <Column style={statCell}>
             <Text style={statValue}>{sourced}</Text>
-            <Text style={statLabel}>Sourcés</Text>
+            <Text style={statLabel}>Sourced</Text>
           </Column>
           <Column style={gutter} />
           <Column style={statCell}>
             <Text style={statValue}>{profiled}</Text>
-            <Text style={statLabel}>Renseignés</Text>
+            <Text style={statLabel}>Researched</Text>
           </Column>
           <Column style={gutter} />
           <Column style={statCell}>
             <Text style={statValue}>{drafted}</Text>
-            <Text style={statLabel}>Rédigés</Text>
+            <Text style={statLabel}>Drafted</Text>
           </Column>
         </Row>
       </Section>
       <Text style={{ ...sharedStyles.paragraph, margin: "24px 0 16px" }}>
         {drafted === 0
-          ? "Aucun nouveau message à relire cette fois — l'agent continue de chercher."
-          : "Les messages t'attendent : relis, ajuste au besoin, puis laisse partir."}
+          ? "No new messages to review this time — the agent keeps searching."
+          : "Your messages are waiting: review them, tweak if needed, then let them go."}
       </Text>
       <Section style={{ padding: "4px 0" }}>
         <Button href={appUrl} style={sharedStyles.button}>
-          Relire mes messages
+          Review my messages
         </Button>
       </Section>
     </EmailLayout>

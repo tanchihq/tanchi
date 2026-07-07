@@ -8,21 +8,21 @@ type VerifyEmailProps = Readonly<{
 
 export function VerifyEmail({ firstName, url }: VerifyEmailProps) {
   return (
-    <EmailLayout preview="Confirme ton adresse pour activer ton compte SweeLeads">
+    <EmailLayout preview="Confirm your email to activate your SweeLeads account">
       <Heading style={sharedStyles.heading}>
-        Bienvenue{firstName === "" ? "" : ` ${firstName}`} 👋
+        Welcome{firstName === "" ? "" : ` ${firstName}`} 👋
       </Heading>
       <Text style={sharedStyles.paragraph}>
-        Encore une étape : confirme ton adresse email pour activer ton compte
-        SweeLeads et lancer ta première prospection.
+        One last step: confirm your email address to activate your SweeLeads
+        account and launch your first outreach.
       </Text>
       <Section style={{ padding: "8px 0 4px" }}>
         <Button href={url} style={sharedStyles.button}>
-          Confirmer mon adresse
+          Confirm my email
         </Button>
       </Section>
       <Text style={sharedStyles.linkFallback}>
-        Si le bouton ne fonctionne pas, copie ce lien : {url}
+        If the button doesn't work, copy this link: {url}
       </Text>
     </EmailLayout>
   );

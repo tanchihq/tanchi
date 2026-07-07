@@ -74,7 +74,7 @@ const footerLink = {
 
 export function EmailLayout({ preview, children }: EmailLayoutProps) {
   return (
-    <Html lang="fr">
+    <Html lang="en">
       <Head>
         <Font
           fontFamily="Inter"
@@ -100,10 +100,10 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
           </Section>
           <Section style={footer}>
             <Text style={footerText}>
-              SweeLeads — prospection sourcée, sans jamais inventer un fait.
+              SweeLeads — sourced outreach, never a made-up fact.
             </Text>
             <Text style={footerText}>
-              Tu reçois cet email parce que tu as un compte SweeLeads.{" "}
+              You're receiving this email because you have a SweeLeads account.{" "}
               <Link href="https://sweeleads.com" style={footerLink}>
                 sweeleads.com
               </Link>

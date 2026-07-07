@@ -15,21 +15,21 @@ export async function buildVerifyEmail(
   props: Readonly<{ firstName: string; url: string }>
 ): Promise<BuiltEmail> {
   const { html, text } = await renderEmail(<VerifyEmail {...props} />);
-  return { subject: "Confirme ton adresse SweeLeads", html, text };
+  return { subject: "Confirm your SweeLeads email", html, text };
 }
 
 export async function buildResetPasswordEmail(
   props: Readonly<{ firstName: string; url: string }>
 ): Promise<BuiltEmail> {
   const { html, text } = await renderEmail(<ResetPassword {...props} />);
-  return { subject: "Réinitialise ton mot de passe SweeLeads", html, text };
+  return { subject: "Reset your SweeLeads password", html, text };
 }
 
 export async function buildChangeEmailEmail(
   props: Readonly<{ firstName: string; newEmail: string; url: string }>
 ): Promise<BuiltEmail> {
   const { html, text } = await renderEmail(<ChangeEmail {...props} />);
-  return { subject: "Confirme ta nouvelle adresse SweeLeads", html, text };
+  return { subject: "Confirm your new SweeLeads email", html, text };
 }
 
 export async function buildOrganizationInvitationEmail(
@@ -43,7 +43,7 @@ export async function buildOrganizationInvitationEmail(
     <OrganizationInvitation {...props} />
   );
   return {
-    subject: `Rejoins ${props.organizationName} sur SweeLeads`,
+    subject: `Join ${props.organizationName} on SweeLeads`,
     html,
     text,
   };
@@ -61,7 +61,7 @@ export async function buildAgentRecapEmail(
 ): Promise<BuiltEmail> {
   const { html, text } = await renderEmail(<AgentRecap {...props} />);
   return {
-    subject: `SweeLeads — ${props.drafted} message(s) prêts à relire`,
+    subject: `SweeLeads — ${props.drafted} message(s) ready to review`,
     html,
     text,
   };

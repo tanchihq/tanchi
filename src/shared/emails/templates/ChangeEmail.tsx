@@ -9,24 +9,24 @@ type ChangeEmailProps = Readonly<{
 
 export function ChangeEmail({ firstName, newEmail, url }: ChangeEmailProps) {
   return (
-    <EmailLayout preview="Confirme le changement d'adresse de ton compte SweeLeads">
-      <Heading style={sharedStyles.heading}>Confirme ta nouvelle adresse</Heading>
+    <EmailLayout preview="Confirm the email change on your SweeLeads account">
+      <Heading style={sharedStyles.heading}>Confirm your new email</Heading>
       <Text style={sharedStyles.paragraph}>
-        {firstName === "" ? "Bonjour," : `Bonjour ${firstName},`} une demande de
-        changement d'adresse vers <strong>{newEmail}</strong> a été faite sur ton
-        compte. Confirme pour l'appliquer.
+        {firstName === "" ? "Hi," : `Hi ${firstName},`} a request to change your
+        email to <strong>{newEmail}</strong> was made on your account. Confirm to
+        apply it.
       </Text>
       <Section style={{ padding: "8px 0 4px" }}>
         <Button href={url} style={sharedStyles.button}>
-          Confirmer le changement
+          Confirm the change
         </Button>
       </Section>
       <Text style={sharedStyles.paragraph}>
-        Si tu n'es pas à l'origine de cette demande, ignore cet email : ton
-        adresse actuelle reste active.
+        If you didn't request this, just ignore this email — your current address
+        stays active.
       </Text>
       <Text style={sharedStyles.linkFallback}>
-        Si le bouton ne fonctionne pas, copie ce lien : {url}
+        If the button doesn't work, copy this link: {url}
       </Text>
     </EmailLayout>
   );

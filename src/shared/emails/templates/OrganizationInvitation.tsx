@@ -13,27 +13,22 @@ export function OrganizationInvitation({
   url,
 }: OrganizationInvitationProps) {
   return (
-    <EmailLayout
-      preview={`Rejoins ${organizationName} sur SweeLeads`}
-    >
+    <EmailLayout preview={`Join ${organizationName} on SweeLeads`}>
       <Heading style={sharedStyles.heading}>
-        Tu es invité·e sur {organizationName}
+        You're invited to {organizationName}
       </Heading>
       <Text style={sharedStyles.paragraph}>
-        {inviterName === ""
-          ? "Quelqu'un"
-          : inviterName}{" "}
-        t'invite à rejoindre l'espace <strong>{organizationName}</strong> sur
-        SweeLeads. Accepte pour accéder aux prospects, dossiers et séquences de
-        l'équipe.
+        {inviterName === "" ? "Someone" : inviterName} invited you to join the{" "}
+        <strong>{organizationName}</strong> workspace on SweeLeads. Accept to
+        access the team's prospects, dossiers and sequences.
       </Text>
       <Section style={{ padding: "8px 0 4px" }}>
         <Button href={url} style={sharedStyles.button}>
-          Rejoindre {organizationName}
+          Join {organizationName}
         </Button>
       </Section>
       <Text style={sharedStyles.linkFallback}>
-        Si le bouton ne fonctionne pas, copie ce lien : {url}
+        If the button doesn't work, copy this link: {url}
       </Text>
     </EmailLayout>
   );
