@@ -27,6 +27,7 @@ export class QueuePostgres {
         LEFT JOIN companies c ON c.id = l.company_id
         WHERE m.organization_id = ${organizationId}
           AND m.status IN ('draft', 'edited')
+          AND l.excluded_at IS NULL
         ORDER BY m.created_at DESC
       `;
       return result;
@@ -49,6 +50,7 @@ export class QueuePostgres {
         LEFT JOIN companies c ON c.id = l.company_id
         WHERE m.lead_id = ${leadId}
           AND m.status IN ('draft', 'edited')
+          AND l.excluded_at IS NULL
         ORDER BY m.created_at DESC
         LIMIT 1
       `;

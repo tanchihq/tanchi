@@ -1,6 +1,18 @@
-type PgSuppressionEntry = Readonly<{
-  email: string;
+type ExclusionScope = "person" | "company";
+
+type PgExclusionEntry = Readonly<{
+  id: string;
+  scope: ExclusionScope;
+  email: string | null;
+  company_domain: string | null;
+  reason: string | null;
   created_at: Date;
 }>;
 
-export type { PgSuppressionEntry };
+type PgDeletedExclusion = Readonly<{
+  scope: ExclusionScope;
+  email: string | null;
+  company_domain: string | null;
+}>;
+
+export type { ExclusionScope, PgDeletedExclusion, PgExclusionEntry };

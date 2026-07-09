@@ -1,9 +1,10 @@
 import type { SuppressionRepository } from "./repository/suppression/suppression.repository.ts";
 import {
+  DeleteExclusionErrors,
   GetSuppressionErrors,
   ImportSuppressionErrors,
 } from "./suppression.errors.ts";
-import { SUPPRESSION_LIST_LIMIT } from "./suppression.constants.ts";
+import { EXCLUSION_LIST_LIMIT } from "./suppression.constants.ts";
 import type * as RequestDto from "./dto/request/index.ts";
 import type * as ResponseDto from "./dto/response/index.ts";
 import * as utils from "./suppression.utils.ts";
@@ -29,10 +30,11 @@ export class SuppressionService {
     }
 
     try {
-      const imported = await this.suppressionRepository.insertSuppressions(
-        organizationId,
-        emails
-      );
+      const imported =
+        await this.suppressionRepository.insertPersonExclusions(
+          organizationId,
+          emails
+        );
       return { imported, totalFound: emails.length };
     } catch (error) {
       console.error(
@@ -46,16 +48,55 @@ export class SuppressionService {
 
   async getList(
     activeOrganizationId: string | null | undefined
-  ): Promise<ResponseDto.SuppressionListDto | GetSuppressionErrors> {
+  ): Promise<ResponseDto.ExclusionListDto | GetSuppressionErrors> {
     const organizationId = resolveActiveOrganization(activeOrganizationId);
     if (organizationId === null) {
       return GetSuppressionErrors.noActiveOrganization;
     }
-    const entries = await this.suppressionRepository.getSuppressionList(
+    const entries = await this.suppressionRepository.getExclusions(
       organizationId,
-      SUPPRESSION_LIST_LIMIT
+      EXCLUSION_LIST_LIMIT
     );
-    return entries.map(utils.convertPgSuppressionToDto);
+    return entries.map(utils.convertPgExclusionToDto);
+  }
+
+  async deleteExclusion(
+    id: string,
+    activeOrganizationId: string | null | undefined
+  ): Promise<void | DeleteExclusionErrors> {
+    const organizationId = resolveActiveOrganization(activeOrganizationId);
+    if (organizationId === null) {
+      return DeleteExclusionErrors.noActiveOrganization;
+    }
+
+    try {
+      const deleted = await this.suppressionRepository.deleteExclusion(
+        organizationId,
+        id
+      );
+      if (deleted === null) return DeleteExclusionErrors.inexistingExclusion;
+
+      if (deleted.scope === "person" && deleted.email !== null) {
+        await this.suppressionRepository.clearLeadExclusionByEmail(
+          organizationId,
+          deleted.email
+        );
+      }
+      if (deleted.scope === "company" && deleted.company_domain !== null) {
+        await this.suppressionRepository.clearLeadExclusionByDomain(
+          organizationId,
+          deleted.company_domain
+        );
+      }
+    } catch (error) {
+      console.error(
+        `[suppression] deleteExclusion failed orgId=${organizationId} id=${id}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+      return DeleteExclusionErrors.deleteFailed;
+    }
+    return;
   }
 }
 

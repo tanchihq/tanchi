@@ -8,6 +8,7 @@ import type { ProspectsService } from "./prospects.service.ts";
 import * as RequestDto from "./dto/request/index.ts";
 import {
   ContactProspectErrors,
+  DeleteProspectErrors,
   GetProspectErrors,
   GetProspectsErrors,
   UpdateStageErrors,
@@ -96,6 +97,41 @@ export function createProspectsRouter(prospectsService: ProspectsService) {
         }
 
         return context.json(result);
+      }
+    )
+    .delete(
+      "/:id",
+      requireAuth(),
+      zValidator(
+        "param",
+        z.object({
+          id: z.uuid({ message: DeleteProspectErrors.invalidProspectId }),
+        }),
+        zodValidationHook
+      ),
+      zValidator("json", RequestDto.DeleteProspectDto, zodValidationHook),
+      async (context) => {
+        const { id } = context.req.valid("param");
+        const dto = context.req.valid("json");
+        const session = context.get("session") as SessionOrganization;
+        const result = await prospectsService.deleteProspect(
+          id,
+          dto,
+          session.activeOrganizationId
+        );
+
+        switch (result) {
+          case DeleteProspectErrors.inexistingProspect:
+            return sendError(context, 404, result);
+          case DeleteProspectErrors.notInMyOrg:
+            return sendError(context, 403, result);
+          case DeleteProspectErrors.noActiveOrganization:
+            return sendError(context, 409, result);
+          case DeleteProspectErrors.deleteFailed:
+            return sendError(context, 500, result);
+        }
+
+        return context.body(null, 204);
       }
     )
     .post(

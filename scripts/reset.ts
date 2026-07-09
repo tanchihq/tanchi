@@ -13,7 +13,7 @@ async function main(): Promise<void> {
       "✓ Données opérationnelles effacées (leads, companies, dossiers, messages, edits, outcomes, activity)."
     );
     console.log(
-      "  Config conservée : organization, organization_profile, senders, icp, suppression_list, playbook, auth."
+      "  Config conservée : organization, organization_profile, senders, icp, exclusions, playbook, auth."
     );
   } catch (err) {
     console.error("Reset failed:", err);

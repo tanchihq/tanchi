@@ -135,10 +135,16 @@ export class EngineRepository {
     return this.enginePostgres.getExistingLeadEmails(organizationId);
   }
 
-  getSuppressedEmails(
+  getExcludedEmails(
     organizationId: string
   ): Promise<ReadonlyArray<string>> {
-    return this.enginePostgres.getSuppressedEmails(organizationId);
+    return this.enginePostgres.getExcludedEmails(organizationId);
+  }
+
+  getExcludedCompanyDomains(
+    organizationId: string
+  ): Promise<ReadonlyArray<string>> {
+    return this.enginePostgres.getExcludedCompanyDomains(organizationId);
   }
 
   createOneCompany(input: CreateCompanyInput): Promise<string> {

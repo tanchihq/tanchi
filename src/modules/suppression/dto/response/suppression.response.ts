@@ -3,9 +3,15 @@ export type ImportSuppressionResultDto = Readonly<{
   totalFound: number;
 }>;
 
-export type SuppressionEntryDto = Readonly<{
-  email: string;
+export type ExclusionScopeDto = "person" | "company";
+
+export type ExclusionEntryDto = Readonly<{
+  id: string;
+  scope: ExclusionScopeDto;
+  email: string | null;
+  companyDomain: string | null;
+  reason: string | null;
   createdAt: string;
 }>;
 
-export type SuppressionListDto = ReadonlyArray<SuppressionEntryDto>;
+export type ExclusionListDto = ReadonlyArray<ExclusionEntryDto>;
