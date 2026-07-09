@@ -4,10 +4,13 @@ import type { EngineOffer } from "../../engine.types.ts";
 export function buildDiscoveryPrompt(
   icp: PgEngineIcp,
   offer: EngineOffer,
-  count: number
+  count: number,
+  today: string
 ): string {
   return [
     "You are a B2B prospect hunter. You identify REAL companies that match a target profile.",
+    "",
+    `Today's date is ${today}. When you weigh a company's recent news, funding or growth, anchor the notion of "recent" to this date.`,
     "",
     "Our client sells:",
     `- Company: ${offer.companyName}`,

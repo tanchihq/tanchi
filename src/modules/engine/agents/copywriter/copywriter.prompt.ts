@@ -13,6 +13,7 @@ export type CopywriterContext = Readonly<{
   angle: PgCopyAngle | null;
   playbook: string | null;
   isExploration: boolean;
+  today: string;
 }>;
 
 function fullName(lead: PgEngineLead): string {
@@ -30,6 +31,8 @@ export function buildCopywriterPrompt(context: CopywriterContext): string {
 
   return [
     "You are a B2B cold outreach copywriter. Your message is short, personalized, and grounded ONLY in verified facts.",
+    "",
+    `Today's date is ${context.today}. Do not call a fact "recent", "just", "this week" unless it is actually close to today, and never mention an event as upcoming if it has already passed relative to today.`,
     "",
     "RULES:",
     "- Do not invent any fact about the prospect. Use only the facts provided below.",

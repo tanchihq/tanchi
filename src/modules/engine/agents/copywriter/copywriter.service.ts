@@ -5,6 +5,7 @@ import type { EngineOffer } from "../../engine.types.ts";
 import type { CopyOutput } from "./copywriter.schemas.ts";
 import { CopyOutputSchema } from "./copywriter.schemas.ts";
 import { extractJson, lengthBucket } from "../../engine.utils.ts";
+import { todayLabel } from "@shared/utils";
 import { COPY_TEMPERATURE, EXPLORATION_RATE } from "../../engine.constants.ts";
 import {
   buildAngleInferencePrompt,
@@ -46,6 +47,7 @@ export class CopywriterService {
       angle,
       playbook,
       isExploration,
+      today: todayLabel(),
     });
     if (parsed === null) return false;
 
