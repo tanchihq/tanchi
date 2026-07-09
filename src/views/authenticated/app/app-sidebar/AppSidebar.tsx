@@ -19,7 +19,7 @@ const NAV: ReadonlyArray<NavEntry> = [
   { to: '/app', label: 'Pipeline', icon: BarChart3, end: true },
   { to: '/app/messages', label: 'Messages', icon: History },
   { to: '/app/learnings', label: 'Learnings', icon: GraduationCap },
-  { to: '/app/suppression', label: 'Do-not-contact', icon: Ban },
+  { to: '/app/exclusions', label: 'Exclusions', icon: Ban },
   { to: '/app/mailbox', label: 'Mailbox', icon: Server },
   { to: '/app/settings', label: 'Settings', icon: Settings },
 ];

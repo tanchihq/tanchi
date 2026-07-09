@@ -1,9 +1,10 @@
-import { type DragEvent } from 'react';
-import { Navigation, RotateCcw, Sparkles } from 'lucide-react';
+import { useState, type DragEvent } from 'react';
+import { Ban, Navigation, RotateCcw, Sparkles } from 'lucide-react';
 import { type Stage } from '@/api/shared/enums';
 import { type ProspectDto } from '@/api/prospects/entities/response.entities';
 import { ChannelIcon } from '@/components/ChannelIcon';
 import { ageLabel, followUpLabel, fullName, initialsOf } from '@/utils/format';
+import ExcludeDialog from '../exclude-dialog/ExcludeDialog';
 
 type ProspectCardProps = Readonly<{
   prospect: ProspectDto;
@@ -12,6 +13,7 @@ type ProspectCardProps = Readonly<{
   onDragStart: (event: DragEvent<HTMLDivElement>) => void;
   onDragEnd: () => void;
   onQualify: (stage: Stage) => void;
+  onExcluded: () => void;
 }>;
 
 const ProspectCard = ({
@@ -21,7 +23,9 @@ const ProspectCard = ({
   onDragStart,
   onDragEnd,
   onQualify,
+  onExcluded,
 }: ProspectCardProps) => {
+  const [excludeOpen, setExcludeOpen] = useState(false);
   const follow = followUpLabel(prospect.nextFollowUpAt);
 
   return (
@@ -31,7 +35,7 @@ const ProspectCard = ({
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       style={{ opacity: dragging ? 0.4 : 1 }}
-      className="cursor-pointer rounded-xl border border-white/8 bg-[#1B1B3B] p-[10px_11px] shadow-[0_8px_20px_-14px_rgba(0,0,0,0.7)] transition-colors hover:border-brand-400/50"
+      className="group cursor-pointer rounded-xl border border-white/8 bg-[#1B1B3B] p-[10px_11px] shadow-[0_8px_20px_-14px_rgba(0,0,0,0.7)] transition-colors hover:border-brand-400/50"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
@@ -53,20 +57,34 @@ const ProspectCard = ({
             <div className="truncate text-[11px] text-[#6F6C85]">{prospect.company}</div>
           </div>
         </div>
-        <span
-          title={prospect.origin === 'auto' ? 'moved automatically' : 'moved by you'}
-          className="flex size-[18px] shrink-0 items-center justify-center rounded-md"
-          style={{
-            background:
-              prospect.origin === 'auto' ? 'rgba(5,1,240,0.22)' : 'rgba(255,255,255,0.07)',
-          }}
-        >
-          {prospect.origin === 'auto' ? (
-            <Sparkles size={11} className="text-brand-400" fill="currentColor" />
-          ) : (
-            <Navigation size={11} className="text-glass-dim" />
-          )}
-        </span>
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            title="Exclude"
+            aria-label="Exclude prospect"
+            onClick={(event) => {
+              event.stopPropagation();
+              setExcludeOpen(true);
+            }}
+            className="flex size-[18px] items-center justify-center rounded-md text-[#6F6C85] opacity-0 transition-all hover:bg-white/[0.07] hover:text-[#ff8a80] focus-visible:opacity-100 group-hover:opacity-100"
+          >
+            <Ban size={12} />
+          </button>
+          <span
+            title={prospect.origin === 'auto' ? 'moved automatically' : 'moved by you'}
+            className="flex size-[18px] items-center justify-center rounded-md"
+            style={{
+              background:
+                prospect.origin === 'auto' ? 'rgba(5,1,240,0.22)' : 'rgba(255,255,255,0.07)',
+            }}
+          >
+            {prospect.origin === 'auto' ? (
+              <Sparkles size={11} className="text-brand-400" fill="currentColor" />
+            ) : (
+              <Navigation size={11} className="text-glass-dim" />
+            )}
+          </span>
+        </div>
       </div>
 
       <div className="mt-[9px] flex items-center gap-[7px]">
@@ -116,6 +134,20 @@ const ProspectCard = ({
             later
           </button>
         </div>
+      )}
+
+      {excludeOpen && (
+        <ExcludeDialog
+          open
+          onClose={() => setExcludeOpen(false)}
+          prospectId={prospect.id}
+          name={fullName(prospect.firstName, prospect.lastName)}
+          company={prospect.company}
+          onExcluded={() => {
+            setExcludeOpen(false);
+            onExcluded();
+          }}
+        />
       )}
     </div>
   );

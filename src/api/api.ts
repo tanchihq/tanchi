@@ -26,6 +26,7 @@ const getOneProspectAxios = prospects.getOneProspect(axiosInstance);
 const moveProspectStageAxios = prospects.moveProspectStage(axiosInstance);
 const contactProspectAxios = prospects.contactProspect(axiosInstance);
 const validateProspectAxios = prospects.validateProspect(axiosInstance);
+const deleteProspectAxios = prospects.deleteProspect(axiosInstance);
 
 const editQueueItemAxios = queue.editQueueItem(axiosInstance);
 
@@ -50,6 +51,7 @@ const getMessagesAxios = messages.getMessages(axiosInstance);
 
 const importSuppressionAxios = suppression.importSuppression(axiosInstance);
 const getSuppressionAxios = suppression.getSuppression(axiosInstance);
+const deleteSuppressionAxios = suppression.deleteSuppression(axiosInstance);
 
 export {
   getSessionAxios,
@@ -62,6 +64,7 @@ export {
   moveProspectStageAxios,
   contactProspectAxios,
   validateProspectAxios,
+  deleteProspectAxios,
   editQueueItemAxios,
   getManySenderAxios,
   createOneSenderAxios,
@@ -79,4 +82,5 @@ export {
   getMessagesAxios,
   importSuppressionAxios,
   getSuppressionAxios,
+  deleteSuppressionAxios,
 };

@@ -21,3 +21,5 @@ export type Origin = 'auto' | 'manual';
 export type EmailStatus = 'verified' | 'guessed' | 'none';
 
 export type SenderStatus = 'unverified' | 'active' | 'error';
+
+export type ExclusionScope = 'person' | 'company';

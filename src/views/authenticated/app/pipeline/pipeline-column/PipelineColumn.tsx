@@ -17,6 +17,7 @@ type PipelineColumnProps = Readonly<{
   onDragStart: (id: string) => void;
   onDragEnd: () => void;
   onQualify: (id: string, stage: Stage) => void;
+  onExcluded: () => void;
 }>;
 
 const PipelineColumn = ({
@@ -32,6 +33,7 @@ const PipelineColumn = ({
   onDragStart,
   onDragEnd,
   onQualify,
+  onExcluded,
 }: PipelineColumnProps) => (
   <div
     onDragOver={onDragOver}
@@ -67,6 +69,7 @@ const PipelineColumn = ({
           onDragStart={() => onDragStart(prospect.id)}
           onDragEnd={onDragEnd}
           onQualify={(next) => onQualify(prospect.id, next)}
+          onExcluded={onExcluded}
         />
       ))}
       {cards.length === 0 && (

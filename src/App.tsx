@@ -14,7 +14,7 @@ import AppLayout from './views/authenticated/app/AppLayout';
 import Pipeline from './views/authenticated/app/pipeline';
 import Messages from './views/authenticated/app/messages';
 import Learnings from './views/authenticated/app/learnings';
-import Suppression from './views/authenticated/app/suppression';
+import Exclusions from './views/authenticated/app/exclusions';
 import Mailbox from './views/authenticated/app/mailbox';
 import Settings from './views/authenticated/app/settings';
 import LeadPanel from './views/authenticated/app/lead';
@@ -38,7 +38,7 @@ const App = () => (
             <Route index element={<Pipeline />} />
             <Route path="messages" element={<Messages />} />
             <Route path="learnings" element={<Learnings />} />
-            <Route path="suppression" element={<Suppression />} />
+            <Route path="exclusions" element={<Exclusions />} />
             <Route path="mailbox" element={<Mailbox />} />
             <Route path="settings" element={<Settings />} />
             <Route path="lead/:id" element={<LeadPanel />} />
