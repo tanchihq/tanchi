@@ -243,15 +243,31 @@ export class EnginePostgres {
     }
   }
 
-  async getSuppressedEmails(
+  async getExcludedEmails(
     organizationId: string
   ): Promise<ReadonlyArray<string>> {
     try {
       const result = await this.db<ReadonlyArray<Readonly<{ email: string }>>>`
-        SELECT email FROM suppression_list
+        SELECT email FROM exclusions
         WHERE organization_id = ${organizationId}
+          AND scope = 'person' AND email IS NOT NULL
       `;
       return result.map((row) => row.email);
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async getExcludedCompanyDomains(
+    organizationId: string
+  ): Promise<ReadonlyArray<string>> {
+    try {
+      const result = await this.db<ReadonlyArray<Readonly<{ company_domain: string }>>>`
+        SELECT company_domain FROM exclusions
+        WHERE organization_id = ${organizationId}
+          AND scope = 'company' AND company_domain IS NOT NULL
+      `;
+      return result.map((row) => row.company_domain);
     } catch (error) {
       return throwSanitizeError(error);
     }
@@ -311,6 +327,7 @@ export class EnginePostgres {
         LEFT JOIN icp i ON i.id = l.icp_id
         WHERE l.organization_id = ${organizationId}
           AND l.stage = 'identified'
+          AND l.excluded_at IS NULL
           AND NOT EXISTS (SELECT 1 FROM dossiers d WHERE d.lead_id = l.id)
         ORDER BY l.created_at ASC
       `;
@@ -336,6 +353,7 @@ export class EnginePostgres {
         LEFT JOIN companies c ON c.id = l.company_id
         LEFT JOIN icp i ON i.id = l.icp_id
         WHERE l.organization_id = ${organizationId}
+          AND l.excluded_at IS NULL
           AND EXISTS (SELECT 1 FROM dossiers d WHERE d.lead_id = l.id)
           AND NOT EXISTS (SELECT 1 FROM messages m WHERE m.lead_id = l.id)
         ORDER BY l.created_at ASC

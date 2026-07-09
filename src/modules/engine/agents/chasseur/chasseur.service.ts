@@ -39,15 +39,20 @@ export class ChasseurService {
       return 0;
     }
 
+    const [companyDomains, excludedDomains, leadEmails, excludedEmails] =
+      await Promise.all([
+        this.engineRepository.getExistingCompanyDomains(organizationId),
+        this.engineRepository.getExcludedCompanyDomains(organizationId),
+        this.engineRepository.getExistingLeadEmails(organizationId),
+        this.engineRepository.getExcludedEmails(organizationId),
+      ]);
     const existingDomains = new Set(
-      await this.engineRepository.getExistingCompanyDomains(organizationId)
+      [...companyDomains, ...excludedDomains].map((domain) =>
+        domain.toLowerCase()
+      )
     );
-    const [leadEmails, suppressedEmails] = await Promise.all([
-      this.engineRepository.getExistingLeadEmails(organizationId),
-      this.engineRepository.getSuppressedEmails(organizationId),
-    ]);
     const existingEmails = new Set(
-      [...leadEmails, ...suppressedEmails].map((email) => email.toLowerCase())
+      [...leadEmails, ...excludedEmails].map((email) => email.toLowerCase())
     );
 
     let created = 0;

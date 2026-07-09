@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { sendError } from "@shared/errors";
 import { requireAuth, type AuthVariables } from "@shared/middleware/requireAuth.ts";
@@ -6,6 +7,7 @@ import { zodValidationHook } from "@shared/middleware/zodValidationHook.ts";
 import type { SuppressionService } from "./suppression.service.ts";
 import * as RequestDto from "./dto/request/index.ts";
 import {
+  DeleteExclusionErrors,
   GetSuppressionErrors,
   ImportSuppressionErrors,
 } from "./suppression.errors.ts";
@@ -55,5 +57,35 @@ export function createSuppressionRouter(
       }
 
       return context.json(result);
-    });
+    })
+    .delete(
+      "/:id",
+      requireAuth(),
+      zValidator(
+        "param",
+        z.object({
+          id: z.uuid({ message: DeleteExclusionErrors.invalidExclusionId }),
+        }),
+        zodValidationHook
+      ),
+      async (context) => {
+        const { id } = context.req.valid("param");
+        const session = context.get("session") as SessionOrganization;
+        const result = await suppressionService.deleteExclusion(
+          id,
+          session.activeOrganizationId
+        );
+
+        switch (result) {
+          case DeleteExclusionErrors.inexistingExclusion:
+            return sendError(context, 404, result);
+          case DeleteExclusionErrors.noActiveOrganization:
+            return sendError(context, 409, result);
+          case DeleteExclusionErrors.deleteFailed:
+            return sendError(context, 500, result);
+        }
+
+        return context.body(null, 204);
+      }
+    );
 }

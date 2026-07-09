@@ -1,6 +1,7 @@
 import type { DbClient } from "@shared/db";
 import { ARRAY, throwSanitizeError } from "@shared/utils";
 import type {
+  ExcludeProspectInput,
   PgDraftMessage,
   PgLeadListRow,
   PgLeadRow,
@@ -30,6 +31,7 @@ export class ProspectsPostgres {
         LEFT JOIN companies c ON c.id = l.company_id
         LEFT JOIN icp i ON i.id = l.icp_id
         WHERE l.organization_id = ${organizationId}
+          AND l.excluded_at IS NULL
         ORDER BY l.created_at DESC
       `;
       return result;
@@ -46,11 +48,13 @@ export class ProspectsPostgres {
           l.hot, l.stage, l.origin, l.email, l.email_status, l.phone,
           l.linkedin_url, l.instagram_url, l.score, l.qualification,
           l.created_at, l.next_follow_up_at, l.snooze_until,
+          l.company_id,
           c.name AS company_name,
           c.sector AS company_sector,
           c.size AS company_size,
           c.hq AS company_hq,
           c.website AS company_website,
+          c.domain AS company_domain,
           i.name AS icp_name
         FROM leads l
         LEFT JOIN companies c ON c.id = l.company_id
@@ -74,6 +78,59 @@ export class ProspectsPostgres {
         SET stage = ${stage}, origin = ${origin}, updated_at = NOW()
         WHERE id = ${id}
       `;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async excludeProspect(input: ExcludeProspectInput): Promise<void> {
+    try {
+      await this.db.begin(async (tx) => {
+        if (input.scope === "person") {
+          if (input.email !== null) {
+            await tx`
+              INSERT INTO exclusions (id, organization_id, scope, email, reason)
+              VALUES (
+                ${Bun.randomUUIDv7()}, ${input.organizationId}, 'person',
+                ${input.email.toLowerCase()}, ${input.reason}
+              )
+              ON CONFLICT (organization_id, email) WHERE scope = 'person'
+              DO UPDATE SET reason = COALESCE(EXCLUDED.reason, exclusions.reason)
+            `;
+          }
+          await tx`
+            UPDATE leads SET excluded_at = NOW(), updated_at = NOW()
+            WHERE id = ${input.leadId}
+              AND organization_id = ${input.organizationId}
+          `;
+          return;
+        }
+
+        if (input.companyDomain !== null) {
+          await tx`
+            INSERT INTO exclusions (id, organization_id, scope, company_domain, reason)
+            VALUES (
+              ${Bun.randomUUIDv7()}, ${input.organizationId}, 'company',
+              ${input.companyDomain.toLowerCase()}, ${input.reason}
+            )
+            ON CONFLICT (organization_id, company_domain) WHERE scope = 'company'
+            DO UPDATE SET reason = COALESCE(EXCLUDED.reason, exclusions.reason)
+          `;
+        }
+        if (input.companyId === null) {
+          await tx`
+            UPDATE leads SET excluded_at = NOW(), updated_at = NOW()
+            WHERE id = ${input.leadId}
+              AND organization_id = ${input.organizationId}
+          `;
+          return;
+        }
+        await tx`
+          UPDATE leads SET excluded_at = NOW(), updated_at = NOW()
+          WHERE organization_id = ${input.organizationId}
+            AND company_id = ${input.companyId}
+        `;
+      });
     } catch (error) {
       return throwSanitizeError(error);
     }

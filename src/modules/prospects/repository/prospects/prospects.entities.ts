@@ -57,11 +57,13 @@ type PgLeadRow = Readonly<{
   created_at: Date;
   next_follow_up_at: Date | null;
   snooze_until: Date | null;
+  company_id: string | null;
   company_name: string | null;
   company_sector: string | null;
   company_size: string | null;
   company_hq: string | null;
   company_website: string | null;
+  company_domain: string | null;
   icp_name: string | null;
 }>;
 
@@ -121,7 +123,18 @@ type PgDraftMessage = Readonly<{
   body: string;
 }>;
 
+type ExcludeProspectInput = Readonly<{
+  organizationId: string;
+  leadId: string;
+  companyId: string | null;
+  scope: "person" | "company";
+  email: string | null;
+  companyDomain: string | null;
+  reason: string | null;
+}>;
+
 export type {
+  ExcludeProspectInput,
   PgChannel,
   PgDraftMessage,
   PgEmailStatus,

@@ -1,23 +1,53 @@
 import type { SuppressionPostgres } from "./suppression.postgres.ts";
-import type { PgSuppressionEntry } from "./suppression.entities.ts";
+import type {
+  PgDeletedExclusion,
+  PgExclusionEntry,
+} from "./suppression.entities.ts";
 
 export class SuppressionRepository {
   constructor(private readonly suppressionPostgres: SuppressionPostgres) {}
 
-  insertSuppressions(
+  insertPersonExclusions(
     organizationId: string,
     emails: ReadonlyArray<string>
   ): Promise<number> {
-    return this.suppressionPostgres.insertSuppressions(
+    return this.suppressionPostgres.insertPersonExclusions(
       organizationId,
       emails
     );
   }
 
-  getSuppressionList(
+  getExclusions(
     organizationId: string,
     limit: number
-  ): Promise<ReadonlyArray<PgSuppressionEntry>> {
-    return this.suppressionPostgres.getSuppressionList(organizationId, limit);
+  ): Promise<ReadonlyArray<PgExclusionEntry>> {
+    return this.suppressionPostgres.getExclusions(organizationId, limit);
+  }
+
+  deleteExclusion(
+    organizationId: string,
+    id: string
+  ): Promise<PgDeletedExclusion | null> {
+    return this.suppressionPostgres.deleteExclusion(organizationId, id);
+  }
+
+  clearLeadExclusionByEmail(
+    organizationId: string,
+    email: string
+  ): Promise<void> {
+    return this.suppressionPostgres.clearLeadExclusionByEmail(
+      organizationId,
+      email
+    );
+  }
+
+  clearLeadExclusionByDomain(
+    organizationId: string,
+    domain: string
+  ): Promise<void> {
+    return this.suppressionPostgres.clearLeadExclusionByDomain(
+      organizationId,
+      domain
+    );
   }
 }

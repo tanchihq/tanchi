@@ -8,3 +8,10 @@ export enum ImportSuppressionErrors {
 export enum GetSuppressionErrors {
   noActiveOrganization = "noActiveOrganization",
 }
+
+export enum DeleteExclusionErrors {
+  noActiveOrganization = "noActiveOrganization",
+  invalidExclusionId = "invalidExclusionId",
+  inexistingExclusion = "inexistingExclusion",
+  deleteFailed = "deleteFailed",
+}

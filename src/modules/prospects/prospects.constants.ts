@@ -1,0 +1,1 @@
+export const MAX_EXCLUSION_REASON_LENGTH = 500;

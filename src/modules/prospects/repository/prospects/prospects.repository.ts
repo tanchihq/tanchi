@@ -1,5 +1,6 @@
 import type { ProspectsPostgres } from "./prospects.postgres.ts";
 import type {
+  ExcludeProspectInput,
   PgDraftMessage,
   PgLeadListRow,
   PgLeadRow,
@@ -23,6 +24,10 @@ export class ProspectsRepository {
 
   getOneLeadById(id: string): Promise<PgLeadRow | null> {
     return this.prospectsPostgres.getOneLeadById(id);
+  }
+
+  excludeProspect(input: ExcludeProspectInput): Promise<void> {
+    return this.prospectsPostgres.excludeProspect(input);
   }
 
   updateOneLeadStage(

@@ -19,6 +19,16 @@ export enum UpdateStageErrors {
   updateFailed = "updateFailed",
 }
 
+export enum DeleteProspectErrors {
+  invalidProspectId = "invalidProspectId",
+  invalidScope = "invalidScope",
+  invalidReason = "invalidReason",
+  noActiveOrganization = "noActiveOrganization",
+  inexistingProspect = "inexistingProspect",
+  notInMyOrg = "notInMyOrg",
+  deleteFailed = "deleteFailed",
+}
+
 export enum ContactProspectErrors {
   invalidProspectId = "invalidProspectId",
   noActiveOrganization = "noActiveOrganization",

@@ -10,6 +10,7 @@ import type {
 } from "./repository/prospects/prospects.entities.ts";
 import {
   ContactProspectErrors,
+  DeleteProspectErrors,
   GetProspectErrors,
   GetProspectsErrors,
   UpdateStageErrors,
@@ -103,6 +104,41 @@ export class ProspectsService {
     const refreshed = await this.prospectsRepository.getOneLeadById(id);
     if (refreshed === null) return UpdateStageErrors.inexistingProspect;
     return utils.convertPgLeadRowToProspectDto(refreshed);
+  }
+
+  async deleteProspect(
+    id: string,
+    dto: RequestDto.DeleteProspectDto,
+    activeOrganizationId: string | null | undefined
+  ): Promise<void | DeleteProspectErrors> {
+    const organizationId = resolveActiveOrganization(activeOrganizationId);
+    if (organizationId === null) {
+      return DeleteProspectErrors.noActiveOrganization;
+    }
+
+    const lead = await this.prospectsRepository.getOneLeadById(id);
+    if (lead === null) return DeleteProspectErrors.inexistingProspect;
+    if (lead.organization_id !== organizationId) {
+      return DeleteProspectErrors.notInMyOrg;
+    }
+
+    try {
+      await this.prospectsRepository.excludeProspect({
+        organizationId,
+        leadId: lead.id,
+        companyId: lead.company_id,
+        scope: dto.scope,
+        email: lead.email,
+        companyDomain: lead.company_domain,
+        reason: dto.reason ?? null,
+      });
+    } catch (error) {
+      console.error(
+        `[prospects] deleteProspect failed leadId=${id}: ${errorMessage(error)}`
+      );
+      return DeleteProspectErrors.deleteFailed;
+    }
+    return;
   }
 
   async contactProspect(
