@@ -12,7 +12,7 @@ import { isDueToday } from '@/utils/format';
 import { AppScreen } from '../AppScreen';
 import { AppEmpty, AppError, AppLoader } from '@/components/AsyncState';
 import PipelineColumn from './pipeline-column/PipelineColumn';
-import SideLane from './side-lane/SideLane';
+import CollapsibleStage from './collapsible-stage/CollapsibleStage';
 import useRetrieveProspects from './hooks/useRetrieveProspects';
 import useMoveStage from './hooks/useMoveStage';
 import { needsTonight } from './utils';
@@ -130,20 +130,18 @@ const Pipeline = () => {
           ))}
         </div>
 
-        <div className="flex shrink-0 gap-3">
+        <div className="flex shrink-0 flex-col gap-2">
           {SIDE_STAGES.map((stage) => (
-            <SideLane
+            <CollapsibleStage
               key={stage}
               stage={stage}
-              cards={prospects.filter((prospect) => prospect.stage === stage)}
+              prospects={prospects.filter((prospect) => prospect.stage === stage)}
               over={dragOver === stage}
-              emptyHint={EMPTY_HINT[stage]}
-              draggingId={draggingId}
               onDragOver={allowDrop(stage)}
               onDrop={() => drop(stage)}
               onOpen={open}
-              onDragStart={setDraggingId}
-              onDragEnd={() => setDraggingId(null)}
+              onMove={(id, next) => move({ id, stage: next, origin: 'manual' })}
+              onExcluded={refetch}
             />
           ))}
         </div>

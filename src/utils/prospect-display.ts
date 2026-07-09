@@ -22,6 +22,8 @@ export const BOARD_STAGES: ReadonlyArray<Stage> = [
 
 export const SIDE_STAGES: ReadonlyArray<Stage> = ['not-interested', 'snoozed'];
 
+export const ALL_STAGES: ReadonlyArray<Stage> = [...BOARD_STAGES, ...SIDE_STAGES];
+
 export const EMPTY_HINT: Readonly<Record<Stage, string>> = {
   identified: 'No prospect here',
   contacted: 'Nothing sent yet',
