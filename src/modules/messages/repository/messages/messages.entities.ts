@@ -20,4 +20,25 @@ type GetMessagesFilter = Readonly<{
   limit: number;
 }>;
 
-export type { GetMessagesFilter, PgMessageHistoryRow };
+type PgEditableMessage = Readonly<{
+  id: string;
+  organization_id: string;
+  subject: string | null;
+  body: string;
+  status: string;
+}>;
+
+type SaveMessageEditInput = Readonly<{
+  organizationId: string;
+  messageId: string;
+  aiVersion: string;
+  subject: string | null;
+  body: string;
+}>;
+
+export type {
+  GetMessagesFilter,
+  PgEditableMessage,
+  PgMessageHistoryRow,
+  SaveMessageEditInput,
+};

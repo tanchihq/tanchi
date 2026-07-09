@@ -7,7 +7,7 @@ const BODY =
 async function main(): Promise<void> {
   try {
     const orgs = await db<Array<{ id: string }>>`
-      SELECT id FROM organization ORDER BY created_at ASC LIMIT 1
+      SELECT id FROM organization ORDER BY created_at DESC LIMIT 1
     `;
     const org = orgs[0];
     if (!org) {

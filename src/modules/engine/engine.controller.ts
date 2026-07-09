@@ -9,18 +9,26 @@ type SessionOrganization = Readonly<{
   activeOrganizationId?: string | null;
 }>;
 
-export function createEngineRouter(engineQueue: Queue) {
-  return new Hono<{ Variables: AuthVariables }>().post(
-    "/run",
-    requireAuth(),
-    async (context) => {
+function resolveActiveOrganization(
+  session: SessionOrganization
+): string | null {
+  const organizationId = session.activeOrganizationId;
+  if (
+    organizationId === null ||
+    organizationId === undefined ||
+    organizationId === ""
+  ) {
+    return null;
+  }
+  return organizationId;
+}
+
+export function createEngineRouter(engineQueue: Queue, analysteQueue: Queue) {
+  return new Hono<{ Variables: AuthVariables }>()
+    .post("/run", requireAuth(), async (context) => {
       const session = context.get("session") as SessionOrganization;
-      const organizationId = session.activeOrganizationId;
-      if (
-        organizationId === null ||
-        organizationId === undefined ||
-        organizationId === ""
-      ) {
+      const organizationId = resolveActiveOrganization(session);
+      if (organizationId === null) {
         return sendError(context, 409, RunEngineErrors.noActiveOrganization);
       }
 
@@ -32,6 +40,21 @@ export function createEngineRouter(engineQueue: Queue) {
 
       const body: ResponseDto.EngineRunQueuedDto = { queued: true };
       return context.json(body, 202);
-    }
-  );
+    })
+    .post("/analyste", requireAuth(), async (context) => {
+      const session = context.get("session") as SessionOrganization;
+      const organizationId = resolveActiveOrganization(session);
+      if (organizationId === null) {
+        return sendError(context, 409, RunEngineErrors.noActiveOrganization);
+      }
+
+      await analysteQueue.add(
+        "manual",
+        { organizationId },
+        { removeOnComplete: true, removeOnFail: 100 }
+      );
+
+      const body: ResponseDto.EngineRunQueuedDto = { queued: true };
+      return context.json(body, 202);
+    });
 }

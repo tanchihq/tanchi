@@ -129,6 +129,25 @@ type CreateMessageDraftInput = Readonly<{
   isExploration: boolean;
 }>;
 
+type PgMessageOutcomeRow = Readonly<{
+  angle_type: string | null;
+  angle_type_inferred: string | null;
+  length_bucket: string | null;
+  cta_type: string | null;
+  perso_depth: string | null;
+  channel: string;
+  subject: string | null;
+  body: string;
+  positive: boolean;
+  replied: boolean;
+}>;
+
+type PgIcpEdit = Readonly<{
+  ai_version: string;
+  edited_version: string;
+  angle_type: string | null;
+}>;
+
 export type {
   CreateCompanyInput,
   CreateLeadInput,
@@ -138,6 +157,8 @@ export type {
   PgCopyFact,
   PgEngineIcp,
   PgEngineLead,
+  PgIcpEdit,
+  PgMessageOutcomeRow,
   PgEngineProfile,
   PgEngineRun,
   ProfileAngleInput,
