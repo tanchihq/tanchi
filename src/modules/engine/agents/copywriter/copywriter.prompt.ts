@@ -38,6 +38,7 @@ export function buildCopywriterPrompt(context: CopywriterContext): string {
     "- Do not invent any fact about the prospect. Use only the facts provided below.",
     "- Personalize from the first line with a specific fact. No generic flattery.",
     "- Get to the point, one clear ask (CTA).",
+    "- End the body on the CTA. Do NOT add any sign-off, closing line, sender name or signature (no 'Best', 'Cheers', 'Regards', no '[Your name]'). The sender's signature is appended automatically after your body.",
     isExploration
       ? "- EXPLORATION MODE: try a new angle or phrasing, different from usual."
       : "",

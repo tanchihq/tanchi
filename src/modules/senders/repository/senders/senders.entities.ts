@@ -60,10 +60,46 @@ type UpdateSenderVerificationInput = Readonly<{
   lastVerifiedAt: Date | null;
 }>;
 
+type UpdateSenderInput = Readonly<{
+  fromName: string;
+  fromEmail: string;
+  smtpHost: string;
+  smtpPort: number;
+  smtpSecure: boolean;
+  imapHost: string;
+  imapPort: number;
+  imapSecure: boolean;
+  username: string;
+  secretEncrypted: string;
+  dailyCap: number;
+  signature: string;
+  status: PgSenderStatus;
+  lastVerifiedAt: Date | null;
+}>;
+
+type PgSenderUpdate = Readonly<{
+  from_name: string;
+  from_email: string;
+  smtp_host: string;
+  smtp_port: number;
+  smtp_secure: boolean;
+  imap_host: string;
+  imap_port: number;
+  imap_secure: boolean;
+  username: string;
+  secret_encrypted: string;
+  daily_cap: number;
+  signature: string;
+  status: PgSenderStatus;
+  last_verified_at: Date | null;
+}>;
+
 export type {
   CreateSenderFactoryInput,
   PgSender,
   PgSenderFactory,
   PgSenderStatus,
+  PgSenderUpdate,
+  UpdateSenderInput,
   UpdateSenderVerificationInput,
 };

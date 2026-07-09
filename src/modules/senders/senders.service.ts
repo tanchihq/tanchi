@@ -7,6 +7,7 @@ import {
   DeleteSenderErrors,
   ListSendersErrors,
   TestSenderErrors,
+  UpdateSenderErrors,
 } from "./senders.errors.ts";
 import type * as RequestDto from "./dto/request/index.ts";
 import type * as ResponseDto from "./dto/response/index.ts";
@@ -63,6 +64,55 @@ export class SendersService {
         organizationId
       );
     return senders.map(utils.convertPgSenderToSenderDto);
+  }
+
+  async updateSender(
+    senderId: string,
+    dto: RequestDto.UpdateSenderDto,
+    activeOrganizationId: string | null | undefined
+  ): Promise<ResponseDto.SenderDto | UpdateSenderErrors> {
+    const organizationId = resolveActiveOrganization(activeOrganizationId);
+    if (organizationId === null) {
+      return UpdateSenderErrors.noActiveOrganization;
+    }
+
+    const sender = await this.sendersRepository.getOneSenderById(senderId);
+    if (sender === null) return UpdateSenderErrors.inexistingSender;
+    if (sender.organization_id !== organizationId) {
+      return UpdateSenderErrors.notInMyOrg;
+    }
+
+    const resetVerification = connectionChanged(dto, sender);
+    try {
+      const updated = await this.sendersRepository.updateOneSender(senderId, {
+        fromName: dto.fromName ?? sender.from_name,
+        fromEmail: dto.fromEmail ?? sender.from_email,
+        smtpHost: dto.smtpHost ?? sender.smtp_host,
+        smtpPort: dto.smtpPort ?? sender.smtp_port,
+        smtpSecure: dto.smtpSecure ?? sender.smtp_secure,
+        imapHost: dto.imapHost ?? sender.imap_host,
+        imapPort: dto.imapPort ?? sender.imap_port,
+        imapSecure: dto.imapSecure ?? sender.imap_secure,
+        username: dto.username ?? sender.username,
+        secretEncrypted:
+          dto.secret === undefined
+            ? sender.secret_encrypted
+            : encryptSecret(dto.secret),
+        dailyCap: dto.dailyCap ?? sender.daily_cap,
+        signature: dto.signature ?? sender.signature,
+        status: resetVerification ? "unverified" : sender.status,
+        lastVerifiedAt: resetVerification ? null : sender.last_verified_at,
+      });
+      if (updated === null) return UpdateSenderErrors.inexistingSender;
+      return utils.convertPgSenderToSenderDto(updated);
+    } catch (error) {
+      console.error(
+        `[senders] updateSender failed senderId=${senderId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+      return UpdateSenderErrors.updateFailed;
+    }
   }
 
   async deleteSender(
@@ -126,6 +176,22 @@ export class SendersService {
     if (refreshed === null) return TestSenderErrors.inexistingSender;
     return utils.convertPgSenderToSenderDto(refreshed);
   }
+}
+
+function connectionChanged(
+  dto: RequestDto.UpdateSenderDto,
+  sender: PgSender
+): boolean {
+  if (dto.secret !== undefined) return true;
+  return (
+    (dto.smtpHost !== undefined && dto.smtpHost !== sender.smtp_host) ||
+    (dto.smtpPort !== undefined && dto.smtpPort !== sender.smtp_port) ||
+    (dto.smtpSecure !== undefined && dto.smtpSecure !== sender.smtp_secure) ||
+    (dto.imapHost !== undefined && dto.imapHost !== sender.imap_host) ||
+    (dto.imapPort !== undefined && dto.imapPort !== sender.imap_port) ||
+    (dto.imapSecure !== undefined && dto.imapSecure !== sender.imap_secure) ||
+    (dto.username !== undefined && dto.username !== sender.username)
+  );
 }
 
 function toMailboxCredentials(sender: PgSender) {

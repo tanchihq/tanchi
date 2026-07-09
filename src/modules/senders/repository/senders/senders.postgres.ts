@@ -3,6 +3,7 @@ import { ARRAY, throwSanitizeError } from "@shared/utils";
 import type {
   PgSender,
   PgSenderFactory,
+  PgSenderUpdate,
   UpdateSenderVerificationInput,
 } from "./senders.entities.ts";
 
@@ -60,6 +61,37 @@ export class SendersPostgres {
     try {
       const result = await this.db<ReadonlyArray<PgSender>>`
         SELECT * FROM senders WHERE id = ${id}
+      `;
+      return result[ARRAY.FIRST_INDEX] ?? null;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async updateOneSender(
+    id: string,
+    update: PgSenderUpdate
+  ): Promise<PgSender | null> {
+    try {
+      const result = await this.db<ReadonlyArray<PgSender>>`
+        UPDATE senders SET
+          from_name = ${update.from_name},
+          from_email = ${update.from_email},
+          smtp_host = ${update.smtp_host},
+          smtp_port = ${update.smtp_port},
+          smtp_secure = ${update.smtp_secure},
+          imap_host = ${update.imap_host},
+          imap_port = ${update.imap_port},
+          imap_secure = ${update.imap_secure},
+          username = ${update.username},
+          secret_encrypted = ${update.secret_encrypted},
+          daily_cap = ${update.daily_cap},
+          signature = ${update.signature},
+          status = ${update.status},
+          last_verified_at = ${update.last_verified_at},
+          updated_at = NOW()
+        WHERE id = ${id}
+        RETURNING *
       `;
       return result[ARRAY.FIRST_INDEX] ?? null;
     } catch (error) {

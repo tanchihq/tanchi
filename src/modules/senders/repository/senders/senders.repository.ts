@@ -2,6 +2,7 @@ import type { SendersPostgres } from "./senders.postgres.ts";
 import type {
   CreateSenderFactoryInput,
   PgSender,
+  UpdateSenderInput,
   UpdateSenderVerificationInput,
 } from "./senders.entities.ts";
 import * as utils from "./senders.utils.ts";
@@ -24,6 +25,14 @@ export class SendersRepository {
 
   getOneSenderById(id: string): Promise<PgSender | null> {
     return this.sendersPostgres.getOneSenderById(id);
+  }
+
+  updateOneSender(
+    id: string,
+    input: UpdateSenderInput
+  ): Promise<PgSender | null> {
+    const update = utils.convertUpdateSenderInputToPgSenderUpdate(input);
+    return this.sendersPostgres.updateOneSender(id, update);
   }
 
   updateOneSenderVerification(
