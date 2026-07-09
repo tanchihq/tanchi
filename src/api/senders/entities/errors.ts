@@ -13,6 +13,7 @@ export enum SenderErrors {
   notInMyOrg = 'notInMyOrg',
   connectionFailed = 'connectionFailed',
   createFailed = 'createFailed',
+  updateFailed = 'updateFailed',
   deleteFailed = 'deleteFailed',
   fetchFailed = 'fetchFailed',
 }

@@ -31,6 +31,7 @@ const editQueueItemAxios = queue.editQueueItem(axiosInstance);
 
 const getManySenderAxios = senders.getManySender(axiosInstance);
 const createOneSenderAxios = senders.createOneSender(axiosInstance);
+const editOneSenderAxios = senders.editOneSender(axiosInstance);
 const deleteOneSenderAxios = senders.deleteOneSender(axiosInstance);
 const testOneSenderAxios = senders.testOneSender(axiosInstance);
 
@@ -64,6 +65,7 @@ export {
   editQueueItemAxios,
   getManySenderAxios,
   createOneSenderAxios,
+  editOneSenderAxios,
   deleteOneSenderAxios,
   testOneSenderAxios,
   getSettingsAxios,

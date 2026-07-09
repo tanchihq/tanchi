@@ -30,7 +30,8 @@ const Mailbox = () => {
         <div className="mx-auto flex max-w-[720px] flex-col gap-4">
           <p className="text-sm leading-relaxed text-[#ABA8C0]">
             Connect your own mailbox. Emails go out from your address (SMTP) and replies are
-            read back (IMAP). Editing a mailbox means deleting and re-creating it.
+            read back (IMAP). Edit a mailbox any time — changing connection settings requires
+            testing it again before it can send.
           </p>
 
           {senders.length > 0 && (

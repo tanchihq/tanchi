@@ -1,18 +1,9 @@
 import { z } from 'zod';
+import { senderFieldsShape } from '../sender-fields/utils';
 
 export const senderSchema = z.object({
-  fromName: z.string().trim().min(1, 'Required.').max(200),
-  fromEmail: z.email('Invalid email.').max(255),
-  smtpHost: z.string().trim().min(1, 'Required.').max(255),
-  smtpPort: z.number('Invalid port.').int().min(1).max(65535),
-  smtpSecure: z.boolean(),
-  imapHost: z.string().trim().min(1, 'Required.').max(255),
-  imapPort: z.number('Invalid port.').int().min(1).max(65535),
-  imapSecure: z.boolean(),
-  username: z.string().trim().min(1, 'Required.').max(255),
+  ...senderFieldsShape,
   secret: z.string().min(1, 'Required.').max(1024),
-  dailyCap: z.number('Invalid cap.').int().min(1).max(1000),
-  signature: z.string().max(2000),
 });
 
 export type SenderFormValues = z.infer<typeof senderSchema>;
