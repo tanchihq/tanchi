@@ -6,6 +6,7 @@ import type { EngineOffer } from "../../engine.types.ts";
 import type { DiscoveryOutput } from "./chasseur.schemas.ts";
 import { DiscoveryOutputSchema } from "./chasseur.schemas.ts";
 import { extractJson, normalizeDomain } from "../../engine.utils.ts";
+import { todayLabel } from "@shared/utils";
 import { buildDiscoveryPrompt } from "./chasseur.prompt.ts";
 import {
   COMPANIES_PER_ICP,
@@ -92,7 +93,7 @@ export class ChasseurService {
   ): Promise<ReadonlyArray<DiscoveredCompany>> {
     try {
       const raw = await this.llm.research({
-        prompt: buildDiscoveryPrompt(icp, offer, COMPANIES_PER_ICP),
+        prompt: buildDiscoveryPrompt(icp, offer, COMPANIES_PER_ICP, todayLabel()),
       });
       return DiscoveryOutputSchema.parse(extractJson(raw)).companies;
     } catch (error) {

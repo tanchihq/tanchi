@@ -1,5 +1,6 @@
 import { recordActivity } from "@shared/activity";
 import { decryptSecret } from "@shared/crypto";
+import { todayLabel } from "@shared/utils";
 import {
   fetchRecentReplies,
   type MailboxCredentials,
@@ -123,7 +124,7 @@ export class RewardService {
   private async classify(text: string): Promise<Classification> {
     try {
       const raw = await this.llm.generate({
-        prompt: buildClassifyPrompt(text),
+        prompt: buildClassifyPrompt(text, todayLabel()),
         maxTokens: CLASSIFY_MAX_TOKENS,
       });
       const word = raw.trim().toLowerCase();

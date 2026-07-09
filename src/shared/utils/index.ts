@@ -29,6 +29,24 @@ const TIME = {
   MONTH_MS: 30 * 24 * 60 * 60 * 1000,
 };
 
+const DATE = {
+  ISO_DATE_END: 10,
+};
+
+const todayLabel = (): string => {
+  const now = new Date();
+  const isoDate = now
+    .toISOString()
+    .slice(STRING.FIRST_CHARACTER_INDEX, DATE.ISO_DATE_END);
+  const readable = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(now);
+  return `${readable} (${isoDate})`;
+};
+
 const sanitizeError = (maybeError: unknown): Error => {
   if (typeof maybeError === "string") {
     console.error(maybeError);
@@ -80,8 +98,10 @@ export {
   sanitizeError,
   isEmpty,
   throwSanitizeError,
+  todayLabel,
   ARRAY,
   NUMBER,
   STRING,
   TIME,
+  DATE,
 };

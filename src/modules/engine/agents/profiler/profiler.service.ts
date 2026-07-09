@@ -9,6 +9,7 @@ import type { EngineOffer } from "../../engine.types.ts";
 import type { ProfilerOutput } from "./profiler.schemas.ts";
 import { ProfilerOutputSchema } from "./profiler.schemas.ts";
 import { extractJson, normalizeDomain } from "../../engine.utils.ts";
+import { todayLabel } from "@shared/utils";
 import { PROFILER_FETCH_TIMEOUT_MS } from "../../engine.constants.ts";
 import { buildProfilerPrompt } from "./profiler.prompt.ts";
 
@@ -125,7 +126,7 @@ export class ProfilerService {
     lead: PgEngineLead,
     offer: EngineOffer
   ): Promise<ProfilerOutput | null> {
-    const prompt = buildProfilerPrompt(lead, offer);
+    const prompt = buildProfilerPrompt(lead, offer, todayLabel());
     const first = await this.tryResearch(prompt);
     if (first !== null) return first;
     return this.tryResearch(
