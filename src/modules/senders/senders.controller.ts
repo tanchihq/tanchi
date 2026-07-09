@@ -11,6 +11,7 @@ import {
   DeleteSenderErrors,
   ListSendersErrors,
   TestSenderErrors,
+  UpdateSenderErrors,
 } from "./senders.errors.ts";
 
 type SessionOrganization = Readonly<{
@@ -63,6 +64,50 @@ export function createSendersRouter(sendersService: SendersService) {
 
       return context.json(result);
     })
+    .patch(
+      "/:id",
+      requireAuth(),
+      zValidator(
+        "param",
+        z.object({
+          id: z.uuid({ message: UpdateSenderErrors.invalidSenderId }),
+        }),
+        zodValidationHook
+      ),
+      zValidator("json", RequestDto.UpdateSenderDto, zodValidationHook),
+      async (context) => {
+        const { id } = context.req.valid("param");
+        const dto = context.req.valid("json");
+        const session = context.get("session") as SessionOrganization;
+        const result = await sendersService.updateSender(
+          id,
+          dto,
+          session.activeOrganizationId
+        );
+
+        switch (result) {
+          case UpdateSenderErrors.invalidFromName:
+          case UpdateSenderErrors.invalidFromEmail:
+          case UpdateSenderErrors.invalidHost:
+          case UpdateSenderErrors.invalidPort:
+          case UpdateSenderErrors.invalidUsername:
+          case UpdateSenderErrors.invalidSecret:
+          case UpdateSenderErrors.invalidDailyCap:
+          case UpdateSenderErrors.invalidSignature:
+            return sendError(context, 400, result);
+          case UpdateSenderErrors.inexistingSender:
+            return sendError(context, 404, result);
+          case UpdateSenderErrors.notInMyOrg:
+            return sendError(context, 403, result);
+          case UpdateSenderErrors.noActiveOrganization:
+            return sendError(context, 409, result);
+          case UpdateSenderErrors.updateFailed:
+            return sendError(context, 500, result);
+        }
+
+        return context.json(result);
+      }
+    )
     .delete(
       "/:id",
       requireAuth(),
