@@ -8,7 +8,9 @@ import { DiscoveryOutputSchema } from "./chasseur.schemas.ts";
 import { extractJson, normalizeDomain } from "../../engine.utils.ts";
 import { todayLabel } from "@shared/utils";
 import { buildDiscoveryPrompt } from "./chasseur.prompt.ts";
+import { buildWinningProfileBrief } from "./chasseur.utils.ts";
 import {
+  CHASSEUR_LEARNING_WINDOW_DAYS,
   COMPANIES_PER_ICP,
   HUNTER_MIN_CONFIDENCE,
   MAX_LEADS_PER_COMPANY,
@@ -75,7 +77,14 @@ export class ChasseurService {
     existingDomains: Set<string>,
     existingEmails: Set<string>
   ): Promise<number> {
-    const companies = await this.discoverCompanies(icp, offer);
+    const conversion =
+      await this.engineRepository.getProfileConversionForIcp(
+        organizationId,
+        icp.id,
+        CHASSEUR_LEARNING_WINDOW_DAYS
+      );
+    const winningProfile = buildWinningProfileBrief(conversion);
+    const companies = await this.discoverCompanies(icp, offer, winningProfile);
     let created = 0;
     for (const company of companies) {
       const domain = normalizeDomain(company.domain);
@@ -94,11 +103,18 @@ export class ChasseurService {
 
   private async discoverCompanies(
     icp: PgEngineIcp,
-    offer: EngineOffer
+    offer: EngineOffer,
+    winningProfile: string
   ): Promise<ReadonlyArray<DiscoveredCompany>> {
     try {
       const raw = await this.llm.research({
-        prompt: buildDiscoveryPrompt(icp, offer, COMPANIES_PER_ICP, todayLabel()),
+        prompt: buildDiscoveryPrompt(
+          icp,
+          offer,
+          COMPANIES_PER_ICP,
+          todayLabel(),
+          winningProfile
+        ),
       });
       return DiscoveryOutputSchema.parse(extractJson(raw)).companies;
     } catch (error) {

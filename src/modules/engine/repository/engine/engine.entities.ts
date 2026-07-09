@@ -148,6 +148,16 @@ type PgIcpEdit = Readonly<{
   angle_type: string | null;
 }>;
 
+type PgProfileConversionRow = Readonly<{
+  sector: string | null;
+  size: string | null;
+  hq: string | null;
+  role: string | null;
+  qualification: string | null;
+  positive: boolean;
+  replied: boolean;
+}>;
+
 export type {
   CreateCompanyInput,
   CreateLeadInput,
@@ -159,6 +169,7 @@ export type {
   PgEngineLead,
   PgIcpEdit,
   PgMessageOutcomeRow,
+  PgProfileConversionRow,
   PgEngineProfile,
   PgEngineRun,
   ProfileAngleInput,
