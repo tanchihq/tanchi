@@ -1,5 +1,6 @@
 import { type AxiosInstance } from 'axios';
 import { throwApiError } from '@/api/shared/extract-error';
+import { MessageErrors } from './entities/errors';
 import { type MessageStatus, type MessageHistoryDto } from './entities/response.entities';
 
 export type GetMessagesQuery = Readonly<{
@@ -17,7 +18,7 @@ const getMessages =
       });
       return response.data;
     } catch (error: unknown) {
-      return throwApiError(error, 'fetchFailed');
+      return throwApiError(error, MessageErrors.fetchFailed);
     }
   };
 

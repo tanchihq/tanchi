@@ -48,6 +48,7 @@ const getActivityStatusAxios = activity.getActivityStatus(axiosInstance);
 const getActivityAxios = activity.getActivity(axiosInstance);
 
 const getMessagesAxios = messages.getMessages(axiosInstance);
+const editMessageAxios = messages.editMessage(axiosInstance);
 
 const importSuppressionAxios = suppression.importSuppression(axiosInstance);
 const getSuppressionAxios = suppression.getSuppression(axiosInstance);
@@ -80,6 +81,7 @@ export {
   getActivityStatusAxios,
   getActivityAxios,
   getMessagesAxios,
+  editMessageAxios,
   importSuppressionAxios,
   getSuppressionAxios,
   deleteSuppressionAxios,

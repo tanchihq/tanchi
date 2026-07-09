@@ -1,12 +1,9 @@
 import { type LeadDetailDto } from '@/api/prospects/entities/response.entities';
 import { ageLabel } from '@/utils/format';
 
-export const SUBJECT_MAX_LENGTH = 300;
+export const SUBJECT_MAX_LENGTH = 500;
 
-export type EditedDraft = Readonly<{
-  message: string;
-  subject?: string | null;
-}>;
+export const BODY_MAX_LENGTH = 20000;
 
 export const identityLine = (lead: LeadDetailDto): string =>
   [lead.company.size, lead.company.sector, lead.company.hq]

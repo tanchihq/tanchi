@@ -15,3 +15,10 @@ export type MessageHistoryDto = Readonly<{
   replyClassification: string | null;
   createdAt: string;
 }>;
+
+export type EditMessageResultDto = Readonly<{
+  id: string;
+  subject: string | null;
+  body: string;
+  status: MessageStatus;
+}>;
