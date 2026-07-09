@@ -1,5 +1,19 @@
-import type { PgMessageHistoryRow } from "./repository/messages/messages.entities.ts";
+import type {
+  PgEditableMessage,
+  PgMessageHistoryRow,
+} from "./repository/messages/messages.entities.ts";
 import type * as ResponseDto from "./dto/response/index.ts";
+
+export function convertPgEditableMessageToDto(
+  row: PgEditableMessage
+): ResponseDto.EditedMessageDto {
+  return {
+    id: row.id,
+    subject: row.subject,
+    body: row.body,
+    status: row.status,
+  };
+}
 
 export function convertPgMessageHistoryRowToDto(
   row: PgMessageHistoryRow

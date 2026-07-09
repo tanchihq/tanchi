@@ -8,6 +8,8 @@ import type {
   PgCopyFact,
   PgEngineIcp,
   PgEngineLead,
+  PgIcpEdit,
+  PgMessageOutcomeRow,
   PgEngineProfile,
   PgEngineRun,
 } from "./engine.entities.ts";
@@ -185,5 +187,37 @@ export class EngineRepository {
 
   createOneMessageDraft(input: CreateMessageDraftInput): Promise<void> {
     return this.enginePostgres.createOneMessageDraft(input);
+  }
+
+  getSentMessageOutcomesForIcp(
+    organizationId: string,
+    icpId: string,
+    sinceDays: number
+  ): Promise<ReadonlyArray<PgMessageOutcomeRow>> {
+    return this.enginePostgres.getSentMessageOutcomesForIcp(
+      organizationId,
+      icpId,
+      sinceDays
+    );
+  }
+
+  getRecentEditsForIcp(
+    organizationId: string,
+    icpId: string,
+    limit: number
+  ): Promise<ReadonlyArray<PgIcpEdit>> {
+    return this.enginePostgres.getRecentEditsForIcp(
+      organizationId,
+      icpId,
+      limit
+    );
+  }
+
+  insertPlaybook(
+    organizationId: string,
+    icpId: string,
+    content: string
+  ): Promise<void> {
+    return this.enginePostgres.insertPlaybook(organizationId, icpId, content);
   }
 }

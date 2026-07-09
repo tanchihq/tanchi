@@ -9,6 +9,8 @@ import type {
   PgCopyFact,
   PgEngineIcp,
   PgEngineLead,
+  PgIcpEdit,
+  PgMessageOutcomeRow,
   PgEngineProfile,
   PgEngineRun,
 } from "./engine.entities.ts";
@@ -479,6 +481,79 @@ export class EnginePostgres {
         LIMIT 1
       `;
       return result[ARRAY.FIRST_INDEX] ?? null;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async getSentMessageOutcomesForIcp(
+    organizationId: string,
+    icpId: string,
+    sinceDays: number
+  ): Promise<ReadonlyArray<PgMessageOutcomeRow>> {
+    try {
+      return await this.db<ReadonlyArray<PgMessageOutcomeRow>>`
+        SELECT
+          m.angle_type, m.angle_type_inferred, m.length_bucket,
+          m.cta_type, m.perso_depth, m.channel, m.subject, m.body,
+          COALESCE((
+            SELECT bool_or(o.classification = 'positive'
+              OR o.stage_signal IN ('positive','meeting','deal'))
+            FROM outcomes o WHERE o.message_id = m.id
+          ), FALSE) AS positive,
+          COALESCE((
+            SELECT bool_or(o.stage_signal = 'replied' OR o.classification IS NOT NULL)
+            FROM outcomes o WHERE o.message_id = m.id
+          ), FALSE) AS replied
+        FROM messages m
+        WHERE m.organization_id = ${organizationId}
+          AND m.icp_id = ${icpId}
+          AND m.status = 'sent'
+          AND m.sent_at >= NOW() - MAKE_INTERVAL(days => ${sinceDays})
+        ORDER BY m.sent_at DESC
+      `;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async getRecentEditsForIcp(
+    organizationId: string,
+    icpId: string,
+    limit: number
+  ): Promise<ReadonlyArray<PgIcpEdit>> {
+    try {
+      return await this.db<ReadonlyArray<PgIcpEdit>>`
+        SELECT e.ai_version, e.edited_version, m.angle_type
+        FROM edits e
+        JOIN messages m ON m.id = e.message_id
+        WHERE e.organization_id = ${organizationId}
+          AND m.icp_id = ${icpId}
+        ORDER BY e.created_at DESC
+        LIMIT ${limit}
+      `;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async insertPlaybook(
+    organizationId: string,
+    icpId: string,
+    content: string
+  ): Promise<void> {
+    try {
+      await this.db`
+        INSERT INTO playbook (id, organization_id, icp_id, content, version, generated_at)
+        VALUES (
+          ${Bun.randomUUIDv7()}, ${organizationId}, ${icpId}, ${content},
+          COALESCE((
+            SELECT MAX(version) FROM playbook
+            WHERE organization_id = ${organizationId} AND icp_id = ${icpId}
+          ), 0) + 1,
+          NOW()
+        )
+      `;
     } catch (error) {
       return throwSanitizeError(error);
     }
