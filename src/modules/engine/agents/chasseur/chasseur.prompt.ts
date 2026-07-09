@@ -5,7 +5,8 @@ export function buildDiscoveryPrompt(
   icp: PgEngineIcp,
   offer: EngineOffer,
   count: number,
-  today: string
+  today: string,
+  winningProfile: string
 ): string {
   return [
     "You are a B2B prospect hunter. You identify REAL companies that match a target profile.",
@@ -30,6 +31,7 @@ export function buildDiscoveryPrompt(
     "",
     `Target market / language: ${offer.outreachLanguage} — find companies from this market.`,
     "",
+    winningProfile === "" ? "" : winningProfile,
     `Find ${count} real, verifiable companies (via the web) that match this ICP and would be good prospects for this offer.`,
     "Do not invent any company. Each company must exist and have a real web domain.",
     "",

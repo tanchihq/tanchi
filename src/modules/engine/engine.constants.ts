@@ -1,6 +1,9 @@
 export const COMPANIES_PER_ICP = 5;
 export const MAX_LEADS_PER_COMPANY = 3;
 
+export const CHASSEUR_LEARNING_WINDOW_DAYS = 120;
+export const CHASSEUR_TOP_VALUES_PER_DIMENSION = 3;
+
 export const HUNTER_MIN_CONFIDENCE = 50;
 
 export const COPY_TEMPERATURE = 0.9;

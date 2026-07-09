@@ -11,6 +11,7 @@ import type {
   PgEngineLead,
   PgIcpEdit,
   PgMessageOutcomeRow,
+  PgProfileConversionRow,
   PgEngineProfile,
   PgEngineRun,
 } from "./engine.entities.ts";
@@ -511,6 +512,36 @@ export class EnginePostgres {
           AND m.status = 'sent'
           AND m.sent_at >= NOW() - MAKE_INTERVAL(days => ${sinceDays})
         ORDER BY m.sent_at DESC
+      `;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async getProfileConversionForIcp(
+    organizationId: string,
+    icpId: string,
+    sinceDays: number
+  ): Promise<ReadonlyArray<PgProfileConversionRow>> {
+    try {
+      return await this.db<ReadonlyArray<PgProfileConversionRow>>`
+        SELECT
+          c.sector, c.size, c.hq, l.role, l.qualification,
+          agg.positive, agg.replied
+        FROM leads l
+        LEFT JOIN companies c ON c.id = l.company_id
+        JOIN LATERAL (
+          SELECT
+            COALESCE(bool_or(o.classification = 'positive'
+              OR o.stage_signal IN ('positive','meeting','deal')), FALSE) AS positive,
+            COALESCE(bool_or(o.stage_signal = 'replied'
+              OR o.classification IS NOT NULL), FALSE) AS replied
+          FROM outcomes o WHERE o.lead_id = l.id
+        ) agg ON TRUE
+        WHERE l.organization_id = ${organizationId}
+          AND l.icp_id = ${icpId}
+          AND l.created_at >= NOW() - MAKE_INTERVAL(days => ${sinceDays})
+          AND EXISTS (SELECT 1 FROM outcomes o2 WHERE o2.lead_id = l.id)
       `;
     } catch (error) {
       return throwSanitizeError(error);

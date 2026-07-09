@@ -10,6 +10,7 @@ import type {
   PgEngineLead,
   PgIcpEdit,
   PgMessageOutcomeRow,
+  PgProfileConversionRow,
   PgEngineProfile,
   PgEngineRun,
 } from "./engine.entities.ts";
@@ -195,6 +196,18 @@ export class EngineRepository {
     sinceDays: number
   ): Promise<ReadonlyArray<PgMessageOutcomeRow>> {
     return this.enginePostgres.getSentMessageOutcomesForIcp(
+      organizationId,
+      icpId,
+      sinceDays
+    );
+  }
+
+  getProfileConversionForIcp(
+    organizationId: string,
+    icpId: string,
+    sinceDays: number
+  ): Promise<ReadonlyArray<PgProfileConversionRow>> {
+    return this.enginePostgres.getProfileConversionForIcp(
       organizationId,
       icpId,
       sinceDays
