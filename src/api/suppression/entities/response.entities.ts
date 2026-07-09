@@ -1,5 +1,11 @@
+import { type ExclusionScope } from '@/api/shared/enums';
+
 export type SuppressionEntryDto = Readonly<{
-  email: string;
+  id: string;
+  scope: ExclusionScope;
+  email: string | null;
+  companyDomain: string | null;
+  reason: string | null;
   createdAt: string;
 }>;
 

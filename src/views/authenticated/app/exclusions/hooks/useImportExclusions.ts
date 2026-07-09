@@ -4,11 +4,11 @@ import { importSuppressionAxios } from '@/api/api';
 import { SuppressionErrors } from '@/api/suppression/entities/errors';
 import { type ImportSuppressionResultDto } from '@/api/suppression/entities/response.entities';
 
-type UseImportSuppressionProps = Readonly<{
+type UseImportExclusionsProps = Readonly<{
   onImported: (result: ImportSuppressionResultDto) => void;
 }>;
 
-const useImportSuppression = ({ onImported }: UseImportSuppressionProps) =>
+const useImportExclusions = ({ onImported }: UseImportExclusionsProps) =>
   useAsyncEvent({
     onError: ({ error }) => {
       switch (error.message) {
@@ -24,9 +24,9 @@ const useImportSuppression = ({ onImported }: UseImportSuppressionProps) =>
     },
     onSuccess: ({ returnedData }) => {
       onImported(returnedData);
-      toast.success(`${returnedData.imported} addresses imported.`);
+      toast.success(`${returnedData.imported} people excluded.`);
     },
     promise: (file: File) => importSuppressionAxios(file),
   });
 
-export default useImportSuppression;
+export default useImportExclusions;

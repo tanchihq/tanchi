@@ -125,6 +125,7 @@ const Pipeline = () => {
                 setDragOver(null);
               }}
               onQualify={(id, next) => move({ id, stage: next, origin: 'manual' })}
+              onExcluded={refetch}
             />
           ))}
         </div>
