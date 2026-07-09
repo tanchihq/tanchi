@@ -73,10 +73,9 @@ const LeadPanel = ({ id }: LeadPanelProps) => {
               lead={lead}
               senders={activeSenders}
               sending={sendDraft.isLoading}
-              onSend={(edited, senderId) =>
-                sendDraft.onFetch({ id, stage: lead.stage, edited, senderId })
-              }
+              onSend={(senderId) => sendDraft.onFetch({ id, stage: lead.stage, senderId })}
               onQualify={(stage) => move.onFetch({ id, stage, origin: 'manual' })}
+              onEdited={detail.refetch}
             />
           </div>
         </div>
