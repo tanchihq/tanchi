@@ -10,6 +10,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",
     "@hono/zod-validator": "^0.7.6",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.0.10",
     "better-auth": "^1.6.9",

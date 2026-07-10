@@ -1,5 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type {
+  LlmAgentEvent,
+  LlmAgentInput,
   LlmGenerateInput,
   LlmProvider,
   LlmResearchInput,
@@ -8,6 +10,7 @@ import type {
 const RESEARCH_MAX_TOKENS = 8000;
 const GENERATE_MAX_TOKENS = 4000;
 const WEB_SEARCH_MAX_USES = 8;
+const AGENT_DEFAULT_MAX_STEPS = 6;
 
 function extractText(message: Anthropic.Message): string {
   return message.content
@@ -74,6 +77,63 @@ export class AnthropicApiProvider implements LlmProvider {
       ) {
         yield event.delta.text;
       }
+    }
+  }
+
+  async *agent(input: LlmAgentInput): AsyncIterable<LlmAgentEvent> {
+    const tools: ReadonlyArray<Anthropic.Tool> = input.tools.map((tool) => ({
+      name: tool.name,
+      description: tool.description,
+      input_schema: tool.inputSchema as Anthropic.Tool.InputSchema,
+    }));
+    const maxSteps = input.maxSteps ?? AGENT_DEFAULT_MAX_STEPS;
+    let messages: Array<Anthropic.MessageParam> = [
+      { role: "user", content: input.prompt },
+    ];
+
+    let step = 0;
+    while (step < maxSteps) {
+      step += 1;
+      const stream = this.client.messages.stream({
+        model: this.model,
+        max_tokens: input.maxTokens ?? GENERATE_MAX_TOKENS,
+        ...(input.temperature !== undefined && {
+          temperature: input.temperature,
+        }),
+        ...(input.system !== undefined && { system: input.system }),
+        messages,
+        tools: [...tools],
+      });
+      for await (const event of stream) {
+        if (
+          event.type === "content_block_delta" &&
+          event.delta.type === "text_delta"
+        ) {
+          yield { type: "text", text: event.delta.text };
+        }
+      }
+
+      const final = await stream.finalMessage();
+      const toolUses = final.content.filter(
+        (block): block is Anthropic.ToolUseBlock => block.type === "tool_use"
+      );
+      if (toolUses.length === 0) return;
+
+      messages = [...messages, { role: "assistant", content: final.content }];
+      const results: Array<Anthropic.ToolResultBlockParam> = [];
+      for (const toolUse of toolUses) {
+        yield { type: "action", name: toolUse.name };
+        const output = await input.execute({
+          name: toolUse.name,
+          input: toolUse.input as Record<string, unknown>,
+        });
+        results.push({
+          type: "tool_result",
+          tool_use_id: toolUse.id,
+          content: output,
+        });
+      }
+      messages = [...messages, { role: "user", content: results }];
     }
   }
 }

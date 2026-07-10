@@ -1,10 +1,18 @@
 import type { ChatPostgres } from "./chat.postgres.ts";
 import type {
+  CreateManualLeadInput,
   InsertMessageInput,
   PgAttachedLead,
   PgChatMessage,
   PgConversation,
+  PgCreatedLead,
+  PgIcpOption,
   PgLeadContext,
+  PgLeadDetail,
+  PgLeadFact,
+  RecordSentMessageInput,
+  SaveDraftInput,
+  UpdateLeadInput,
 } from "./chat.entities.ts";
 
 export class ChatRepository {
@@ -78,5 +86,64 @@ export class ChatRepository {
     conversationId: string
   ): Promise<ReadonlyArray<PgLeadContext>> {
     return this.chatPostgres.getLeadContextsForConversation(conversationId);
+  }
+
+  createManualLead(input: CreateManualLeadInput): Promise<PgCreatedLead> {
+    return this.chatPostgres.createManualLead(input);
+  }
+
+  getLeadDetailForOrganization(
+    leadId: string,
+    organizationId: string
+  ): Promise<PgLeadDetail | null> {
+    return this.chatPostgres.getLeadDetailForOrganization(
+      leadId,
+      organizationId
+    );
+  }
+
+  getIcpsForOrganization(
+    organizationId: string
+  ): Promise<ReadonlyArray<PgIcpOption>> {
+    return this.chatPostgres.getIcpsForOrganization(organizationId);
+  }
+
+  assignLeadIcp(
+    leadId: string,
+    organizationId: string,
+    icpId: string
+  ): Promise<boolean> {
+    return this.chatPostgres.assignLeadIcp(leadId, organizationId, icpId);
+  }
+
+  getOutreachLanguage(organizationId: string): Promise<string | null> {
+    return this.chatPostgres.getOutreachLanguage(organizationId);
+  }
+
+  getFactsForLead(leadId: string): Promise<ReadonlyArray<PgLeadFact>> {
+    return this.chatPostgres.getFactsForLead(leadId);
+  }
+
+  saveDraftForLead(input: SaveDraftInput): Promise<void> {
+    return this.chatPostgres.saveDraftForLead(input);
+  }
+
+  updateLead(input: UpdateLeadInput): Promise<boolean> {
+    return this.chatPostgres.updateLead(input);
+  }
+
+  leadHasSentMessage(leadId: string): Promise<boolean> {
+    return this.chatPostgres.leadHasSentMessage(leadId);
+  }
+
+  recordSentMessage(input: RecordSentMessageInput): Promise<void> {
+    return this.chatPostgres.recordSentMessage(input);
+  }
+
+  armFollowUpSequence(
+    leadId: string,
+    organizationId: string
+  ): Promise<boolean> {
+    return this.chatPostgres.armFollowUpSequence(leadId, organizationId);
   }
 }
