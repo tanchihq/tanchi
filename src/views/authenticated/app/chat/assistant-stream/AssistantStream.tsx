@@ -22,14 +22,14 @@ const AssistantStream = ({ actions, text }: AssistantStreamProps) => {
             {actions.map((name, index) => (
               <div
                 key={`${name}-${index}`}
-                className="flex items-center gap-1.5 text-[12px] text-[#8F8CA6]"
+                className="flex items-center gap-1.5 text-[12px] leading-none text-[#8F8CA6]"
               >
                 {done ? (
                   <Check size={12} className="text-success shrink-0" />
                 ) : (
                   <Loader2 size={12} className="shrink-0 animate-spin" />
                 )}
-                {actionLabel(name)}
+                <span>{actionLabel(name)}</span>
               </div>
             ))}
           </div>
