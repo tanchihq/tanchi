@@ -37,6 +37,13 @@ export type ChatStreamUserEvent = Readonly<{
   title: string;
 }>;
 
+export type ChatActionName = 'create_lead' | 'fetch_context' | 'rewrite_draft';
+
+export type ChatStreamActionEvent = Readonly<{
+  type: string;
+  name: ChatActionName;
+}>;
+
 export type ChatStreamDeltaEvent = Readonly<{
   text: string;
 }>;

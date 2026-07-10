@@ -1,6 +1,13 @@
 import { type ProspectDto } from '@/api/prospects/entities/response.entities';
+import { type ChatActionName } from '@/api/chat/entities/response.entities';
 
 export const MESSAGE_MAX_LENGTH = 8000;
+
+export const ACTION_LABEL: Readonly<Record<ChatActionName, string>> = {
+  create_lead: 'Creating the prospect card…',
+  fetch_context: 'Fetching context…',
+  rewrite_draft: 'Rewriting the message…',
+};
 
 export const conversationTitle = (title: string): string =>
   title.trim() === '' ? 'New conversation' : title;
