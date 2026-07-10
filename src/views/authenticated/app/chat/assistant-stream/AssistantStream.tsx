@@ -1,5 +1,6 @@
 import { Check, Loader2, Sparkles } from 'lucide-react';
 import Markdown from '@/components/Markdown';
+import { cn } from '@/utils/lib/utils';
 import { type ChatActionName } from '@/api/chat/entities/response.entities';
 import { actionLabel } from '../utils';
 
@@ -18,7 +19,7 @@ const AssistantStream = ({ actions, text }: AssistantStreamProps) => {
       </div>
       <div className="max-w-[80%] rounded-2xl border border-white/[0.07] bg-[#171733] px-[15px] py-2.5 text-[13.5px] leading-relaxed text-[#E7E6F0]">
         {actions.length > 0 && (
-          <div className="mb-2 flex flex-col gap-1">
+          <div className={cn('flex flex-col gap-1', done && 'mb-2')}>
             {actions.map((name, index) => (
               <div
                 key={`${name}-${index}`}
