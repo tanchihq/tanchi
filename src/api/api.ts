@@ -10,6 +10,7 @@ import * as engine from './engine';
 import * as activity from './activity';
 import * as messages from './messages';
 import * as suppression from './suppression';
+import * as chat from './chat';
 
 const { axiosInstance } = instances;
 
@@ -54,6 +55,13 @@ const importSuppressionAxios = suppression.importSuppression(axiosInstance);
 const getSuppressionAxios = suppression.getSuppression(axiosInstance);
 const deleteSuppressionAxios = suppression.deleteSuppression(axiosInstance);
 
+const getConversationsAxios = chat.getConversations(axiosInstance);
+const getConversationAxios = chat.getConversation(axiosInstance);
+const createConversationAxios = chat.createConversation(axiosInstance);
+const deleteConversationAxios = chat.deleteConversation(axiosInstance);
+const attachChatLeadAxios = chat.attachLead(axiosInstance);
+const detachChatLeadAxios = chat.detachLead(axiosInstance);
+
 export {
   getSessionAxios,
   signUpAxios,
@@ -85,4 +93,10 @@ export {
   importSuppressionAxios,
   getSuppressionAxios,
   deleteSuppressionAxios,
+  getConversationsAxios,
+  getConversationAxios,
+  createConversationAxios,
+  deleteConversationAxios,
+  attachChatLeadAxios,
+  detachChatLeadAxios,
 };
