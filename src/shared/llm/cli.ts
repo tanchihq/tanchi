@@ -32,6 +32,10 @@ export class ClaudeCliProvider implements LlmProvider {
     );
   }
 
+  async *stream(input: LlmGenerateInput): AsyncIterable<string> {
+    yield await this.generate(input);
+  }
+
   private async run(
     prompt: string,
     args: ReadonlyArray<string>,

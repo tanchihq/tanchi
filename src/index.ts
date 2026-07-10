@@ -16,6 +16,7 @@ import { startSequencesWorkers } from "./modules/sequences/sequences.module.ts";
 import { activityRouter } from "./modules/activity/activity.module.ts";
 import { suppressionRouter } from "./modules/suppression/suppression.module.ts";
 import { messagesRouter } from "./modules/messages/messages.module.ts";
+import { chatRouter } from "./modules/chat/chat.module.ts";
 import { closeQueues } from "@shared/queue";
 import { env } from "./env.ts";
 
@@ -60,6 +61,7 @@ api.route("/engine", engineRouter);
 api.route("/activity", activityRouter);
 api.route("/suppression", suppressionRouter);
 api.route("/messages", messagesRouter);
+api.route("/chat", chatRouter);
 
 api.get("/me", requireAuth(), (c) =>
   c.json({ user: c.get("user"), session: c.get("session") })
