@@ -56,4 +56,24 @@ export class AnthropicApiProvider implements LlmProvider {
     });
     return extractText(message);
   }
+
+  async *stream(input: LlmGenerateInput): AsyncIterable<string> {
+    const stream = this.client.messages.stream({
+      model: this.model,
+      max_tokens: input.maxTokens ?? GENERATE_MAX_TOKENS,
+      ...(input.temperature !== undefined && {
+        temperature: input.temperature,
+      }),
+      ...(input.system !== undefined && { system: input.system }),
+      messages: [{ role: "user", content: input.prompt }],
+    });
+    for await (const event of stream) {
+      if (
+        event.type === "content_block_delta" &&
+        event.delta.type === "text_delta"
+      ) {
+        yield event.delta.text;
+      }
+    }
+  }
 }

@@ -13,4 +13,5 @@ export type LlmGenerateInput = Readonly<{
 export interface LlmProvider {
   research(input: LlmResearchInput): Promise<string>;
   generate(input: LlmGenerateInput): Promise<string>;
+  stream(input: LlmGenerateInput): AsyncIterable<string>;
 }
