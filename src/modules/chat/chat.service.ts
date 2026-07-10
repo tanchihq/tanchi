@@ -11,6 +11,7 @@ import {
   SendMessageErrors,
 } from "./chat.errors.ts";
 import {
+  AGENT_MAX_STEPS,
   CHAT_MAX_TOKENS,
   CHAT_TEMPERATURE,
   CONVERSATIONS_LIMIT,
@@ -18,6 +19,11 @@ import {
   TITLE_FROM_CONTENT_LENGTH,
 } from "./chat.constants.ts";
 import { buildChatPrompt, CHAT_SYSTEM } from "./chat.prompt.ts";
+import {
+  buildChatMcpServer,
+  CHAT_TOOLS,
+  createChatToolExecutor,
+} from "./chat.tools.ts";
 import type * as RequestDto from "./dto/request/index.ts";
 import type * as ResponseDto from "./dto/response/index.ts";
 import * as utils from "./chat.utils.ts";
@@ -40,6 +46,7 @@ export type ChatStreamEvent =
       title: string;
     }>
   | Readonly<{ type: "delta"; text: string }>
+  | Readonly<{ type: "action"; name: string }>
   | Readonly<{
       type: "done";
       message: ResponseDto.ChatMessageDto;
@@ -168,26 +175,45 @@ export class ChatService {
       title,
     };
 
-    const [history, contexts] = await Promise.all([
+    const [history, contexts, icps, outreachLanguage] = await Promise.all([
       this.chatRepository.getMessagesByConversation(id),
       this.chatRepository.getLeadContextsForConversation(id),
+      this.chatRepository.getIcpsForOrganization(organizationId),
+      this.chatRepository.getOutreachLanguage(organizationId),
     ]);
+
+    const execute = createChatToolExecutor({
+      repository: this.chatRepository,
+      llm: this.llm,
+      organizationId,
+      conversationId: id,
+      outreachLanguage: outreachLanguage ?? "fr",
+    });
 
     let reply = "";
     try {
-      const chunks = this.llm.stream({
+      const events = this.llm.agent({
         system: CHAT_SYSTEM,
         prompt: buildChatPrompt(
           todayLabel(),
+          icps,
           contexts,
           history.slice(-HISTORY_LIMIT)
         ),
+        tools: CHAT_TOOLS,
+        execute,
+        mcp: buildChatMcpServer({ organizationId, conversationId: id }),
         maxTokens: CHAT_MAX_TOKENS,
         temperature: CHAT_TEMPERATURE,
+        maxSteps: AGENT_MAX_STEPS,
       });
-      for await (const chunk of chunks) {
-        reply += chunk;
-        yield { type: "delta", text: chunk };
+      for await (const event of events) {
+        if (event.type === "text") {
+          reply += event.text;
+          yield { type: "delta", text: event.text };
+        } else {
+          yield { type: "action", name: event.name };
+        }
       }
     } catch (error) {
       console.error(
@@ -197,12 +223,13 @@ export class ChatService {
       return;
     }
 
+    const finalReply = reply.trim() === "" ? "Done." : reply.trim();
     try {
       const assistantMessage = await this.chatRepository.insertMessage({
         organizationId,
         conversationId: id,
         role: "assistant",
-        content: reply.trim(),
+        content: finalReply,
       });
       await this.chatRepository.touchConversation(id);
       yield {

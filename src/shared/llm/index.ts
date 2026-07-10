@@ -24,4 +24,9 @@ export type {
   LlmProvider,
   LlmGenerateInput,
   LlmResearchInput,
+  LlmAgentEvent,
+  LlmAgentInput,
+  LlmMcpServer,
+  LlmToolInvocation,
+  LlmToolSpec,
 } from "./types.ts";

@@ -46,3 +46,26 @@ export function convertPgAttachedLeadToDto(
     stage: lead.stage,
   };
 }
+
+export function optionalString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed === "" ? null : trimmed;
+}
+
+export function parseDate(value: string | null): Date | null {
+  if (value === null) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+export function extractJson(raw: string): unknown {
+  const fenced = raw.replace(/```json/gi, "```");
+  const withoutFences = fenced.replace(/```/g, "");
+  const start = withoutFences.indexOf("{");
+  const end = withoutFences.lastIndexOf("}");
+  if (start === -1 || end === -1 || end < start) {
+    throw new Error("No JSON object found in LLM output");
+  }
+  return JSON.parse(withoutFences.slice(start, end + 1));
+}
