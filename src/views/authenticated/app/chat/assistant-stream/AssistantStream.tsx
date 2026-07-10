@@ -1,7 +1,7 @@
 import { Check, Loader2, Sparkles } from 'lucide-react';
 import Markdown from '@/components/Markdown';
 import { type ChatActionName } from '@/api/chat/entities/response.entities';
-import { ACTION_LABEL } from '../utils';
+import { actionLabel } from '../utils';
 
 type AssistantStreamProps = Readonly<{
   actions: ReadonlyArray<ChatActionName>;
@@ -29,7 +29,7 @@ const AssistantStream = ({ actions, text }: AssistantStreamProps) => {
                 ) : (
                   <Loader2 size={12} className="shrink-0 animate-spin" />
                 )}
-                {ACTION_LABEL[name]}
+                {actionLabel(name)}
               </div>
             ))}
           </div>
