@@ -8,6 +8,7 @@ export const ACTION_LABEL: Readonly<Record<ChatActionName, string>> = {
   fetch_context: 'Fetching context…',
   rewrite_draft: 'Rewriting the message…',
   assign_icp: 'Associating the ICP…',
+  plan_follow_ups: 'Planning follow-ups…',
 };
 
 export const actionLabel = (name: ChatActionName): string =>
