@@ -42,7 +42,8 @@ export type ChatActionName =
   | 'fetch_context'
   | 'rewrite_draft'
   | 'assign_icp'
-  | 'plan_follow_ups';
+  | 'plan_follow_ups'
+  | 'update_lead';
 
 export type ChatStreamActionEvent = Readonly<{
   type: string;
