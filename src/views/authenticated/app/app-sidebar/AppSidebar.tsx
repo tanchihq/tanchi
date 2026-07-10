@@ -5,6 +5,7 @@ import {
   GraduationCap,
   History,
   LogOut,
+  MessageSquare,
   Server,
   Settings,
   type LucideIcon,
@@ -17,6 +18,7 @@ type NavEntry = Readonly<{ to: string; label: string; icon: LucideIcon; end?: bo
 
 const NAV: ReadonlyArray<NavEntry> = [
   { to: '/app', label: 'Pipeline', icon: BarChart3, end: true },
+  { to: '/app/chat', label: 'Copilot', icon: MessageSquare },
   { to: '/app/messages', label: 'Messages', icon: History },
   { to: '/app/learnings', label: 'Learnings', icon: GraduationCap },
   { to: '/app/exclusions', label: 'Exclusions', icon: Ban },

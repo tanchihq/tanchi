@@ -16,6 +16,7 @@ import Messages from './views/authenticated/app/messages';
 import Learnings from './views/authenticated/app/learnings';
 import Exclusions from './views/authenticated/app/exclusions';
 import Mailbox from './views/authenticated/app/mailbox';
+import Chat from './views/authenticated/app/chat';
 import Settings from './views/authenticated/app/settings';
 import LeadPanel from './views/authenticated/app/lead';
 
@@ -36,6 +37,8 @@ const App = () => (
         <Route element={<RequireOnboarded />}>
           <Route path="/app" element={<AppLayout />}>
             <Route index element={<Pipeline />} />
+            <Route path="chat" element={<Chat />} />
+            <Route path="chat/:id" element={<Chat />} />
             <Route path="messages" element={<Messages />} />
             <Route path="learnings" element={<Learnings />} />
             <Route path="exclusions" element={<Exclusions />} />

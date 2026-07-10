@@ -1,0 +1,15 @@
+export enum ChatErrors {
+  noActiveOrganization = 'noActiveOrganization',
+  notInMyOrg = 'notInMyOrg',
+  inexistingConversation = 'inexistingConversation',
+  inexistingLead = 'inexistingLead',
+  invalidContent = 'invalidContent',
+  invalidTitle = 'invalidTitle',
+  createFailed = 'createFailed',
+  llmFailed = 'llmFailed',
+  sendFailed = 'sendFailed',
+  attachFailed = 'attachFailed',
+  detachFailed = 'detachFailed',
+  deleteFailed = 'deleteFailed',
+  fetchFailed = 'fetchFailed',
+}
