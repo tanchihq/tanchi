@@ -1,17 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { streamMessage } from '@/api/chat';
 import { ChatErrors } from '@/api/chat/entities/errors';
 import {
+  type ChatActionName,
   type ChatStreamDoneEvent,
   type ChatStreamUserEvent,
 } from '@/api/chat/entities/response.entities';
 
 type UseSendChatMessageProps = Readonly<{
   onUser: (event: ChatStreamUserEvent) => void;
+  onAction: (name: ChatActionName) => void;
   onDelta: (text: string) => void;
   onDone: (event: ChatStreamDoneEvent) => void;
   onError: (content: string) => void;
+  onSettled: () => void;
 }>;
 
 const errorToast = (code: string): void => {
@@ -29,11 +32,12 @@ const errorToast = (code: string): void => {
 
 const useSendChatMessage = ({
   onUser,
+  onAction,
   onDelta,
   onDone,
   onError,
+  onSettled,
 }: UseSendChatMessageProps) => {
-  const [isStreaming, setIsStreaming] = useState(false);
   const mountedRef = useRef(true);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -48,7 +52,6 @@ const useSendChatMessage = ({
   const send = async (id: string, content: string) => {
     const controller = new AbortController();
     abortRef.current = controller;
-    setIsStreaming(true);
 
     let failed = false;
     const fail = (code: string) => {
@@ -66,6 +69,9 @@ const useSendChatMessage = ({
           onUser: (event) => {
             if (mountedRef.current) onUser(event);
           },
+          onAction: (event) => {
+            if (mountedRef.current) onAction(event.name);
+          },
           onDelta: (event) => {
             if (mountedRef.current) onDelta(event.text);
           },
@@ -79,11 +85,11 @@ const useSendChatMessage = ({
     } catch {
       if (!controller.signal.aborted) fail(ChatErrors.sendFailed);
     } finally {
-      if (mountedRef.current) setIsStreaming(false);
+      if (mountedRef.current) onSettled();
     }
   };
 
-  return { send, isStreaming };
+  return { send };
 };
 
 export default useSendChatMessage;

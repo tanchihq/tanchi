@@ -1,6 +1,7 @@
 import { API_BASE_URL } from '@/api/utils';
 import { ChatErrors } from './entities/errors';
 import {
+  type ChatStreamActionEvent,
   type ChatStreamDeltaEvent,
   type ChatStreamDoneEvent,
   type ChatStreamErrorEvent,
@@ -9,6 +10,7 @@ import {
 
 export type ChatStreamHandlers = Readonly<{
   onUser: (event: ChatStreamUserEvent) => void;
+  onAction: (event: ChatStreamActionEvent) => void;
   onDelta: (event: ChatStreamDeltaEvent) => void;
   onDone: (event: ChatStreamDoneEvent) => void;
   onError: (code: string) => void;
@@ -47,6 +49,9 @@ const dispatchFrame = (frame: string, handlers: ChatStreamHandlers): void => {
   if (eventName === 'user') {
     const data = parseData<ChatStreamUserEvent>(dataRaw);
     if (data !== null) handlers.onUser(data);
+  } else if (eventName === 'action') {
+    const data = parseData<ChatStreamActionEvent>(dataRaw);
+    if (data !== null) handlers.onAction(data);
   } else if (eventName === 'delta') {
     const data = parseData<ChatStreamDeltaEvent>(dataRaw);
     if (data !== null) handlers.onDelta(data);

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
+  type ChatActionName,
   type ChatConversationDto,
   type ChatLeadDto,
   type ChatMessageDto,
@@ -9,7 +10,10 @@ import {
 import useSendChatMessage from '../hooks/useSendChatMessage';
 import useAttachLead from '../hooks/useAttachLead';
 import useDetachLead from '../hooks/useDetachLead';
+import useRetrieveProspects from '../hooks/useRetrieveProspects';
+import useRefreshConversation from '../hooks/useRefreshConversation';
 import MessageBubble from '../message-bubble/MessageBubble';
+import AssistantStream from '../assistant-stream/AssistantStream';
 import LeadAttachMenu from '../lead-attach/LeadAttachMenu';
 import LeadChip from '../lead-attach/LeadChip';
 import { conversationTitle, MESSAGE_MAX_LENGTH } from '../utils';
@@ -30,29 +34,55 @@ const ConversationBoard = ({
   const [title, setTitle] = useState(conversation.title);
   const [draftUser, setDraftUser] = useState<string | null>(null);
   const [assistantText, setAssistantText] = useState<string | null>(null);
+  const [actions, setActions] = useState<ReadonlyArray<ChatActionName>>([]);
+  const [streaming, setStreaming] = useState(false);
   const [input, setInput] = useState('');
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const actedRef = useRef(false);
 
-  const { send, isStreaming } = useSendChatMessage({
+  const prospectsQuery = useRetrieveProspects();
+
+  const { onFetch: refreshConversation } = useRefreshConversation({
+    onRefreshed: (fresh) => {
+      setLeads(fresh.leads);
+      setTitle(fresh.title);
+    },
+  });
+
+  const { send } = useSendChatMessage({
     onUser: (event) => {
       setMessages((current) => [...current, event.message]);
       setDraftUser(null);
       setTitle(event.title);
     },
+    onAction: (name) => {
+      actedRef.current = true;
+      setActions((current) => [...current, name]);
+    },
     onDelta: (text) => setAssistantText((current) => (current ?? '') + text),
     onDone: (event) => {
       setMessages((current) => [...current, event.message]);
       setAssistantText(null);
+      setActions([]);
+      setDraftUser(null);
       setTitle(event.title);
+      setStreaming(false);
       onConversationChanged();
+      if (actedRef.current) {
+        refreshConversation(conversation.id);
+        prospectsQuery.refetch();
+      }
     },
     onError: (content) => {
       setDraftUser(null);
       setAssistantText(null);
+      setActions([]);
+      setStreaming(false);
       setInput(content);
     },
+    onSettled: () => setStreaming(false),
   });
 
   const { onFetch: attach } = useAttachLead({
@@ -66,7 +96,7 @@ const ConversationBoard = ({
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length, assistantText, draftUser]);
+  }, [messages.length, assistantText, draftUser, actions.length]);
 
   useEffect(() => {
     const element = inputRef.current;
@@ -77,10 +107,13 @@ const ConversationBoard = ({
 
   const submit = () => {
     const content = input.trim();
-    if (content === '' || isStreaming) return;
+    if (content === '' || streaming) return;
+    actedRef.current = false;
     setInput('');
     setDraftUser(content);
     setAssistantText(null);
+    setActions([]);
+    setStreaming(true);
     send(conversation.id, content);
   };
 
@@ -94,7 +127,7 @@ const ConversationBoard = ({
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
         <div className="mx-auto flex max-w-[760px] flex-col gap-3.5">
-          {messages.length === 0 && draftUser === null && !isStreaming && (
+          {messages.length === 0 && draftUser === null && !streaming && (
             <div className="mt-10 text-center text-[13.5px] leading-relaxed text-[#6F6C85]">
               Ask anything about your prospects. Add leads to the chat bar below to give the
               assistant context.
@@ -108,12 +141,7 @@ const ConversationBoard = ({
             />
           ))}
           {draftUser !== null && <MessageBubble role="user" content={draftUser} />}
-          {assistantText !== null && (
-            <MessageBubble role="assistant" content={assistantText} />
-          )}
-          {isStreaming && assistantText === null && (
-            <MessageBubble role="assistant" content="" pending />
-          )}
+          {streaming && <AssistantStream actions={actions} text={assistantText} />}
           <div ref={bottomRef} />
         </div>
       </div>
@@ -130,6 +158,7 @@ const ConversationBoard = ({
                 />
               ))}
               <LeadAttachMenu
+                candidates={prospectsQuery.data ?? []}
                 attachedLeadIds={leads.map((lead) => lead.leadId)}
                 onAttach={(leadId) => attach({ id: conversation.id, leadId })}
               />
@@ -153,7 +182,7 @@ const ConversationBoard = ({
               <Button
                 size="icon"
                 className="size-9 shrink-0"
-                disabled={input.trim() === '' || isStreaming}
+                disabled={input.trim() === '' || streaming}
                 onClick={submit}
                 aria-label="Send message"
               >

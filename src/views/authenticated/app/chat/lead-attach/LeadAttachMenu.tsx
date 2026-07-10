@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import { AtSign, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { type ProspectDto } from '@/api/prospects/entities/response.entities';
 import { fullName } from '@/utils/format';
-import useRetrieveProspects from '../hooks/useRetrieveProspects';
 import { matchesProspect } from '../utils';
 
 type LeadAttachMenuProps = Readonly<{
+  candidates: ReadonlyArray<ProspectDto>;
   attachedLeadIds: ReadonlyArray<string>;
   onAttach: (leadId: string) => void;
 }>;
 
-const LeadAttachMenu = ({ attachedLeadIds, onAttach }: LeadAttachMenuProps) => {
+const LeadAttachMenu = ({ candidates, attachedLeadIds, onAttach }: LeadAttachMenuProps) => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const { data } = useRetrieveProspects();
 
-  const prospects = (data ?? [])
+  const prospects = candidates
     .filter((prospect) => !attachedLeadIds.includes(prospect.id))
     .filter((prospect) => matchesProspect(prospect, query));
 
