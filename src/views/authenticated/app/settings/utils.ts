@@ -21,6 +21,7 @@ export const settingsSchema = z.object({
   }),
   outreachLanguage: z.string().min(2).max(10),
   companyProfile: z.string().max(5000),
+  leadsPerDay: z.number('Enter a number.').int().min(1).max(200),
   followUp: z.object({
     intervals: z
       .array(z.number('Enter a number of days.').int().min(1).max(60))
@@ -49,6 +50,7 @@ export const DEFAULT_SETTINGS: SettingsFormValues = {
   resources: { productPageUrl: '', salesDeckUrl: '' },
   outreachLanguage: 'fr',
   companyProfile: '',
+  leadsPerDay: 15,
   followUp: { intervals: [3, 4], excludedWeekdays: [6, 0] },
   icps: [],
 };
@@ -71,6 +73,7 @@ export const toFormValues = (data: SettingsDto): SettingsFormValues => ({
   },
   outreachLanguage: data.outreachLanguage,
   companyProfile: data.companyProfile,
+  leadsPerDay: data.leadsPerDay,
   followUp: {
     intervals: [...data.followUp.intervals],
     excludedWeekdays: [...data.followUp.excludedWeekdays],
