@@ -1,4 +1,5 @@
 import type { LlmProvider } from "@shared/llm";
+import { agentModel } from "@shared/llm";
 import type { SourcingProvider } from "@shared/sourcing";
 import type { EngineRepository } from "../../repository/engine/engine.repository.ts";
 import type { PgEngineIcp } from "../../repository/engine/engine.entities.ts";
@@ -115,6 +116,7 @@ export class ChasseurService {
           todayLabel(),
           winningProfile
         ),
+        model: agentModel("chasseur"),
       });
       return DiscoveryOutputSchema.parse(extractJson(raw)).companies;
     } catch (error) {

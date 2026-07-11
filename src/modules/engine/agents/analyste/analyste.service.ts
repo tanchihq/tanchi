@@ -1,4 +1,5 @@
 import type { LlmProvider } from "@shared/llm";
+import { agentModel } from "@shared/llm";
 import { todayLabel } from "@shared/utils";
 import type { EngineRepository } from "../../repository/engine/engine.repository.ts";
 import type { PgEngineIcp } from "../../repository/engine/engine.entities.ts";
@@ -70,6 +71,7 @@ export class AnalysteService {
     try {
       const content = await this.llm.generate({
         system: PLAYBOOK_SYSTEM,
+        model: agentModel("analyste"),
         prompt: buildPlaybookPrompt({
           icp,
           statsText: buildStatsText(rows),

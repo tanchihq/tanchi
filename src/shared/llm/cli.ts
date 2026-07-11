@@ -8,6 +8,10 @@ import type {
 
 const RESEARCH_TOOLS = "WebSearch WebFetch";
 
+function modelArgs(model: string | undefined): ReadonlyArray<string> {
+  return model === undefined ? [] : ["--model", model];
+}
+
 type StreamLineResult = Readonly<{
   events: ReadonlyArray<LlmAgentEvent>;
   resultText: string | null;
@@ -80,7 +84,14 @@ export class ClaudeCliProvider implements LlmProvider {
   research(input: LlmResearchInput): Promise<string> {
     return this.run(
       input.prompt,
-      ["-p", "--output-format", "text", "--allowedTools", RESEARCH_TOOLS],
+      [
+        "-p",
+        "--output-format",
+        "text",
+        "--allowedTools",
+        RESEARCH_TOOLS,
+        ...modelArgs(input.model),
+      ],
       input.timeoutMs ?? this.defaultTimeoutMs
     );
   }
@@ -92,7 +103,7 @@ export class ClaudeCliProvider implements LlmProvider {
         : `${input.system}\n\n${input.prompt}`;
     return this.run(
       prompt,
-      ["-p", "--output-format", "text"],
+      ["-p", "--output-format", "text", ...modelArgs(input.model)],
       this.defaultTimeoutMs
     );
   }
@@ -137,6 +148,7 @@ export class ClaudeCliProvider implements LlmProvider {
       ...(input.system === undefined
         ? []
         : ["--append-system-prompt", input.system]),
+      ...modelArgs(input.model),
       "--allowedTools",
       ...mcp.toolNames,
     ];

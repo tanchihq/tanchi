@@ -33,7 +33,7 @@ export class AnthropicApiProvider implements LlmProvider {
 
   async research(input: LlmResearchInput): Promise<string> {
     const message = await this.client.messages.create({
-      model: this.model,
+      model: input.model ?? this.model,
       max_tokens: RESEARCH_MAX_TOKENS,
       messages: [{ role: "user", content: input.prompt }],
       tools: [
@@ -49,7 +49,7 @@ export class AnthropicApiProvider implements LlmProvider {
 
   async generate(input: LlmGenerateInput): Promise<string> {
     const message = await this.client.messages.create({
-      model: this.model,
+      model: input.model ?? this.model,
       max_tokens: input.maxTokens ?? GENERATE_MAX_TOKENS,
       ...(input.temperature !== undefined && {
         temperature: input.temperature,
@@ -62,7 +62,7 @@ export class AnthropicApiProvider implements LlmProvider {
 
   async *stream(input: LlmGenerateInput): AsyncIterable<string> {
     const stream = this.client.messages.stream({
-      model: this.model,
+      model: input.model ?? this.model,
       max_tokens: input.maxTokens ?? GENERATE_MAX_TOKENS,
       ...(input.temperature !== undefined && {
         temperature: input.temperature,
@@ -95,7 +95,7 @@ export class AnthropicApiProvider implements LlmProvider {
     while (step < maxSteps) {
       step += 1;
       const stream = this.client.messages.stream({
-        model: this.model,
+        model: input.model ?? this.model,
         max_tokens: input.maxTokens ?? GENERATE_MAX_TOKENS,
         ...(input.temperature !== undefined && {
           temperature: input.temperature,

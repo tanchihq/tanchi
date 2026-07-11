@@ -7,6 +7,7 @@ import {
   type MailboxReply,
 } from "@shared/mailbox";
 import type { LlmProvider } from "@shared/llm";
+import { agentModel } from "@shared/llm";
 import type { RewardRepository } from "./repository/reward/reward.repository.ts";
 import type { PgRewardSender } from "./repository/reward/reward.entities.ts";
 import {
@@ -126,6 +127,7 @@ export class RewardService {
       const raw = await this.llm.generate({
         prompt: buildClassifyPrompt(text, todayLabel()),
         maxTokens: CLASSIFY_MAX_TOKENS,
+        model: agentModel("reward"),
       });
       const word = raw.trim().toLowerCase();
       if (word.includes("positive")) return "positive";

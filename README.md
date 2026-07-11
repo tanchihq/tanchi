@@ -112,6 +112,32 @@ Au moment de créer le compte, on choisit :
 
 Note : l'abonnement type Max via CLI interactif n'est pas fait pour du batch serveur nocturne. Self-hosted = clé API.
 
+### Modèle par agent (self-hosted)
+
+Chaque agent a un modèle par défaut, choisi pour le rapport coût/qualité :
+
+| Agent | Défaut |
+|---|---|
+| Chasseur (sourcing) | `claude-sonnet-5` |
+| Profiler (renseignement) | `claude-opus-4-8` |
+| Copywriter (rédaction) | `claude-sonnet-5` |
+| Analyste (apprentissage) | `claude-sonnet-5` |
+| Reward (classif réponse) | `claude-haiku-4-5` |
+| Chat (copilote) | `claude-sonnet-5` |
+
+En self-hosted, on surcharge n'importe quel agent par variable d'environnement (sinon le défaut s'applique) :
+
+```
+LLM_MODEL_CHASSEUR=claude-opus-4-8
+LLM_MODEL_PROFILER=claude-sonnet-5
+LLM_MODEL_COPYWRITER=claude-sonnet-5
+LLM_MODEL_ANALYSTE=claude-sonnet-5
+LLM_MODEL_REWARD=claude-haiku-4-5
+LLM_MODEL_CHAT=claude-sonnet-5
+```
+
+Un ID inconnu est ignoré (retour au défaut). Modèles autorisés : `claude-opus-4-8`, `claude-opus-4-7`, `claude-sonnet-5`, `claude-sonnet-4-6`, `claude-haiku-4-5`.
+
 ---
 
 ## Self-hosted vs SaaS
