@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/form';
 import SettingsSection from './settings-section/SettingsSection';
 import IcpEditor from './icp-editor/IcpEditor';
+import SearchSendDaysEditor from './search-send-days-editor/SearchSendDaysEditor';
 import FollowUpEditor from './follow-up-editor/FollowUpEditor';
 import useRetrieveSettings from './hooks/useRetrieveSettings';
 import useUpdateSettings from './hooks/useUpdateSettings';
@@ -200,6 +201,10 @@ const Settings = () => {
                   </FormItem>
                 )}
               />
+            </SettingsSection>
+
+            <SettingsSection title="Search & send days">
+              <SearchSendDaysEditor control={form.control} />
             </SettingsSection>
 
             <SettingsSection title="Follow-up cadence">

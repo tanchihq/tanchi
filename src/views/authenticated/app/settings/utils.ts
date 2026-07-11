@@ -26,7 +26,9 @@ export const settingsSchema = z.object({
       .array(z.number('Enter a number of days.').int().min(1).max(60))
       .min(1, 'Add at least one follow-up.')
       .max(10),
-    excludedWeekdays: z.array(z.number().int().min(0).max(6)),
+    excludedWeekdays: z
+      .array(z.number().int().min(0).max(6))
+      .max(6, 'Keep at least one active day.'),
   }),
   icps: z.array(icpSchema).min(1, 'Add at least one ICP.').max(3),
 });
