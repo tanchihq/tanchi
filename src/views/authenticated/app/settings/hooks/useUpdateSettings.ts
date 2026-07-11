@@ -24,6 +24,9 @@ const useUpdateSettings = ({ onSaved }: UseUpdateSettingsProps) =>
         case SettingsErrors.invalidFollowUp:
           toast.error('Follow-up cadence is invalid.');
           break;
+        case SettingsErrors.invalidLeadsPerDay:
+          toast.error('Leads per day must be between 1 and 200.');
+          break;
         default:
           toast.error('Some fields are invalid, please review them.');
       }

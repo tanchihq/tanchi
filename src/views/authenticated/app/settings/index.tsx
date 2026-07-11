@@ -207,6 +207,32 @@ const Settings = () => {
               <SearchSendDaysEditor control={form.control} />
             </SettingsSection>
 
+            <SettingsSection title="Leads per day">
+              <FormField
+                control={form.control}
+                name="leadsPerDay"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={200}
+                        className="h-[38px] w-28"
+                        value={field.value}
+                        onChange={(event) => field.onChange(event.target.valueAsNumber)}
+                      />
+                    </FormControl>
+                    <p className="text-xs leading-relaxed text-[#6F6C85]">
+                      Max number of new prospects the AI sources on each active day. Lower it if
+                      your review queue gets too crowded.
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </SettingsSection>
+
             <SettingsSection title="Follow-up cadence">
               <FollowUpEditor control={form.control} />
             </SettingsSection>

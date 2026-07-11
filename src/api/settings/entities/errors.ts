@@ -6,6 +6,7 @@ export enum SettingsErrors {
   invalidLanguage = 'invalidLanguage',
   invalidCompanyProfile = 'invalidCompanyProfile',
   invalidFollowUp = 'invalidFollowUp',
+  invalidLeadsPerDay = 'invalidLeadsPerDay',
   invalidIcp = 'invalidIcp',
   tooManyIcps = 'tooManyIcps',
   updateFailed = 'updateFailed',

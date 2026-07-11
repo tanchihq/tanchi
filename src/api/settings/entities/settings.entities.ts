@@ -17,6 +17,7 @@ export type SettingsDto = Readonly<{
   resources: Readonly<{ productPageUrl: string | null; salesDeckUrl: string | null }>;
   outreachLanguage: string;
   companyProfile: string;
+  leadsPerDay: number;
   followUp: SettingsFollowUp;
   icps: ReadonlyArray<SettingsIcp>;
 }>;
