@@ -40,6 +40,10 @@ function toEngineRun(run: PgEngineRun): EngineRun {
 export class EngineRepository {
   constructor(private readonly enginePostgres: EnginePostgres) {}
 
+  getExcludedWeekdays(organizationId: string): Promise<ReadonlyArray<number>> {
+    return this.enginePostgres.getExcludedWeekdays(organizationId);
+  }
+
   getAllOrganizationIds(): Promise<ReadonlyArray<string>> {
     return this.enginePostgres.getAllOrganizationIds();
   }
