@@ -26,7 +26,15 @@ export function startEngineWorker(
 
     const organizationIds =
       await engineRepository.getAllOrganizationIds();
+    const today = new Date().getDay();
     for (const id of organizationIds) {
+      const excludedWeekdays = await engineRepository.getExcludedWeekdays(id);
+      if (excludedWeekdays.includes(today)) {
+        console.log(
+          `[engine:nightly] org=${id} skipped (weekday ${today} is excluded)`
+        );
+        continue;
+      }
       const result = await engineService.run(id);
       console.log(`[engine:nightly] org=${id} → ${JSON.stringify(result)}`);
     }

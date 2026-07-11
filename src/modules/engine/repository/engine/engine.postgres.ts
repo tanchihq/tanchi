@@ -156,6 +156,22 @@ export class EnginePostgres {
     }
   }
 
+  async getExcludedWeekdays(
+    organizationId: string
+  ): Promise<ReadonlyArray<number>> {
+    try {
+      const result = await this.db<
+        ReadonlyArray<Readonly<{ excluded_weekdays: ReadonlyArray<number> }>>
+      >`
+        SELECT excluded_weekdays FROM organization_profile
+        WHERE organization_id = ${organizationId}
+      `;
+      return result[ARRAY.FIRST_INDEX]?.excluded_weekdays ?? [0, 6];
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
   async getOrganizationName(
     organizationId: string
   ): Promise<string | null> {
