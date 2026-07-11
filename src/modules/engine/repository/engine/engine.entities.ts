@@ -69,6 +69,9 @@ type CreateLeadInput = Readonly<{
   role: string | null;
   email: string | null;
   emailStatus: "verified" | "guessed" | "none";
+  linkedinUrl: string | null;
+  instagramUrl: string | null;
+  phone: string | null;
   channel: string;
   sourceProvider: string;
 }>;

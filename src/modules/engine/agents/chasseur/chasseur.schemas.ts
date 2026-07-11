@@ -13,3 +13,25 @@ export const DiscoveryOutputSchema = z.object({
 });
 
 export type DiscoveryOutput = z.infer<typeof DiscoveryOutputSchema>;
+
+const nullableString = z
+  .string()
+  .nullish()
+  .transform((value) => (value === undefined || value === "" ? null : value));
+
+export const AiEnrichmentSchema = z.object({
+  contacts: z.array(
+    z.object({
+      firstName: nullableString,
+      lastName: nullableString,
+      role: nullableString,
+      email: nullableString,
+      linkedinUrl: nullableString,
+      instagramUrl: nullableString,
+      phone: nullableString,
+      sourceUrl: z.string().min(1),
+    })
+  ),
+});
+
+export type AiEnrichmentOutput = z.infer<typeof AiEnrichmentSchema>;
