@@ -328,12 +328,14 @@ export class EnginePostgres {
       await this.db`
         INSERT INTO leads (
           id, organization_id, company_id, icp_id, first_name, last_name,
-          role, email, email_status, channel, source_provider
+          role, email, email_status, linkedin_url, instagram_url, phone,
+          channel, source_provider
         )
         VALUES (
           ${id}, ${input.organizationId}, ${input.companyId}, ${input.icpId},
           ${input.firstName}, ${input.lastName}, ${input.role}, ${input.email},
-          ${input.emailStatus}, ${input.channel}, ${input.sourceProvider}
+          ${input.emailStatus}, ${input.linkedinUrl}, ${input.instagramUrl},
+          ${input.phone}, ${input.channel}, ${input.sourceProvider}
         )
       `;
       return id;

@@ -1,5 +1,40 @@
 import type { PgEngineIcp } from "../../repository/engine/engine.entities.ts";
 import type { EngineOffer } from "../../engine.types.ts";
+import type { DiscoveryOutput } from "./chasseur.schemas.ts";
+
+type DiscoveredCompany = DiscoveryOutput["companies"][number];
+
+export function buildEnrichmentPrompt(
+  company: DiscoveredCompany,
+  domain: string,
+  count: number,
+  today: string
+): string {
+  return [
+    "You are a B2B contact finder. You find REAL, currently-employed people at a company and their publicly-listed contact details.",
+    "",
+    `Today's date is ${today}.`,
+    "",
+    "Company:",
+    `- Name: ${company.name}`,
+    `- Domain: ${domain}`,
+    company.sector === null ? "" : `- Sector: ${company.sector}`,
+    "",
+    "HARD RULES, non-negotiable:",
+    "- Only include contact details you actually retrieved via the web (team/about page, LinkedIn, press, directories). WebFetch the real page; prefer it over snippets.",
+    "- NEVER guess or construct an email from a name + domain pattern. Include an email ONLY if it literally appears on a page you fetched.",
+    "- Same for linkedinUrl / instagramUrl / phone: include only if you actually found them on a real page. If not found, use null.",
+    "- Every contact MUST carry a sourceUrl (the page where you found their details).",
+    "- No invented people. Prefer decision-makers relevant to outreach (founders, heads of, directors).",
+    "",
+    `Find up to ${count} contacts. It's fine to return fewer, or none, if you can't verify anyone.`,
+    "",
+    "Respond with ONLY this JSON object, no surrounding text:",
+    '{ "contacts": [ { "firstName": "... or null", "lastName": "... or null", "role": "... or null", "email": "... or null", "linkedinUrl": "... or null", "instagramUrl": "... or null", "phone": "... or null", "sourceUrl": "https://..." } ] }',
+  ]
+    .filter((line) => line !== "")
+    .join("\n");
+}
 
 export function buildDiscoveryPrompt(
   icp: PgEngineIcp,
