@@ -1,4 +1,5 @@
 import type { LlmProvider } from "@shared/llm";
+import { agentModel } from "@shared/llm";
 import type { EngineRepository } from "../../repository/engine/engine.repository.ts";
 import type { PgEngineLead } from "../../repository/engine/engine.entities.ts";
 import type { EngineOffer } from "../../engine.types.ts";
@@ -78,6 +79,7 @@ export class CopywriterService {
       const raw = await this.llm.generate({
         prompt: buildCopywriterPrompt(context),
         temperature: COPY_TEMPERATURE,
+        model: agentModel("copywriter"),
       });
       return CopyOutputSchema.parse(extractJson(raw));
     } catch (error) {
@@ -93,6 +95,7 @@ export class CopywriterService {
       const raw = await this.llm.generate({
         prompt: buildAngleInferencePrompt(body),
         maxTokens: ANGLE_INFERENCE_MAX_TOKENS,
+        model: agentModel("copywriter"),
       });
       return raw.trim().toLowerCase().split(/\s+/)[0] ?? null;
     } catch {

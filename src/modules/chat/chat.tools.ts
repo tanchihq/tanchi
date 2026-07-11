@@ -4,6 +4,7 @@ import type {
   LlmToolInvocation,
   LlmToolSpec,
 } from "@shared/llm";
+import { agentModel } from "@shared/llm";
 import { todayLabel } from "@shared/utils";
 import type { ChatRepository } from "./repository/chat/chat.repository.ts";
 import { buildResearchPrompt, buildRewritePrompt } from "./chat.prompt.ts";
@@ -363,6 +364,7 @@ async function fetchContext(
     const research = await deps.llm.research({
       prompt: buildResearchPrompt(target, todayLabel()),
       timeoutMs: RESEARCH_TIMEOUT_MS,
+      model: agentModel("profiler"),
     });
     const trimmed = research.trim();
     if (trimmed === "") {
@@ -415,6 +417,7 @@ async function rewriteDraft(
       }),
       maxTokens: REWRITE_MAX_TOKENS,
       temperature: REWRITE_TEMPERATURE,
+      model: agentModel("copywriter"),
     });
     const parsed = extractJson(raw) as Readonly<{
       subject?: unknown;

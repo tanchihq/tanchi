@@ -1,4 +1,5 @@
 import type { LlmProvider } from "@shared/llm";
+import { agentModel } from "@shared/llm";
 import { todayLabel } from "@shared/utils";
 import type { ChatRepository } from "./repository/chat/chat.repository.ts";
 import {
@@ -203,6 +204,7 @@ export class ChatService {
         tools: CHAT_TOOLS,
         execute,
         mcp: buildChatMcpServer({ organizationId, conversationId: id }),
+        model: agentModel("chat"),
         maxTokens: CHAT_MAX_TOKENS,
         temperature: CHAT_TEMPERATURE,
         maxSteps: AGENT_MAX_STEPS,

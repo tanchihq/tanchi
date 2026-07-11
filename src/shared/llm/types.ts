@@ -1,11 +1,13 @@
 export type LlmResearchInput = Readonly<{
   prompt: string;
+  model?: string;
   timeoutMs?: number;
 }>;
 
 export type LlmGenerateInput = Readonly<{
   system?: string;
   prompt: string;
+  model?: string;
   maxTokens?: number;
   temperature?: number;
 }>;
@@ -39,6 +41,7 @@ export type LlmAgentInput = Readonly<{
   tools: ReadonlyArray<LlmToolSpec>;
   execute: (call: LlmToolInvocation) => Promise<string>;
   mcp?: LlmMcpServer;
+  model?: string;
   maxTokens?: number;
   temperature?: number;
   maxSteps?: number;

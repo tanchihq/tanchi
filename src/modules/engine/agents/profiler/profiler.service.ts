@@ -1,4 +1,5 @@
 import type { LlmProvider } from "@shared/llm";
+import { agentModel } from "@shared/llm";
 import { fetchPageText, hostOf, verifyQuote } from "@shared/web";
 import type { EngineRepository } from "../../repository/engine/engine.repository.ts";
 import type {
@@ -136,7 +137,10 @@ export class ProfilerService {
 
   private async tryResearch(prompt: string): Promise<ProfilerOutput | null> {
     try {
-      const raw = await this.llm.research({ prompt });
+      const raw = await this.llm.research({
+        prompt,
+        model: agentModel("profiler"),
+      });
       return ProfilerOutputSchema.parse(extractJson(raw));
     } catch (error) {
       console.error(
