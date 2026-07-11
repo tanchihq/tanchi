@@ -6,6 +6,7 @@ import type {
 import {
   DEFAULT_EXCLUDED_WEEKDAYS,
   DEFAULT_FOLLOW_UP_INTERVALS,
+  DEFAULT_LEADS_PER_DAY,
 } from "./settings.constants.ts";
 
 export function convertPgIcpToSettingsIcpDto(
@@ -41,6 +42,7 @@ export function convertToSettingsDto(
       intervals: profile?.follow_up_intervals ?? DEFAULT_FOLLOW_UP_INTERVALS,
       excludedWeekdays: profile?.excluded_weekdays ?? DEFAULT_EXCLUDED_WEEKDAYS,
     },
+    leadsPerDay: profile?.leads_per_day ?? DEFAULT_LEADS_PER_DAY,
     icps: icps.map(convertPgIcpToSettingsIcpDto),
   };
 }

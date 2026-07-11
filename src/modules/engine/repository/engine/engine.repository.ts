@@ -44,6 +44,10 @@ export class EngineRepository {
     return this.enginePostgres.getExcludedWeekdays(organizationId);
   }
 
+  getLeadsPerDay(organizationId: string): Promise<number> {
+    return this.enginePostgres.getLeadsPerDay(organizationId);
+  }
+
   getAllOrganizationIds(): Promise<ReadonlyArray<string>> {
     return this.enginePostgres.getAllOrganizationIds();
   }

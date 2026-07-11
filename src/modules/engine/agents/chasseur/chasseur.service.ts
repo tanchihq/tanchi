@@ -58,14 +58,18 @@ export class ChasseurService {
       [...leadEmails, ...excludedEmails].map((email) => email.toLowerCase())
     );
 
+    const leadsPerDay =
+      await this.engineRepository.getLeadsPerDay(organizationId);
     let created = 0;
     for (const icp of icps) {
+      if (created >= leadsPerDay) break;
       created += await this.sourceForIcp(
         organizationId,
         icp,
         offer,
         existingDomains,
-        existingEmails
+        existingEmails,
+        leadsPerDay - created
       );
     }
     return created;
@@ -76,7 +80,8 @@ export class ChasseurService {
     icp: PgEngineIcp,
     offer: EngineOffer,
     existingDomains: Set<string>,
-    existingEmails: Set<string>
+    existingEmails: Set<string>,
+    budget: number
   ): Promise<number> {
     const conversion =
       await this.engineRepository.getProfileConversionForIcp(
@@ -88,6 +93,7 @@ export class ChasseurService {
     const companies = await this.discoverCompanies(icp, offer, winningProfile);
     let created = 0;
     for (const company of companies) {
+      if (created >= budget) break;
       const domain = normalizeDomain(company.domain);
       if (domain === "" || existingDomains.has(domain)) continue;
       existingDomains.add(domain);
@@ -96,7 +102,8 @@ export class ChasseurService {
         icp.id,
         company,
         domain,
-        existingEmails
+        existingEmails,
+        budget - created
       );
     }
     return created;
@@ -132,7 +139,8 @@ export class ChasseurService {
     icpId: string,
     company: DiscoveredCompany,
     domain: string,
-    existingEmails: Set<string>
+    existingEmails: Set<string>,
+    maxLeads: number
   ): Promise<number> {
     const sourcing = this.sourcing;
     if (sourcing === null) return 0;
@@ -151,7 +159,7 @@ export class ChasseurService {
     const usable = emails
       .filter((email) => (email.confidence ?? 0) >= HUNTER_MIN_CONFIDENCE)
       .filter((email) => !existingEmails.has(email.email.toLowerCase()))
-      .slice(0, MAX_LEADS_PER_COMPANY);
+      .slice(0, Math.min(MAX_LEADS_PER_COMPANY, maxLeads));
 
     let created = 0;
     for (const email of usable) {

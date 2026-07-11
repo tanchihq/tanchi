@@ -22,6 +22,7 @@ export type SettingsDto = Readonly<{
     intervals: ReadonlyArray<number>;
     excludedWeekdays: ReadonlyArray<number>;
   }>;
+  leadsPerDay: number;
   icps: ReadonlyArray<SettingsIcpDto>;
 }>;
 

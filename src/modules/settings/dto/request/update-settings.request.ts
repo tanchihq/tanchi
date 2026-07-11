@@ -9,7 +9,9 @@ import {
   MAX_ICP_NAME_LENGTH,
   MAX_ICP_SHORT_FIELD_LENGTH,
   MAX_ICPS,
+  MAX_LEADS_PER_DAY,
   MAX_URL_LENGTH,
+  MIN_LEADS_PER_DAY,
 } from "../../settings.constants.ts";
 const websiteSchema = z
   .url({ error: UpdateSettingsErrors.invalidWebsite })
@@ -97,6 +99,15 @@ export const UpdateSettingsDto = z.object({
       )
       .max(7, { message: UpdateSettingsErrors.invalidFollowUp }),
   }),
+  leadsPerDay: z
+    .number({ error: UpdateSettingsErrors.invalidLeadsPerDay })
+    .int({ message: UpdateSettingsErrors.invalidLeadsPerDay })
+    .min(MIN_LEADS_PER_DAY, {
+      message: UpdateSettingsErrors.invalidLeadsPerDay,
+    })
+    .max(MAX_LEADS_PER_DAY, {
+      message: UpdateSettingsErrors.invalidLeadsPerDay,
+    }),
   icps: z
     .array(icpSchema, { error: UpdateSettingsErrors.invalidIcp })
     .min(1, { message: UpdateSettingsErrors.invalidIcp })

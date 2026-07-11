@@ -11,3 +11,7 @@ export const DEFAULT_FOLLOW_UP_INTERVALS: ReadonlyArray<number> = [3, 4];
 export const DEFAULT_EXCLUDED_WEEKDAYS: ReadonlyArray<number> = [0, 6];
 export const MAX_FOLLOW_UPS = 10;
 export const MAX_FOLLOW_UP_INTERVAL_DAYS = 60;
+
+export const DEFAULT_LEADS_PER_DAY = 15;
+export const MIN_LEADS_PER_DAY = 1;
+export const MAX_LEADS_PER_DAY = 200;

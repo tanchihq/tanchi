@@ -156,6 +156,20 @@ export class EnginePostgres {
     }
   }
 
+  async getLeadsPerDay(organizationId: string): Promise<number> {
+    try {
+      const result = await this.db<
+        ReadonlyArray<Readonly<{ leads_per_day: number }>>
+      >`
+        SELECT leads_per_day FROM organization_profile
+        WHERE organization_id = ${organizationId}
+      `;
+      return result[ARRAY.FIRST_INDEX]?.leads_per_day ?? 15;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
   async getExcludedWeekdays(
     organizationId: string
   ): Promise<ReadonlyArray<number>> {

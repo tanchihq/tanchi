@@ -77,7 +77,8 @@ export class SettingsPostgres {
         await tx`
           INSERT INTO organization_profile (
             organization_id, website, product_page_url, sales_deck_url,
-            outreach_language, company_profile, follow_up_intervals, excluded_weekdays
+            outreach_language, company_profile, follow_up_intervals,
+            excluded_weekdays, leads_per_day
           )
           VALUES (
             ${input.organizationId},
@@ -87,7 +88,8 @@ export class SettingsPostgres {
             ${input.outreachLanguage},
             ${input.companyProfile},
             ${[...input.followUpIntervals]}::int[],
-            ${[...input.excludedWeekdays]}::int[]
+            ${[...input.excludedWeekdays]}::int[],
+            ${input.leadsPerDay}
           )
           ON CONFLICT (organization_id) DO UPDATE SET
             website = EXCLUDED.website,
@@ -97,6 +99,7 @@ export class SettingsPostgres {
             company_profile = EXCLUDED.company_profile,
             follow_up_intervals = EXCLUDED.follow_up_intervals,
             excluded_weekdays = EXCLUDED.excluded_weekdays,
+            leads_per_day = EXCLUDED.leads_per_day,
             updated_at = NOW()
         `;
 

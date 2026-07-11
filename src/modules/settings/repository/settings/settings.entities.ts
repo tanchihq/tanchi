@@ -7,6 +7,7 @@ type PgOrganizationProfile = Readonly<{
   company_profile: string;
   follow_up_intervals: ReadonlyArray<number>;
   excluded_weekdays: ReadonlyArray<number>;
+  leads_per_day: number;
   onboarded_at: Date | null;
   created_at: Date;
   updated_at: Date;
@@ -35,6 +36,7 @@ type UpdateSettingsInput = Readonly<{
   companyProfile: string;
   followUpIntervals: ReadonlyArray<number>;
   excludedWeekdays: ReadonlyArray<number>;
+  leadsPerDay: number;
   icps: ReadonlyArray<
     Readonly<{
       name: string;

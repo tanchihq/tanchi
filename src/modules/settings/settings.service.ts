@@ -42,6 +42,7 @@ export class SettingsService {
         companyProfile: dto.companyProfile,
         followUpIntervals: dto.followUp.intervals,
         excludedWeekdays: dto.followUp.excludedWeekdays,
+        leadsPerDay: dto.leadsPerDay,
         icps: dto.icps,
       });
     } catch (error) {
