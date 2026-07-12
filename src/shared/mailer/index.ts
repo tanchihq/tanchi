@@ -50,7 +50,7 @@ export async function sendSystemEmail(email: SystemEmail): Promise<void> {
   }
   try {
     await transport.sendMail({
-      from: env.RESEND_FROM_EMAIL,
+      from: env.RESEND_FROM_EMAIL ?? env.MAIL_FROM_EMAIL,
       to: email.to,
       subject: email.subject,
       html: email.html,
