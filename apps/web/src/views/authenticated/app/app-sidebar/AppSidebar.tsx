@@ -40,12 +40,29 @@ const AppSidebar = () => {
 
   return (
     <aside className="bg-night-800/60 flex w-[236px] shrink-0 flex-col gap-1 border-r border-white/8 px-4 py-5 backdrop-blur-md">
-      <div className="mb-5 flex items-center gap-2 px-3">
-        <div className="bg-brand-600 flex size-7 items-center justify-center rounded-lg text-[13px] font-semibold text-white">
-          S
-        </div>
-        <span className="text-glass-fg text-[15px] font-medium tracking-tighter">
-          Tanchi
+      <div className="mb-5 flex items-center gap-2.5 px-3">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 120 120"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          className="text-glass-fg"
+        >
+          <circle cx="60" cy="60" r="46" stroke="currentColor" strokeWidth="6" />
+          <circle
+            cx="60"
+            cy="60"
+            r="28"
+            stroke="currentColor"
+            strokeWidth="5"
+            strokeOpacity="0.6"
+          />
+          <circle cx="60" cy="60" r="10" fill="currentColor" />
+        </svg>
+        <span className="text-glass-fg text-[15px] font-semibold tracking-[-0.04em]">
+          tanchi
         </span>
       </div>
 
