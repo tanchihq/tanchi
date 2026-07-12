@@ -73,6 +73,16 @@ Approche V1, simple et directe : on passe par le **serveur mail du ou des commer
 
 Les autres canaux ne sont pas automatiques (voir tableau).
 
+### Mailer système (transactionnel)
+
+À ne pas confondre avec l'envoi d'outreach ci-dessus : les emails **système** (vérification de compte, invitations) partent d'un mailer à part. **Resend n'est pas imposé** — l'ordre de résolution :
+
+1. **SMTP générique** si `MAIL_SMTP_HOST` est défini (`MAIL_SMTP_PORT`, `MAIL_SMTP_USER`, `MAIL_SMTP_PASS`, `MAIL_SMTP_SECURE`). **Recommandé en self-hosted.**
+2. **Resend** si `RESEND_API_KEY` est défini (option SaaS, non requise).
+3. Sinon : aucun envoi, log en console (dev).
+
+L'adresse d'expédition est `MAIL_FROM_EMAIL` (générique). `RESEND_FROM_EMAIL` reste accepté et prioritaire s'il est défini (rétro-compat). Un self-hoster branche donc son propre SMTP + `MAIL_FROM_EMAIL`, sans jamais toucher à Resend.
+
 ---
 
 ## Stack
