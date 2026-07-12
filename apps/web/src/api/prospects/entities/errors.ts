@@ -1,0 +1,15 @@
+export enum ProspectErrors {
+  noActiveOrganization = 'noActiveOrganization',
+  inexistingProspect = 'inexistingProspect',
+  notInMyOrg = 'notInMyOrg',
+  invalidStage = 'invalidStage',
+  invalidOrigin = 'invalidOrigin',
+  invalidScope = 'invalidScope',
+  invalidReason = 'invalidReason',
+  updateFailed = 'updateFailed',
+  deleteFailed = 'deleteFailed',
+  noDraft = 'noDraft',
+  noSender = 'noSender',
+  sendFailed = 'sendFailed',
+  fetchFailed = 'fetchFailed',
+}

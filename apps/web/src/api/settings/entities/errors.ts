@@ -1,0 +1,15 @@
+export enum SettingsErrors {
+  noActiveOrganization = 'noActiveOrganization',
+  invalidCompanyName = 'invalidCompanyName',
+  invalidWebsite = 'invalidWebsite',
+  invalidResource = 'invalidResource',
+  invalidLanguage = 'invalidLanguage',
+  invalidCompanyProfile = 'invalidCompanyProfile',
+  invalidFollowUp = 'invalidFollowUp',
+  invalidLeadsPerDay = 'invalidLeadsPerDay',
+  invalidIcp = 'invalidIcp',
+  tooManyIcps = 'tooManyIcps',
+  updateFailed = 'updateFailed',
+  generationFailed = 'generationFailed',
+  fetchFailed = 'fetchFailed',
+}

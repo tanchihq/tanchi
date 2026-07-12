@@ -1,0 +1,321 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================================
+   SweeLeads Design System
+   Extrait du design produit (Claude Design). Deux univers cohabitent :
+   - "paper"  : l'app, fond crème clair, texte encre chaude.
+   - "night" / "glass" : l'auth et l'onboarding, verre sombre sur fond nuit.
+   Marque : indigo électrique #0501F0.
+   ========================================================================== */
+
+@theme {
+  /* -- Typographie -- */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --tracking-tight: -0.01em;
+  --tracking-tighter: -0.02em;
+
+  /* -- Marque (indigo électrique) -- */
+  --color-brand-50: #f3f2fe;
+  --color-brand-100: #ecebfe;
+  --color-brand-200: #c7c4fb;
+  --color-brand-300: #a9a6ff;
+  --color-brand-400: #7c79f6;
+  --color-brand-500: #4b46f3;
+  --color-brand-600: #0501f0;
+  --color-brand-700: #0400c4;
+  --color-brand-800: #0300a0;
+  --color-brand-900: #14125c;
+
+  /* -- Neutres chauds (univers "paper") -- */
+  --color-paper: #faf9f5;
+  --color-paper-2: #f3f2ec;
+  --color-paper-3: #eeede6;
+  --color-sand-100: #e9e7df;
+  --color-sand-200: #e4e1d6;
+  --color-sand-300: #d8d5c9;
+  --color-ink: #1e1c17;
+  --color-ink-soft: #6b6757;
+  --color-ink-faint: #9a9583;
+
+  /* -- Univers "night" / "glass" (auth, onboarding) -- */
+  --color-night-900: #0a0a1f;
+  --color-night-800: #100e29;
+  --color-night-700: #141330;
+  --color-night-600: #16143a;
+  --color-glass-fg: #faf9f5;
+  --color-glass-muted: #a7acb8;
+  --color-glass-soft: #c4c8d2;
+  --color-glass-dim: #8e8aa5;
+
+  /* -- Statuts -- */
+  --color-success: #4ade80;
+  --color-success-deep: #1c8a52;
+  --color-warn: #fbbf77;
+  --color-warn-deep: #fbbc05;
+  --color-danger: #ff8a80;
+  --color-danger-deep: #ea4335;
+
+  /* -- Rayons -- */
+  --radius-well: 0.875rem; /* 14px — champs & boutons */
+  --radius-card: 1.75rem; /* 28px — cartes glass */
+
+  /* -- Ombres signature -- */
+  --shadow-brand: 0 8px 18px -8px rgba(5, 1, 240, 0.55);
+  --shadow-brand-strong: 0 8px 20px -8px rgba(5, 1, 240, 0.6);
+  --shadow-well: inset 0 2px 6px rgba(0, 0, 0, 0.42);
+  --shadow-well-focus:
+    0 0 0 3px rgba(5, 1, 240, 0.24), inset 0 0 0 1px #0501f0,
+    inset 0 2px 6px rgba(0, 0, 0, 0.28);
+  --shadow-glass:
+    0 44px 100px -34px rgba(0, 0, 0, 0.75),
+    0 0 90px -6px rgba(5, 1, 240, 0.42),
+    0 10px 26px -14px rgba(0, 0, 0, 0.55),
+    inset 0 1px 1px rgba(255, 255, 255, 0.32),
+    inset 0 0 46px -12px rgba(120, 140, 255, 0.18);
+  --shadow-paper-card:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 24px 50px -28px rgba(30, 28, 23, 0.22);
+}
+
+/* ============================================================================
+   Couche sémantique shadcn — retunée sur la marque SweeLeads.
+   Les composants shadcn (light) tapent dans ces variables.
+   ========================================================================== */
+
+:root {
+  --radius: 0.875rem;
+
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+  --card: #ffffff;
+  --card-foreground: var(--color-ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-brand-600);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-paper-2);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-paper-2);
+  --muted-foreground: var(--color-ink-soft);
+  --accent: var(--color-brand-100);
+  --accent-foreground: var(--color-brand-800);
+  --destructive: var(--color-danger-deep);
+  --border: var(--color-sand-200);
+  --input: var(--color-sand-200);
+  --ring: var(--color-brand-600);
+  --chart-1: var(--color-brand-600);
+  --chart-2: var(--color-brand-400);
+  --chart-3: var(--color-success);
+  --chart-4: var(--color-warn);
+  --chart-5: var(--color-brand-900);
+  --sidebar: var(--color-paper);
+  --sidebar-foreground: var(--color-ink);
+  --sidebar-primary: var(--color-brand-600);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--color-brand-100);
+  --sidebar-accent-foreground: var(--color-brand-800);
+  --sidebar-border: var(--color-sand-200);
+  --sidebar-ring: var(--color-brand-600);
+}
+
+.dark {
+  --background: var(--color-night-900);
+  --foreground: var(--color-glass-fg);
+  --card: var(--color-night-700);
+  --card-foreground: var(--color-glass-fg);
+  --popover: var(--color-night-700);
+  --popover-foreground: var(--color-glass-fg);
+  --primary: var(--color-brand-600);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-night-600);
+  --secondary-foreground: var(--color-glass-fg);
+  --muted: var(--color-night-600);
+  --muted-foreground: var(--color-glass-muted);
+  --accent: var(--color-night-600);
+  --accent-foreground: var(--color-glass-fg);
+  --destructive: var(--color-danger);
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: var(--color-brand-400);
+  --sidebar: var(--color-night-800);
+  --sidebar-foreground: var(--color-glass-fg);
+  --sidebar-primary: var(--color-brand-600);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--color-night-600);
+  --sidebar-accent-foreground: var(--color-glass-fg);
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-ring: var(--color-brand-400);
+}
+
+/* Mappe les variables sémantiques vers les couleurs Tailwind (bg-background…). */
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+  ::selection {
+    background: var(--color-brand-100);
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(120, 116, 100, 0.25);
+    border-radius: 8px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+}
+
+/* ============================================================================
+   Surfaces "glass" réutilisables (auth, onboarding).
+   ========================================================================== */
+
+@layer components {
+  /* La carte translucide sombre, floutée. */
+  .glass-card {
+    background: rgba(20, 19, 48, 0.46);
+    backdrop-filter: blur(36px) saturate(155%);
+    -webkit-backdrop-filter: blur(36px) saturate(155%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-glass);
+  }
+
+  /* Hairline dégradé posé en bas d'une carte glass. */
+  .glass-hairline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      rgba(120, 200, 255, 0) 0%,
+      rgba(140, 180, 255, 0.75) 28%,
+      rgba(205, 155, 255, 0.8) 52%,
+      rgba(150, 220, 255, 0.7) 74%,
+      rgba(120, 200, 255, 0) 100%
+    );
+  }
+
+  /* Champ "well" : inset sombre translucide. */
+  .glass-well {
+    background: rgba(10, 10, 31, 0.42);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-well);
+    box-shadow: var(--shadow-well);
+    transition: box-shadow 0.15s ease;
+  }
+  .glass-well:focus-within {
+    box-shadow: var(--shadow-well-focus);
+  }
+  .glass-well input::placeholder {
+    color: var(--color-glass-dim);
+    opacity: 1;
+  }
+}
+
+/* ============================================================================
+   Animations d'ambiance (aurora, radar, entrée de carte).
+   ========================================================================== */
+
+@keyframes sl-drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(60px, -40px) scale(1.08);
+  }
+}
+@keyframes sl-drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-50px, 30px) scale(1.12);
+  }
+}
+@keyframes sl-drift-c {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(30px, 40px);
+  }
+}
+@keyframes sl-radar {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@keyframes sl-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
