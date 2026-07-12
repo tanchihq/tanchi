@@ -1,17 +1,17 @@
 # syntax=docker/dockerfile:1
 
-# ---- deps : dépendances de prod uniquement, cache sur le lockfile ----
+# ---- deps: production dependencies only, cached on the lockfile ----
 FROM oven/bun:1.3.14-slim AS deps
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 
-# ---- release : image finale (prod + dev) ----
-# La CLI `claude` est embarquée pour tout le monde. Le provider LLM reste piloté
-# par la variable LLM_PROVIDER (api en prod, cli en dev).
-# Auth cli : ouvre le terminal du container, tape `claude`, copie le lien dans
-# ton navigateur, recolle le code. Monte un volume sur /home/bun/.claude pour
-# que la session survive aux redeploys.
+# ---- release: final image (prod + dev) ----
+# The `claude` CLI is embedded for everyone. The LLM provider stays driven
+# by the LLM_PROVIDER variable (api in prod, cli in dev).
+# Cli auth: open the container terminal, type `claude`, copy the link into
+# your browser, paste the code back. Mount a volume on /home/bun/.claude so
+# that the session survives redeploys.
 FROM oven/bun:1.3.14-slim AS release
 ENV NODE_ENV=production
 WORKDIR /app
@@ -28,7 +28,7 @@ COPY migrations ./migrations
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# l'utilisateur non-root `bun` est fourni par l'image
+# the non-root `bun` user is provided by the image
 USER bun
 ENV HOME=/home/bun
 RUN curl -fsSL https://claude.ai/install.sh | bash

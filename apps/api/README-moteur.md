@@ -1,146 +1,146 @@
-# Tanchi, le moteur
+# Tanchi, the engine
 
-> Le coeur du produit : comment on source, comment on renseigne, et comment on apprend de ce qui convertit vraiment. C'est ici que se joue la différence avec les autres outils de prospection IA.
+> The heart of the product: how we source, how we gather intelligence, and how we learn from what actually converts. This is where the difference with other AI prospecting tools plays out.
 
-Ce document décrit trois briques : le **sourcing et le renseignement**, les **agents**, et l'**apprentissage**. Elles se bouclent entre elles, c'est ça toute l'histoire.
+This document describes three building blocks: **sourcing and intelligence**, the **agents**, and **learning**. They loop into each other, and that's the whole story.
 
 ---
 
-## 1. Sourcing et renseignement
+## 1. Sourcing and intelligence
 
-Deux étapes distinctes qu'on confond souvent : trouver les leads, puis les connaître. La deuxième est celle qui fait la conversion.
+Two distinct steps that are often conflated: finding the leads, then knowing them. The second is the one that drives conversion.
 
 ### 1.1 Sourcing
 
-Chaque soir, un job identifie de nouveaux leads sur la base des ICP configurés. Les ICP servent de seeds : on part de profils types et on cherche des profils similaires à travers les sources pertinentes par canal.
+Every evening, a job identifies new leads based on the configured ICPs. The ICPs serve as seeds: we start from archetypal profiles and look for similar profiles across the channel-relevant sources.
 
-Le sourcing produit une liste brute. Il ne juge pas encore, il ratisse. La qualification vient après.
+Sourcing produces a raw list. It doesn't judge yet, it rakes. Qualification comes after.
 
-### 1.2 Renseignement
+### 1.2 Intelligence
 
-C'est un **pipeline de vérification**, pas une génération. La qualité vient de la rigueur des sources, jamais du modèle. C'est le point le plus important du produit.
+This is a **verification pipeline**, not a generation. Quality comes from the rigor of the sources, never from the model. It's the most important point of the product.
 
-**Règles dures, non négociables :**
+**Hard rules, non-negotiable:**
 
-- Chaque fait du dossier est cité et sourcé.
-- Jamais un nom, un logo ou un client qui n'apparaît pas sur le site ou le LinkedIn du prospect lui-même.
-- `web_fetch` du site réel prime toujours sur `web_search`.
-- Une donnée non vérifiée n'entre pas dans le dossier. Pas de "probablement", pas d'inférence non sourcée.
+- Every fact in the dossier is cited and sourced.
+- Never a name, a logo, or a client that doesn't appear on the prospect's own website or LinkedIn.
+- `web_fetch` of the real website always takes precedence over `web_search`.
+- An unverified piece of data does not enter the dossier. No "probably", no unsourced inference.
 
-**Le pipeline dossier :**
+**The dossier pipeline:**
 
-1. Collecte multi-source : site, LinkedIn, presse récente, event en cours, levée de fonds, recrutements, stack technique.
-2. Extraction structurée, chaque fait attaché à sa source.
-3. Synthèse en un dossier lisible.
-4. Proposition de 3 à 5 accroches candidates, classées, chacune rattachée à un fait vérifié.
+1. Multi-source collection: website, LinkedIn, recent press, ongoing event, fundraising, hires, tech stack.
+2. Structured extraction, each fact attached to its source.
+3. Synthesis into a readable dossier.
+4. Proposal of 3 to 5 candidate hooks, ranked, each tied to a verified fact.
 
-**Sortie :** un dossier prospect où chaque accroche répond à "pourquoi ce prospect, maintenant, avec cet angle".
+**Output:** a prospect dossier where each hook answers "why this prospect, now, with this angle".
 
-### 1.3 Le pont vers l'apprentissage
+### 1.3 The bridge to learning
 
-Le renseignement produit des **types d'accroche** (event récent, levée, recrutement, connexion commune, preuve sociale locale). Ces types sont l'unité sur laquelle l'apprentissage mesure. Le renseignement n'alimente pas juste la rédaction, il alimente la boucle d'apprentissage. Les deux se bouclent.
+Intelligence produces **hook types** (recent event, fundraising, hiring, shared connection, local social proof). These types are the unit that learning measures on. Intelligence doesn't just feed the writing, it feeds the learning loop. The two loop together.
 
 ---
 
-## 2. Les agents
+## 2. The agents
 
-Quatre étapes, pas quatre cerveaux. En interne c'est un pipeline séquentiel plus un job async. Côté présentation, on peut les nommer comme quatre agents.
+Four steps, not four brains. Internally it's a sequential pipeline plus an async job. On the presentation side, we can name them as four agents.
 
-### Chasseur, sourcing
+### Hunter, sourcing
 
-Ratisse les leads sur les ICP, chaque soir. Sort une liste brute de candidats.
+Rakes leads on the ICPs, every evening. Outputs a raw list of candidates.
 
-### Profiler, renseignement et qualification
+### Profiler, intelligence and qualification
 
-Le plus important. Pour chaque lead : lance le pipeline de renseignement vérifié, qualifie (A / B / C), score, choisit le canal le plus pertinent, produit le dossier sourcé avec ses accroches candidates. Chaque soir.
+The most important. For each lead: runs the verified intelligence pipeline, qualifies (A / B / C), scores, chooses the most relevant channel, produces the sourced dossier with its candidate hooks. Every evening.
 
-### Copywriter, rédaction
+### Copywriter, writing
 
-Rédige le message. Nourri de trois choses : le dossier du Profiler, le playbook distillé de l'ICP, et les few-shots des accroches gagnantes passées pour ce type de prospect. Chaque soir.
+Writes the message. Fed by three things: the Profiler's dossier, the ICP's distilled playbook, and the few-shots of past winning hooks for this type of prospect. Every evening.
 
-### Analyste, apprentissage
+### Analyst, learning
 
-Ne tourne pas dans le cycle du soir. Job async, basse fréquence (hebdo). Il distille ce qui a converti et réécrit le playbook. C'est lui qui fait progresser tout le système.
+Doesn't run in the evening cycle. Async job, low frequency (weekly). It distills what converted and rewrites the playbook. It's the one that makes the whole system progress.
 
-**La couche stratégie n'est pas un agent.** ICP, ton, canaux : figés au setup, réinjectés partout. Pas un cerveau qui tourne toutes les nuits.
+**The strategy layer is not an agent.** ICP, tone, channels: frozen at setup, re-injected everywhere. Not a brain that runs every night.
 
 ```
-      SETUP (stratégie figée : ICP, ton, canaux)
+      SETUP (frozen strategy: ICP, tone, channels)
                     |
-   SOIR  ┌──────────┴──────────┐
-         Chasseur → Profiler → Copywriter → envoi / draft
+ EVENING ┌──────────┴──────────┐
+         Hunter → Profiler → Copywriter → send / draft
                     |              ↑
                  dossier        playbook + few-shots
                     |              |
-   ASYNC        (résultats)     Analyste (distillation, hebdo)
+   ASYNC        (results)       Analyst (distillation, weekly)
                     └──────────────┘
 ```
 
 ---
 
-## 3. L'apprentissage
+## 3. Learning
 
-Le sujet le plus difficile et le plus mal fait du marché. Notre approche : qualitatif et distillé d'abord, statistique seulement quand le volume existe.
+The hardest and most poorly done subject on the market. Our approach: qualitative and distilled first, statistical only when the volume exists.
 
-### 3.1 Apprendre sur le bon signal
+### 3.1 Learning on the right signal
 
-L'échelle du reward, du plus bruité au plus vrai :
+The reward scale, from noisiest to truest:
 
 ```
-envoyé  →  délivré  →  ouvert  →  répondu  →  réponse positive  →  RDV pris  →  deal
+sent  →  delivered  →  opened  →  replied  →  positive reply  →  meeting booked  →  deal
 ```
 
-On **n'apprend pas avant "réponse positive"**. Les ouvertures sont un signal poubelle : Apple Mail Privacy gonfle les taux, les bots de sécurité ouvrent tout. Optimiser dessus mène à des objets clickbait qui ne convertissent pas. Le reward exploité, c'est **réponse positive** et **RDV**.
+We **don't learn before "positive reply"**. Opens are a garbage signal: Apple Mail Privacy inflates the rates, security bots open everything. Optimizing on them leads to clickbait subject lines that don't convert. The reward we exploit is **positive reply** and **meeting**.
 
-### 3.2 Pourquoi pas du ML statistique tout de suite
+### 3.2 Why not statistical ML right away
 
-Le calcul du volume tranche le débat. À 30 emails/soir, 5-10% de réponse, 1-2% de positif, on récolte 0 à 1 réponse positive par nuit. Pour une significativité statistique sur un taux à quelques %, il faut des centaines d'envois par variante. On n'aura pas ce volume par ICP avant des mois.
+The volume math settles the debate. At 30 emails/evening, 5-10% reply, 1-2% positive, we harvest 0 to 1 positive reply per night. For statistical significance on a rate of a few %, you need hundreds of sends per variant. We won't have that volume per ICP for months.
 
-Conclusion : l'apprentissage statistique est mort-né au départ. Le nôtre doit être **qualitatif et distillé** d'abord.
+Conclusion: statistical learning is dead on arrival at the start. Ours must be **qualitative and distilled** first.
 
-### 3.3 Les quatre couches, par valeur réelle
+### 3.3 The four layers, by real value
 
-**Couche 1, distillation (le coeur).** L'Analyste reçoit les batchs `message envoyé → édition humaine éventuelle → résultat` et réécrit un **playbook en langage naturel, par ICP** :
+**Layer 1, distillation (the core).** The Analyst receives the batches `message sent → possible human edit → result` and rewrites a **natural-language playbook, per ICP**:
 
-> "Nightlife : l'accroche par preuve sociale locale a sorti 4 réponses, les génériques 0. Angle gagnant : citer un event récent du prospect dès la 1re ligne."
+> "Nightlife: the local social proof hook produced 4 replies, the generic ones 0. Winning angle: cite a recent event of the prospect from the 1st line."
 
-Ce playbook est réinjecté dans le prompt du Copywriter. Interprétable, corrigeable à la main, efficace à faible volume. C'est ça, l'apprentissage réel.
+This playbook is re-injected into the Copywriter's prompt. Interpretable, correctable by hand, effective at low volume. That's what real learning is.
 
-**Couche 2, stats structurée.** Chaque message est taggé sur des attributs catégoriels : angle (douleur / preuve sociale / curiosité / connexion commune), longueur, type de CTA, profondeur de perso, canal, ICP, expéditeur, créneau. On suit le taux de réponse positive **par valeur d'attribut**, pas par texte libre. Agréger sur 6 à 8 dimensions est exploitable bien plus vite qu'un vrai test statistique. Ça nourrit la couche 1 avec des chiffres.
+**Layer 2, structured stats.** Each message is tagged on categorical attributes: angle (pain / social proof / curiosity / shared connection), length, CTA type, personalization depth, channel, ICP, sender, time slot. We track the positive reply rate **per attribute value**, not per free text. Aggregating over 6 to 8 dimensions is exploitable far sooner than a true statistical test. It feeds layer 1 with numbers.
 
-**Couche 3, retrieval (la vectorisation).** Sert au few-shot. Au moment de rédiger, on récupère les k messages gagnants passés et on les met en exemple. Point clé : **on vectorise le profil du prospect, pas le texte du message.** L'axe utile est "pour ce type de prospect, quelles accroches ont marché", pas "quels messages se ressemblent". L'erreur classique produit du survivorship bias sur le style.
+**Layer 3, retrieval (the vectorization).** Serves the few-shot. At writing time, we retrieve the k past winning messages and put them as examples. Key point: **we vectorize the prospect's profile, not the message text.** The useful axis is "for this type of prospect, which hooks worked", not "which messages resemble each other". The classic mistake produces survivorship bias on style.
 
-**Couche 4, bandit (plus tard).** Quand le volume existe : Thompson sampling au niveau de l'**angle** (4-5 bras max), jamais au niveau du message. Pas avant d'avoir la data, sinon on exploite du bruit.
+**Layer 4, bandit (later).** When the volume exists: Thompson sampling at the **angle** level (4-5 arms max), never at the message level. Not before having the data, otherwise we exploit noise.
 
-### 3.4 Le signal le plus précieux : humain + IA
+### 3.4 The most valuable signal: human + AI
 
-Constat de terrain : la version `IA éditée par l'humain` convertit souvent mieux que le full auto.
+Field observation: the `AI edited by human` version often converts better than full auto.
 
-Chaque édition humaine d'un draft produit une **paire de préférence** : `version IA → version éditée → résultat`. La plupart des outils la jettent. Tanchi la stocke et en fait la **priorité d'apprentissage** de l'Analyste.
+Each human edit of a draft produces a **preference pair**: `AI version → edited version → result`. Most tools throw it away. Tanchi stores it and makes it the Analyst's **learning priority**.
 
-En pratique, ce que l'humain ajoute est presque toujours **l'insight prospect-spécifique**, donc du renseignement. La boucle se referme : mieux on renseigne, moins l'humain a besoin d'éditer, et ce qu'il édite quand même devient le prochain enseignement.
+In practice, what the human adds is almost always **the prospect-specific insight**, so intelligence. The loop closes: the better we gather intelligence, the less the human needs to edit, and what they edit anyway becomes the next lesson.
 
-### 3.5 Ordre de construction
+### 3.5 Build order
 
-1. Tracking propre du reward (réponse positive détectée, pas ouverture).
-2. Capture des diffs d'édition humaine.
-3. Playbook distillé par ICP.
-4. Puis retrieval (vectorisation profil).
-5. Puis stats structurée.
-6. Bandit en dernier, une fois le volume atteint.
+1. Clean reward tracking (positive reply detected, not open).
+2. Capture of human edit diffs.
+3. Distilled playbook per ICP.
+4. Then retrieval (profile vectorization).
+5. Then structured stats.
+6. Bandit last, once the volume is reached.
 
 ---
 
-## Modèle de données de la boucle (esquisse)
+## Data model of the loop (sketch)
 
-- **`messages`** : le message + tous ses attributs catégoriels.
-- **`outcomes`** : résultat sur l'échelle de reward, avec fenêtre d'attribution.
-- **`edits`** : diff de chaque édition humaine (la paire de préférence).
-- **`playbook`** : document langage naturel par ICP, réécrit par l'Analyste.
-- **`dossiers`** : renseignement sourcé, chaque fait cité.
+- **`messages`** : the message + all its categorical attributes.
+- **`outcomes`** : result on the reward scale, with attribution window.
+- **`edits`** : diff of each human edit (the preference pair).
+- **`playbook`** : natural-language document per ICP, rewritten by the Analyst.
+- **`dossiers`** : sourced intelligence, each fact cited.
 
 ---
 
-## Principe directeur
+## Guiding principle
 
-Le renseignement d'abord, l'algo ensuite. Ne jamais apprendre d'un signal qu'on ne peut pas mesurer proprement. Distiller du terrain, pas des ouvertures.
+Intelligence first, the algorithm second. Never learn from a signal we can't measure cleanly. Distill from the field, not from opens.

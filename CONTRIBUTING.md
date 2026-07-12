@@ -1,39 +1,40 @@
-# Contribuer à Tanchi
+# Contributing to Tanchi
 
-Merci de vouloir contribuer. Ce projet est un monorepo Bun.
+Thanks for wanting to contribute. This project is a Bun monorepo.
 
-## Pré-requis
+## Prerequisites
 
-- [Bun](https://bun.sh) (le `bun.lock` fait foi — **jamais** npm, pnpm ni yarn).
-- Docker + Docker Compose pour PostgreSQL et Redis en local.
+- [Bun](https://bun.sh) (the `bun.lock` is the source of truth — **never** npm, pnpm or yarn).
+- Docker + Docker Compose for PostgreSQL and Redis in local dev.
 
-## Mise en route
+## Getting started
 
 ```bash
 bun install
+cp .env.example .env          # single .env at the repo root
 docker compose up -d postgres redis
 bun run migrate
 bun run dev
 ```
 
-## Avant d'ouvrir une PR
+## Before opening a PR
 
-- `bun run typecheck` au vert (api + web).
-- `bun test` au vert.
-- Respecter les conventions de l'app touchée :
-  - **Back** (`apps/api`) : SQL brut sans ORM, erreurs comme valeurs, tout immuable,
-    **zéro commentaire**, un module par domaine. Détails dans
+- `bun run typecheck` green (api + web).
+- `bun test` green.
+- Follow the conventions of the app you touch:
+  - **Backend** (`apps/api`): raw SQL without an ORM, errors as values, everything
+    immutable, **zero comments**, one module per domain. Details in
     [apps/api/CLAUDE.md](./apps/api/CLAUDE.md).
-  - **Front** (`apps/web`) : conventions dans [apps/web/CLAUDE.md](./apps/web/CLAUDE.md).
+  - **Frontend** (`apps/web`): conventions in [apps/web/CLAUDE.md](./apps/web/CLAUDE.md).
 
-## Règle non négociable : le renseignement
+## Non-negotiable rule: intelligence
 
-Aucune donnée non sourcée n'entre dans un dossier prospect. Un fait qui n'apparaît pas sur
-le site ou le LinkedIn réel du prospect n'existe pas. Toute contribution au moteur de
-renseignement doit préserver cette garantie — voir
+No unsourced data ever enters a prospect dossier. A fact that does not appear on the
+prospect's own website or LinkedIn does not exist. Any contribution to the intelligence
+engine must preserve this guarantee — see
 [apps/api/README-moteur.md](./apps/api/README-moteur.md).
 
 ## Commits & branches
 
-- Une branche par sujet, PR vers `main`.
-- Messages de commit clairs et impératifs.
+- One branch per topic, PR against `main`.
+- Clear, imperative commit messages.

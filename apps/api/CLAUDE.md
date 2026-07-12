@@ -1,202 +1,202 @@
-# CLAUDE.md, repo back Tanchi
+# CLAUDE.md, back repo Tanchi
 
-Instructions pour l'agent de code sur le repo **back**. Le repo front est séparé et a son propre CLAUDE.md.
+Instructions for the code agent on the **back** repo. The front repo is separate and has its own CLAUDE.md.
 
-Ce fichier dit COMMENT on code ici et ce qu'on ne viole jamais. Le QUOI et le POURQUOI sont dans les README. Lis-les avant de coder :
+This file says HOW we code here and what we never violate. The WHAT and the WHY are in the READMEs. Read them before coding:
 
-- `README.md` : produit global, canaux, stack, emailing.
-- `README-moteur.md` : le coeur. **À lire en entier avant de toucher au sourcing, au renseignement, aux agents ou à la boucle d'apprentissage.**
-
----
-
-## Stack figée, non négociable
-
-- **Runtime + package manager + test : Bun. Full Bun.**
-- Back : Hono (TS).
-- Auth : Better Auth (multi-tenant).
-- DB : PostgreSQL.
-- File / batch : Redis.
-- IA : Anthropic API, ou CLI selon config utilisateur.
-- Recherche : `web_fetch` prioritaire sur `web_search`.
-
-Choix par défaut du projet (change-les ici et nulle part ailleurs si besoin) :
-- Accès DB : **SQL brut via `postgres.js`, aucun ORM.** On écrit le SQL à la main dans les classes `*.postgres.ts`. Pas de Drizzle, pas de Prisma, pas de query builder.
-- Migrations : fichiers `.sql` versionnés, appliqués par script. Pas de génération d'ORM.
-- Queue du batch du soir : BullMQ sur Redis.
+- `README.md`: overall product, channels, stack, emailing.
+- `README-moteur.md`: the core. **Read it in full before touching sourcing, intelligence, agents or the learning loop.**
 
 ---
 
-## Règles Bun, dures
+## Frozen stack, non-negotiable
 
-- **Jamais npm, jamais pnpm, jamais yarn. Aucune exception.**
-- Installer : `bun install`. Ajouter : `bun add <pkg>`. Retirer : `bun remove <pkg>`.
-- Lancer un script : `bun run <script>`. Exécuter du TS : directement, `bun src/x.ts`, pas de ts-node ni tsx.
-- Tests : `bun test` (runner intégré). Pas de vitest ni jest.
-- Dev avec reload : `bun --hot src/index.ts`.
-- **Lockfile : `bun.lock` uniquement.** Si tu vois apparaître `package-lock.json`, `pnpm-lock.yaml` ou `yarn.lock`, supprime-les. Ne les génère jamais.
-- N'ajoute aucune dépendance qui ne tourne pas sous Bun.
+- **Runtime + package manager + test: Bun. Full Bun.**
+- Back: Hono (TS).
+- Auth: Better Auth (multi-tenant).
+- DB: PostgreSQL.
+- File / batch: Redis.
+- AI: Anthropic API, or CLI depending on user config.
+- Search: `web_fetch` takes priority over `web_search`.
 
----
-
-## Règles de renseignement, NON NÉGOCIABLES
-
-C'est le bug le plus grave possible du produit. Un dossier qui contient un fait faux détruit la confiance et fait cramer un prospect. Respecte ça à la lettre :
-
-- **Jamais** un nom, un logo ou un client dans un dossier s'il n'apparaît pas sur le site ou le LinkedIn du prospect lui-même.
-- `web_fetch` du site réel prime **toujours** sur `web_search`. Vérifie sur la source, pas sur un snippet.
-- Aucune donnée non sourcée n'entre dans un dossier. Pas de "probablement", pas d'inférence, pas de comblement de trou.
-- Chaque fait stocké est attaché à sa source (URL).
-- Si un fait n'est pas vérifiable, il n'existe pas. On préfère un dossier plus court que faux.
-
-Si tu génères un dossier, tu dois pouvoir pointer chaque affirmation vers une source récupérée pendant ce run.
+Project default choices (change them here and nowhere else if needed):
+- DB access: **raw SQL via `postgres.js`, no ORM.** We write the SQL by hand in the `*.postgres.ts` classes. No Drizzle, no Prisma, no query builder.
+- Migrations: versioned `.sql` files, applied by script. No ORM generation.
+- Evening batch queue: BullMQ on Redis.
 
 ---
 
-## Boucle d'apprentissage : ordre de construction imposé
+## Bun rules, hard
 
-Ne construis pas dans le désordre. La valeur est dans les 3 premiers, pas dans la vectorisation.
-
-1. Tracking propre du reward. On mesure **réponse positive** et **RDV**, jamais les ouvertures.
-2. Capture des diffs d'édition humaine (la paire de préférence `IA → édité → résultat`).
-3. Playbook distillé par ICP, réécrit par l'Analyste (langage naturel).
-4. Retrieval / vectorisation, **sur le profil du prospect, pas sur le texte du message**.
-5. Stats structurée par attribut catégoriel.
-6. Bandit (Thompson, au niveau de l'angle) en dernier, seulement quand le volume existe.
-
-N'implémente pas 4, 5 ou 6 avant que 1, 2, 3 soient solides et testés.
+- **Never npm, never pnpm, never yarn. No exception.**
+- Install: `bun install`. Add: `bun add <pkg>`. Remove: `bun remove <pkg>`.
+- Run a script: `bun run <script>`. Execute TS: directly, `bun src/x.ts`, no ts-node or tsx.
+- Tests: `bun test` (built-in runner). No vitest or jest.
+- Dev with reload: `bun --hot src/index.ts`.
+- **Lockfile: `bun.lock` only.** If you see `package-lock.json`, `pnpm-lock.yaml` or `yarn.lock` appear, delete them. Never generate them.
+- Do not add any dependency that does not run under Bun.
 
 ---
 
-## Modèle de données : figé, ne pas inventer au fil de l'eau
+## Intelligence rules, NON-NEGOTIABLE
 
-Tables de la boucle (voir README-moteur.md) :
+This is the most serious bug the product can have. A dossier that contains a false fact destroys trust and burns a prospect. Follow this to the letter:
 
-- `messages` : message + attributs catégoriels (angle, longueur, type de CTA, profondeur de perso, canal, ICP, expéditeur, créneau).
-- `outcomes` : résultat sur l'échelle de reward + fenêtre d'attribution.
-- `edits` : diff de chaque édition humaine.
-- `playbook` : document langage naturel par ICP.
-- `dossiers` : renseignement sourcé, chaque fait cité.
+- **Never** a name, a logo or a client in a dossier if it does not appear on the prospect's own site or LinkedIn.
+- `web_fetch` of the real site **always** takes priority over `web_search`. Verify on the source, not on a snippet.
+- No unsourced data enters a dossier. No "probably", no inference, no gap-filling.
+- Every stored fact is attached to its source (URL).
+- If a fact is not verifiable, it does not exist. We prefer a shorter dossier over a false one.
 
-Tables métier : `companies`, `icps`, `leads`, `sequences`.
-
-Toute évolution du schéma passe par un fichier de migration `.sql` versionné, jamais par une mutation à la volée. Ne crée pas de table ad hoc en dehors de ce modèle sans raison explicite.
+If you generate a dossier, you must be able to point every claim to a source retrieved during that run.
 
 ---
 
-## Architecture des agents
+## Learning loop: imposed build order
 
-Pipeline séquentiel le soir, plus un job async. Quatre étapes, pas quatre services lourds.
+Do not build out of order. The value is in the first 3, not in vectorization.
 
-- Chasseur (sourcing) → Profiler (renseignement + qualif + score + choix canal) → Copywriter (rédaction).
-- Analyste : job async hebdo, distille le playbook. Hors du cycle du soir.
-- La stratégie (ICP, ton, canaux) est figée au setup, réinjectée. Ce n'est pas un agent qui tourne.
+1. Clean reward tracking. We measure **positive reply** and **meeting**, never opens.
+2. Capture of human edit diffs (the preference pair `AI → edited → result`).
+3. Playbook distilled per ICP, rewritten by the Analyst (natural language).
+4. Retrieval / vectorization, **on the prospect's profile, not on the message text**.
+5. Structured stats per categorical attribute.
+6. Bandit (Thompson, at the angle level) last, only when the volume exists.
 
-Le batch du soir tourne via la queue Redis (BullMQ).
+Do not implement 4, 5 or 6 before 1, 2, 3 are solid and tested.
 
 ---
 
-## Conventions de code
+## Data model: frozen, do not invent on the fly
 
-### On fonctionne par module
+Loop tables (see README-moteur.md):
 
-Tout vit sous `src/modules/<module>/`. Un module est autonome : il ne partage avec les autres que ce qui est dans `src/shared/`. **Un module n'importe jamais le repository d'un autre module.** Même si un call user existe déjà ailleurs, on réécrit le repo dans le module courant. On duplique, on ne couple pas.
+- `messages`: message + categorical attributes (angle, length, CTA type, personalization depth, channel, ICP, sender, time slot).
+- `outcomes`: result on the reward scale + attribution window.
+- `edits`: diff of each human edit.
+- `playbook`: natural-language document per ICP.
+- `dossiers`: sourced intelligence, each fact cited.
 
-Anatomie d'un module :
+Business tables: `companies`, `icps`, `leads`, `sequences`.
+
+Any schema evolution goes through a versioned `.sql` migration file, never through an on-the-fly mutation. Do not create an ad hoc table outside this model without an explicit reason.
+
+---
+
+## Agent architecture
+
+Sequential pipeline in the evening, plus one async job. Four steps, not four heavy services.
+
+- Hunter (sourcing) → Profiler (intelligence + qualification + score + channel choice) → Copywriter (writing).
+- Analyst: weekly async job, distills the playbook. Outside the evening cycle.
+- The strategy (ICP, tone, channels) is frozen at setup, re-injected. It is not an agent that runs.
+
+The evening batch runs via the Redis queue (BullMQ).
+
+---
+
+## Code conventions
+
+### We work per module
+
+Everything lives under `src/modules/<module>/`. A module is autonomous: it shares with the others only what is in `src/shared/`. **A module never imports another module's repository.** Even if a user call already exists elsewhere, we rewrite the repo in the current module. We duplicate, we do not couple.
+
+Anatomy of a module:
 
 ```
 src/modules/<module>/
-  <module>.controller.ts     # router Hono : routes, validation zod, mapping erreur → HTTP
-  <module>.service.ts        # logique métier, orchestration, garde de tenant
-  <module>.module.ts         # composition root : postgres → repo → service → router
-  <module>.errors.ts         # un enum par cas d'usage (message de validation ET valeur de retour)
-  <module>.constants.ts      # MAX_*, TTL, listes de mime `as const`
-  <module>.utils.ts          # fonctions pures de conversion Pg* → *Dto
+  <module>.controller.ts     # Hono router: routes, zod validation, error → HTTP mapping
+  <module>.service.ts        # business logic, orchestration, tenant guard
+  <module>.module.ts         # composition root: postgres → repo → service → router
+  <module>.errors.ts         # one enum per use case (validation message AND return value)
+  <module>.constants.ts      # MAX_*, TTL, mime lists `as const`
+  <module>.utils.ts          # pure Pg* → *Dto conversion functions
   dto/
-    request/<action>.request.ts   # schéma zod + type inféré (même nom), + index.ts barrel
-    response/<thing>.response.ts   # type Readonly<{}> (PAS de zod côté réponse), + index.ts barrel
-  repository/<entity>/       # un dossier par entité DB, jamais cross-module
-    <entity>.entities.ts     # types Pg* (snake_case), Factory, FactoryInput — tous Readonly
-    <entity>.postgres.ts     # classe : SQL brut postgres.js, try/catch → throwSanitizeError
-    <entity>.repository.ts   # classe : API camelCase, convertit FactoryInput → Factory
+    request/<action>.request.ts   # zod schema + inferred type (same name), + index.ts barrel
+    response/<thing>.response.ts   # Readonly<{}> type (NO zod on the response side), + index.ts barrel
+  repository/<entity>/       # one folder per DB entity, never cross-module
+    <entity>.entities.ts     # Pg* types (snake_case), Factory, FactoryInput — all Readonly
+    <entity>.postgres.ts     # class: raw SQL postgres.js, try/catch → throwSanitizeError
+    <entity>.repository.ts   # class: camelCase API, converts FactoryInput → Factory
     <entity>.utils.ts        # FactoryInput → Factory, id via Bun.randomUUIDv7()
-  queue/<job>/               # optionnel : jobs async (BullMQ) — .entities.ts / .service.ts / .processor.ts
+  queue/<job>/               # optional: async jobs (BullMQ) — .entities.ts / .service.ts / .processor.ts
 ```
 
-Flux : `controller (valide zod) → service (règles + tenant) → repository (API camelCase) → postgres (SQL brut) → DB`, puis retour `postgres (Pg*, snake_case) → service (utils.convert* → *Dto) → controller → JSON`.
+Flow: `controller (validates zod) → service (rules + tenant) → repository (camelCase API) → postgres (raw SQL) → DB`, then back `postgres (Pg*, snake_case) → service (utils.convert* → *Dto) → controller → JSON`.
 
 ### DTO
 
-- **Request** : un schéma `z.object({...})` exporté, et son type inféré exporté **sous le même nom** (`export const CreateFolderDto = z.object(...)` puis `export type CreateFolderDto = z.infer<typeof CreateFolderDto>`). Chaque message d'erreur zod pointe vers l'enum d'erreurs du module, jamais une string libre. Les bornes viennent de `constants.ts`.
-- **Response** : **pas de zod.** Un `type Readonly<{}>`, `ReadonlyArray<>` pour les listes. Les dates sont des `string` ISO côté DTO, jamais des `Date`.
-- Un `index.ts` re-exporte chaque dossier (barrel). Le controller fait `import * as RequestDto`, le service `import type * as ResponseDto`.
+- **Request**: an exported `z.object({...})` schema, and its inferred type exported **under the same name** (`export const CreateFolderDto = z.object(...)` then `export type CreateFolderDto = z.infer<typeof CreateFolderDto>`). Each zod error message points to the module's error enum, never a free string. The bounds come from `constants.ts`.
+- **Response**: **no zod.** A `type Readonly<{}>`, `ReadonlyArray<>` for lists. Dates are ISO `string` on the DTO side, never `Date`.
+- An `index.ts` re-exports each folder (barrel). The controller does `import * as RequestDto`, the service `import type * as ResponseDto`.
 
-### Erreurs comme valeurs, pas comme exceptions
+### Errors as values, not as exceptions
 
-- **Un `enum` par cas d'usage** dans `<module>.errors.ts`, membres string-valués (`invalidName = "invalidName"`). Le même enum sert de message de validation zod **et** de valeur de retour du service.
-- Le service retourne une union `Dto | ErrorEnum`, il ne `throw` pas pour un échec métier attendu. Les `throw` restent cantonnés à la couche `postgres` (`throwSanitizeError`) et aux invariants impossibles.
-- Le controller `switch` sur le résultat pour mapper chaque erreur vers un code HTTP via `sendError(context, 4xx, result)`.
+- **One `enum` per use case** in `<module>.errors.ts`, string-valued members (`invalidName = "invalidName"`). The same enum serves as the zod validation message **and** as the service return value.
+- The service returns a `Dto | ErrorEnum` union, it does not `throw` for an expected business failure. `throw`s remain confined to the `postgres` layer (`throwSanitizeError`) and to impossible invariants.
+- The controller `switch`es on the result to map each error to an HTTP code via `sendError(context, 4xx, result)`.
 
 ### Service
 
-- Une classe, dépendances injectées par le constructeur (`private readonly xRepository: XRepository`).
-- **Garde de tenant systématique** : on charge l'entité, puis `if (entity === null) return X.inexisting...` et `if (entity.org_id !== orgId) return X.notInMyOrg`. Aucune opération sans ce garde.
-- Mapping vers la sortie via `utils.convert*` uniquement, jamais un DTO construit à la main.
-- Mise à jour partielle : spread conditionnel (`...(dto.name !== undefined && { name: dto.name })`), qui dépend de `exactOptionalPropertyTypes`.
-- Parallélisme via `Promise.all([...])`. Échecs d'infra attrapés, loggés (`console.error("[<module>] ...")`), convertis en enum d'erreur.
+- One class, dependencies injected via the constructor (`private readonly xRepository: XRepository`).
+- **Systematic tenant guard**: we load the entity, then `if (entity === null) return X.inexisting...` and `if (entity.org_id !== orgId) return X.notInMyOrg`. No operation without this guard.
+- Mapping to the output via `utils.convert*` only, never a DTO built by hand.
+- Partial update: conditional spread (`...(dto.name !== undefined && { name: dto.name })`), which depends on `exactOptionalPropertyTypes`.
+- Parallelism via `Promise.all([...])`. Infra failures caught, logged (`console.error("[<module>] ...")`), converted to an error enum.
 
-### Repository (sans ORM)
+### Repository (no ORM)
 
-Deux classes empilées : `Postgres` (SQL brut) enveloppée par `Repository` (API propre).
+Two stacked classes: `Postgres` (raw SQL) wrapped by `Repository` (clean API).
 
-- `entities.ts` : `PgX` = shape exact de la table en **`snake_case`** (`org_id`, `created_at`) ; `PgXFactory` = ce qu'on insère ; `XFactoryInput` = l'entrée du service en **`camelCase`**. Tout `Readonly`.
-- `postgres.ts` : classe `constructor(private readonly db: DbClient)`. Chaque méthode = un template `this.db<ReadonlyArray<PgX>>\`SELECT ...\`` dans un `try/catch` dont le `catch` fait `return throwSanitizeError(error)`. Colonnes `snake_case`, `RETURNING *`, premier résultat via `result[ARRAY.FIRST_INDEX] ?? null` (jamais `[0]` en dur).
-- `repository.ts` : classe `constructor(private readonly xPostgres: XPostgres)`, méthodes `getOne*` / `getMany*` / `createOne*` / `updateOne*` / `deleteOne*`, signatures `camelCase`. Convertit `FactoryInput → Factory` via `utils` avant d'appeler `postgres`.
-- **Frontière de casse** : `snake_case` sous `repository/`, `camelCase` partout ailleurs. La conversion se fait dans les `utils`, nulle part ailleurs.
+- `entities.ts`: `PgX` = exact shape of the table in **`snake_case`** (`org_id`, `created_at`); `PgXFactory` = what we insert; `XFactoryInput` = the service input in **`camelCase`**. Everything `Readonly`.
+- `postgres.ts`: class `constructor(private readonly db: DbClient)`. Each method = a `this.db<ReadonlyArray<PgX>>\`SELECT ...\`` template inside a `try/catch` whose `catch` does `return throwSanitizeError(error)`. `snake_case` columns, `RETURNING *`, first result via `result[ARRAY.FIRST_INDEX] ?? null` (never a hardcoded `[0]`).
+- `repository.ts`: class `constructor(private readonly xPostgres: XPostgres)`, methods `getOne*` / `getMany*` / `createOne*` / `updateOne*` / `deleteOne*`, `camelCase` signatures. Converts `FactoryInput → Factory` via `utils` before calling `postgres`.
+- **Case boundary**: `snake_case` under `repository/`, `camelCase` everywhere else. The conversion happens in the `utils`, nowhere else.
 
-### Typage, dur
+### Typing, hard
 
 - `strict: true`, plus `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, `noUnusedLocals` / `noUnusedParameters`.
-- **Aucun `any`, aucun `unknown`** non justifié. Un `as never` isolé est toléré uniquement pour le pont `db.json(...)` de postgres.js.
-- **Tout est immuable** : `Readonly<{}>` pour les objets, `ReadonlyArray<>` pour les tableaux, `ReadonlyMap<>` pour les maps. Aucun type mutable exposé.
-- **Pas de `for`, pas de `forEach`.** On utilise `map` / `filter` / `reduce` / `some` / `Promise.all`. Seule exception : une itération purement impérative où map/filter/reduce n'a pas de sens (performance, I/O, écriture d'en-têtes, migrations séquentielles).
-- **Aucun commentaire.** Pas de JSDoc, pas d'inline, pas de TODO, pas de commentaire SQL. Un commentaire est le signe d'un code pas assez explicite : nomme mieux, extrais une fonction nommée.
-- IDs via `Bun.randomUUIDv7()`. Imports de fichiers `.ts` explicites, alias `@shared/*` pour le partagé.
+- **No `any`, no unjustified `unknown`.** An isolated `as never` is tolerated only for the `db.json(...)` bridge of postgres.js.
+- **Everything is immutable**: `Readonly<{}>` for objects, `ReadonlyArray<>` for arrays, `ReadonlyMap<>` for maps. No mutable type exposed.
+- **No `for`, no `forEach`.** We use `map` / `filter` / `reduce` / `some` / `Promise.all`. Only exception: a purely imperative iteration where map/filter/reduce makes no sense (performance, I/O, header writing, sequential migrations).
+- **No comment.** No JSDoc, no inline, no TODO, no SQL comment. A comment is the sign of code that is not explicit enough: name better, extract a named function.
+- IDs via `Bun.randomUUIDv7()`. Explicit `.ts` file imports, `@shared/*` alias for shared code.
 
-### Nommage
+### Naming
 
-- Types DB préfixés `Pg` (`PgCaseFolder`, `PgCaseFolderFactory`).
-- Conversions `convert<Source>To<Cible>Dto`. Enums d'erreur `<Action>Errors`. DTO nommé comme son schéma zod.
+- DB types prefixed `Pg` (`PgCaseFolder`, `PgCaseFolderFactory`).
+- Conversions `convert<Source>To<Cible>Dto`. Error enums `<Action>Errors`. DTO named like its zod schema.
 
-### Général
+### General
 
-- Multi-tenant : chaque requête DB est scopée à l'organisation. Aucune query sans filtre de tenant. C'est une règle de sécurité, pas une préférence.
-- Secrets et clés (API Anthropic, mail) : variables d'env, jamais en dur, jamais commités.
-- Validation des entrées avec zod sur toutes les routes Hono.
-
----
-
-## Ce qu'on ne fait jamais
-
-- Automatiser LinkedIn, WhatsApp, Instagram ou l'appel vocal. Mode auto = email uniquement. Les autres canaux produisent un draft, l'humain envoie.
-- Apprendre ou optimiser sur les ouvertures.
-- Vectoriser le texte des messages plutôt que le profil des prospects.
-- Écrire un fait non sourcé dans un dossier.
-- Utiliser un autre gestionnaire de paquets que Bun.
-- Utiliser un ORM ou un query builder (Drizzle, Prisma, Kysely…). Le SQL est écrit à la main dans les `*.postgres.ts`.
-- Importer le repository d'un autre module. On duplique le repo dans le module courant.
-- Exposer un type mutable, un `any` ou un `unknown` non justifié.
-- Écrire une boucle `for`/`forEach` là où `map`/`filter`/`reduce` suffit.
-- Écrire un commentaire. Le code doit se suffire par le nommage et la structure.
+- Multi-tenant: every DB query is scoped to the organization. No query without a tenant filter. This is a security rule, not a preference.
+- Secrets and keys (Anthropic API, mail): env variables, never hardcoded, never committed.
+- Input validation with zod on all Hono routes.
 
 ---
 
-## Commandes
+## What we never do
+
+- Automate LinkedIn, WhatsApp, Instagram or voice calls. Auto mode = email only. The other channels produce a draft, the human sends.
+- Learn or optimize on opens.
+- Vectorize the message text rather than the prospects' profile.
+- Write an unsourced fact in a dossier.
+- Use a package manager other than Bun.
+- Use an ORM or a query builder (Drizzle, Prisma, Kysely…). The SQL is written by hand in the `*.postgres.ts`.
+- Import another module's repository. We duplicate the repo in the current module.
+- Expose a mutable type, an `any` or an unjustified `unknown`.
+- Write a `for`/`forEach` loop where `map`/`filter`/`reduce` suffices.
+- Write a comment. The code must be sufficient through naming and structure.
+
+---
+
+## Commands
 
 ```
-bun install          # dépendances
+bun install          # dependencies
 bun run dev          # dev (--hot)
 bun test             # tests
-bun run db:migrate   # applique les migrations SQL versionnées
+bun run db:migrate   # applies the versioned SQL migrations
 ```
 
-Ajuste les noms de scripts au package.json réel, mais garde `bun run` devant tout.
+Adjust the script names to the real package.json, but keep `bun run` in front of everything.

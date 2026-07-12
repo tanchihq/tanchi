@@ -93,7 +93,7 @@ export class EngineRepository {
     if (inserted !== null) return toEngineRun(inserted);
     const active = await this.enginePostgres.getActiveRun(organizationId);
     if (active === null) {
-      throw new Error("[engine] active run introuvable après conflit d'insert");
+      throw new Error("[engine] active run not found after insert conflict");
     }
     return toEngineRun(active);
   }

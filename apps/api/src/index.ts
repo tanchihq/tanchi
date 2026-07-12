@@ -73,11 +73,11 @@ if (env.RUN_WORKERS === "true") {
   startEngineWorkers();
   startRewardWorkers();
   startSequencesWorkers();
-  console.log("[workers] engine-nightly + reward-poll + sequences démarrés");
+  console.log("[workers] engine-nightly + reward-poll + sequences started");
 }
 
 const shutdown = async (signal: string): Promise<void> => {
-  console.log(`[shutdown] ${signal} reçu, fermeture des queues...`);
+  console.log(`[shutdown] ${signal} received, closing queues...`);
   await closeQueues();
   process.exit(0);
 };

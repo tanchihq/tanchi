@@ -44,7 +44,7 @@ const transport = createTransport();
 export async function sendSystemEmail(email: SystemEmail): Promise<void> {
   if (transport === null) {
     console.log(
-      `[mailer] aucun SMTP configuré (dev) → ${email.to} : ${email.subject}`
+      `[mailer] no SMTP configured (dev) → ${email.to} : ${email.subject}`
     );
     return;
   }
@@ -58,7 +58,7 @@ export async function sendSystemEmail(email: SystemEmail): Promise<void> {
     });
   } catch (error) {
     console.error(
-      `[mailer] envoi échoué → ${email.to} (${email.subject}) : ${errorMessage(error)}`
+      `[mailer] send failed → ${email.to} (${email.subject}) : ${errorMessage(error)}`
     );
   }
 }

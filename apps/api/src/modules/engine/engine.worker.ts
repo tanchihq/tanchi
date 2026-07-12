@@ -61,6 +61,6 @@ async function resumeUnfinishedRuns(
     )
   );
   console.log(
-    `[engine:resume] ${organizationIds.length} run(s) inachevé(s) repris`
+    `[engine:resume] ${organizationIds.length} unfinished run(s) resumed`
   );
 }

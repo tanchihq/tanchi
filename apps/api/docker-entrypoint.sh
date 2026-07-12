@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-# Applique les migrations SQL versionnées avant de démarrer le serveur.
-# Idempotent (table _migrations). Désactivable avec RUN_MIGRATIONS=false.
+# Applies the versioned SQL migrations before starting the server.
+# Idempotent (_migrations table). Can be disabled with RUN_MIGRATIONS=false.
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
   echo "[entrypoint] applying migrations..."
   bun scripts/migrate.ts

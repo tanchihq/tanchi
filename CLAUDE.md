@@ -1,33 +1,33 @@
-# CLAUDE.md — monorepo Tanchi
+# CLAUDE.md — Tanchi monorepo
 
-Ce fichier ne porte que le **commun** au monorepo. Les règles détaillées vivent dans chaque
-app et priment quand tu travailles dedans :
+This file only carries what is **common** to the monorepo. The detailed rules live in each
+app and take precedence when you work inside it:
 
-- Back : [apps/api/CLAUDE.md](./apps/api/CLAUDE.md) + [apps/api/README-moteur.md](./apps/api/README-moteur.md)
-- Front : [apps/web/CLAUDE.md](./apps/web/CLAUDE.md)
+- Backend: [apps/api/CLAUDE.md](./apps/api/CLAUDE.md) + [apps/api/README-moteur.md](./apps/api/README-moteur.md)
+- Frontend: [apps/web/CLAUDE.md](./apps/web/CLAUDE.md)
 
-## Stack figée
+## Fixed stack
 
-- **Bun partout** : runtime, package manager, tests. Jamais npm/pnpm/yarn.
+- **Bun everywhere**: runtime, package manager, tests. Never npm/pnpm/yarn.
 - Monorepo via Bun workspaces (`apps/*`, `packages/*`).
-- Back : Hono + PostgreSQL (SQL brut, sans ORM) + Redis/BullMQ.
-- Front : React + Vite.
-- Packages internes scopés `@app/*` (jamais publiés sur npm).
+- Backend: Hono + PostgreSQL (raw SQL, no ORM) + Redis/BullMQ.
+- Frontend: React + Vite.
+- Internal packages scoped `@app/*` (never published to npm).
 
-## Commandes racine
+## Root commands
 
 ```
-bun install          # tout le workspace
-bun run dev          # api + web en parallèle
+bun install          # whole workspace
+bun run dev          # api + web in parallel
 bun run typecheck    # api + web
-bun test             # tests de l'api
-bun run migrate      # migrations SQL de l'api
+bun test             # api tests
+bun run migrate      # API SQL migrations
 ```
 
-## Règles communes
+## Common rules
 
-- **Un module/app n'importe jamais le repository d'un autre.** On duplique, on ne couple pas.
-- Multi-tenant : aucune requête DB sans filtre d'organisation. Règle de sécurité, pas une préférence.
-- Secrets en variables d'env, jamais commités.
-- **Renseignement : aucun fait non sourcé dans un dossier.** C'est l'invariant produit n°1.
-- Le back interdit les commentaires ; le front a ses propres conventions. Suis le CLAUDE.md de l'app.
+- **A module/app never imports another module's repository.** Duplicate, don't couple.
+- Multi-tenant: no DB query without an organization filter. It's a security rule, not a preference.
+- Secrets in env vars, never committed.
+- **Intelligence: no unsourced fact ever enters a dossier.** This is product invariant #1.
+- The backend forbids comments; the frontend has its own conventions. Follow the app's CLAUDE.md.

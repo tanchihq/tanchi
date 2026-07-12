@@ -131,7 +131,7 @@ export class ProfilerService {
     const first = await this.tryResearch(prompt);
     if (first !== null) return first;
     return this.tryResearch(
-      `${prompt}\n\nRappel : réponds STRICTEMENT avec le JSON demandé, rien d'autre.`
+      `${prompt}\n\nReminder: respond STRICTLY with the requested JSON, nothing else.`
     );
   }
 

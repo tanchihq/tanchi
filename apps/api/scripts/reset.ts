@@ -10,10 +10,10 @@ async function main(): Promise<void> {
       RESTART IDENTITY CASCADE
     `;
     console.log(
-      "✓ Données opérationnelles effacées (leads, companies, dossiers, messages, edits, outcomes, activity)."
+      "✓ Operational data cleared (leads, companies, dossiers, messages, edits, outcomes, activity)."
     );
     console.log(
-      "  Config conservée : organization, organization_profile, senders, icp, exclusions, playbook, auth."
+      "  Config kept: organization, organization_profile, senders, icp, exclusions, playbook, auth."
     );
   } catch (err) {
     console.error("Reset failed:", err);

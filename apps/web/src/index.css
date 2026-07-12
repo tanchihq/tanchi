@@ -6,20 +6,20 @@
 
 /* ============================================================================
    Tanchi Design System
-   Extrait du design produit (Claude Design). Deux univers cohabitent :
-   - "paper"  : l'app, fond crème clair, texte encre chaude.
-   - "night" / "glass" : l'auth et l'onboarding, verre sombre sur fond nuit.
-   Marque : indigo électrique #0501F0.
+   Extracted from the product design (Claude Design). Two universes coexist:
+   - "paper"  : the app, light cream background, warm ink text.
+   - "night" / "glass" : the auth and onboarding, dark glass on night background.
+   Brand: electric indigo #0501F0.
    ========================================================================== */
 
 @theme {
-  /* -- Typographie -- */
+  /* -- Typography -- */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 
   --tracking-tight: -0.01em;
   --tracking-tighter: -0.02em;
 
-  /* -- Marque (indigo électrique) -- */
+  /* -- Brand (electric indigo) -- */
   --color-brand-50: #f3f2fe;
   --color-brand-100: #ecebfe;
   --color-brand-200: #c7c4fb;
@@ -31,7 +31,7 @@
   --color-brand-800: #0300a0;
   --color-brand-900: #14125c;
 
-  /* -- Neutres chauds (univers "paper") -- */
+  /* -- Warm neutrals ("paper" universe) -- */
   --color-paper: #faf9f5;
   --color-paper-2: #f3f2ec;
   --color-paper-3: #eeede6;
@@ -42,7 +42,7 @@
   --color-ink-soft: #6b6757;
   --color-ink-faint: #9a9583;
 
-  /* -- Univers "night" / "glass" (auth, onboarding) -- */
+  /* -- "night" / "glass" universe (auth, onboarding) -- */
   --color-night-900: #0a0a1f;
   --color-night-800: #100e29;
   --color-night-700: #141330;
@@ -52,7 +52,7 @@
   --color-glass-soft: #c4c8d2;
   --color-glass-dim: #8e8aa5;
 
-  /* -- Statuts -- */
+  /* -- Statuses -- */
   --color-success: #4ade80;
   --color-success-deep: #1c8a52;
   --color-warn: #fbbf77;
@@ -60,11 +60,11 @@
   --color-danger: #ff8a80;
   --color-danger-deep: #ea4335;
 
-  /* -- Rayons -- */
-  --radius-well: 0.875rem; /* 14px — champs & boutons */
-  --radius-card: 1.75rem; /* 28px — cartes glass */
+  /* -- Radii -- */
+  --radius-well: 0.875rem; /* 14px — fields & buttons */
+  --radius-card: 1.75rem; /* 28px — glass cards */
 
-  /* -- Ombres signature -- */
+  /* -- Signature shadows -- */
   --shadow-brand: 0 8px 18px -8px rgba(5, 1, 240, 0.55);
   --shadow-brand-strong: 0 8px 20px -8px rgba(5, 1, 240, 0.6);
   --shadow-well: inset 0 2px 6px rgba(0, 0, 0, 0.42);
@@ -83,8 +83,8 @@
 }
 
 /* ============================================================================
-   Couche sémantique shadcn — retunée sur la marque Tanchi.
-   Les composants shadcn (light) tapent dans ces variables.
+   shadcn semantic layer — retuned on the Tanchi brand.
+   The shadcn (light) components draw from these variables.
    ========================================================================== */
 
 :root {
@@ -152,7 +152,7 @@
   --sidebar-ring: var(--color-brand-400);
 }
 
-/* Mappe les variables sémantiques vers les couleurs Tailwind (bg-background…). */
+/* Maps the semantic variables to the Tailwind colors (bg-background…). */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -219,11 +219,11 @@
 }
 
 /* ============================================================================
-   Surfaces "glass" réutilisables (auth, onboarding).
+   Reusable "glass" surfaces (auth, onboarding).
    ========================================================================== */
 
 @layer components {
-  /* La carte translucide sombre, floutée. */
+  /* The dark translucent, blurred card. */
   .glass-card {
     background: rgba(20, 19, 48, 0.46);
     backdrop-filter: blur(36px) saturate(155%);
@@ -233,7 +233,7 @@
     box-shadow: var(--shadow-glass);
   }
 
-  /* Hairline dégradé posé en bas d'une carte glass. */
+  /* Gradient hairline placed at the bottom of a glass card. */
   .glass-hairline {
     position: absolute;
     left: 0;
@@ -251,7 +251,7 @@
     );
   }
 
-  /* Champ "well" : inset sombre translucide. */
+  /* "well" field: dark translucent inset. */
   .glass-well {
     background: rgba(10, 10, 31, 0.42);
     backdrop-filter: blur(8px);
@@ -271,7 +271,7 @@
 }
 
 /* ============================================================================
-   Animations d'ambiance (aurora, radar, entrée de carte).
+   Ambient animations (aurora, radar, card entrance).
    ========================================================================== */
 
 @keyframes sl-drift-a {

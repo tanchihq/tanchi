@@ -19,17 +19,17 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
-      // Conventions Tanchi : tout est typé, aucune échappatoire `any`.
+      // Tanchi conventions: everything is typed, no `any` escape hatch.
       '@typescript-eslint/no-explicit-any': 'error',
-      // Les hooks maison useAsync/useAsyncEvent lancent volontairement le fetch
-      // au montage : on assume le pattern (convention SweeBadge).
+      // The in-house hooks useAsync/useAsyncEvent intentionally fire the fetch
+      // on mount: we own the pattern (SweeBadge convention).
       'react-hooks/exhaustive-deps': 'off',
       'react-hooks/set-state-in-effect': 'off',
     },
   },
   {
-    // Composants shadcn : ils réexportent des variantes (buttonVariants…) à côté
-    // du composant, ce qui est le pattern officiel shadcn.
+    // shadcn components: they re-export variants (buttonVariants…) alongside
+    // the component, which is the official shadcn pattern.
     files: ['src/components/ui/**/*.{ts,tsx}'],
     rules: {
       'react-refresh/only-export-components': 'off',

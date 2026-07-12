@@ -1,98 +1,105 @@
 # Tanchi
 
 [![CI](https://github.com/tanchihq/tanchi/actions/workflows/ci.yml/badge.svg)](https://github.com/tanchihq/tanchi/actions/workflows/ci.yml)
+[![Docker image](https://github.com/tanchihq/tanchi/actions/workflows/docker.yml/badge.svg)](https://github.com/tanchihq/tanchi/actions/workflows/docker.yml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](./LICENSE)
 
-> Moteur de prospection B2B autonome, open source, self-hostable. L'IA source, renseigne, rédige et relance chaque soir. Vous gardez la main sur l'envoi. Le système apprend de ce qui convertit vraiment, pas de ce qui fait joli.
+> Autonomous B2B prospecting engine — open source, self-hostable. The AI sources, researches, writes and follows up every night. You stay in control of what gets sent. The system learns from what actually converts, not from what looks nice.
 
-Tanchi prend le contre-pied des outils de prospection IA :
+Tanchi takes the opposite stance to most AI prospecting tools:
 
-- **Email-first.** Le seul canal vraiment automatisable proprement. Le reste en assisté (l'IA rédige, l'humain envoie).
-- **Renseignement vérifié.** Chaque fait d'un dossier prospect est sourcé sur le site ou le LinkedIn réel. Jamais d'invention, jamais de comblement de trou.
-- **Apprentissage qualitatif d'abord.** On distille en langage clair ce qui convertit par ICP, avant toute statistique. Interprétable, corrigeable, efficace dès le premier mois.
-- **On mesure les réponses et les RDV, jamais les ouvertures.**
+- **Email-first.** The only channel that is genuinely safe to automate. Everything else is assisted (the AI drafts, a human sends).
+- **Verified intelligence.** Every fact in a prospect dossier is sourced from the prospect's own website or LinkedIn. Never invented, never a filled-in gap.
+- **Qualitative learning first.** We distill, in plain language, what converts per ICP before any statistics. Interpretable, correctable, effective from month one.
+- **We measure replies and meetings, never opens.**
 
-Le cœur du projet — sourcing, pipeline de renseignement, agents, boucle d'apprentissage — est décrit dans **[apps/api/README-moteur.md](./apps/api/README-moteur.md)**.
+The heart of the project — sourcing, the intelligence pipeline, the agents, the learning loop — is described in **[apps/api/README-moteur.md](./apps/api/README-moteur.md)**.
 
 ---
 
-## Démarrage rapide (self-hosted, Docker)
+## Quickstart
 
-Pré-requis : Docker + Docker Compose, et une clé API Anthropic.
+### Fastest — one container (trial / simple self-host)
+
+Everything (PostgreSQL, Redis, API, web) in a single image. You only need Docker and an Anthropic API key.
+
+```bash
+docker run -d --name tanchi \
+  -p 8080:8080 \
+  -e ANTHROPIC_API_KEY=sk-ant-... \
+  -v tanchi-data:/var/lib/postgresql/data \
+  tanchihq/tanchi
+```
+
+Open http://localhost:8080. Database migrations run automatically; session secrets are generated and persisted to the data volume on first boot. Because the web app and API are served same-origin behind one port, cookie auth works out of the box over `http://localhost`.
+
+### Full — docker compose (services split, recommended for real deployments)
 
 ```bash
 git clone git@github.com:tanchihq/tanchi.git
 cd tanchi
 cp .env.example .env
-# éditer .env : mettre ANTHROPIC_API_KEY, AUTH_SECRET, ENCRYPTION_KEY, POSTGRES_PASSWORD
+# edit .env: ANTHROPIC_API_KEY, AUTH_SECRET, ENCRYPTION_KEY, POSTGRES_PASSWORD
 docker compose up -d --build
 ```
 
-- Front : http://localhost:8080
-- API : http://localhost:3000
+- Web: http://localhost:8080
+- API: http://localhost:3000
 
-Les migrations SQL s'appliquent automatiquement au démarrage de l'API (idempotent).
-
-> **Auth en local (http).** Better Auth pose des cookies `Secure` en production, qui ne
-> transitent pas sur `http://localhost`. Pour une vraie mise en ligne, servez le front et
-> l'API derrière HTTPS sur un domaine parent commun (ex. `app.tanchi.io` / `api.tanchi.io`)
-> via un reverse-proxy (Caddy, Traefik, nginx) et renseignez `APP_URL`, `AUTH_BASE_URL`,
-> `VITE_API_URL` en conséquence dans `.env`.
+> **Auth behind a domain.** For a real deployment, serve the web app and API over HTTPS on a shared parent domain (e.g. `app.tanchi.io` / `api.tanchi.io`) via a reverse proxy (Caddy, Traefik, nginx) and set `APP_URL`, `AUTH_BASE_URL`, `VITE_API_URL` accordingly in `.env`.
 
 ---
 
-## Développement (Bun)
+## Development (Bun)
 
-Stack : **Bun** partout (runtime, package manager, tests). Pas de npm/pnpm/yarn.
+Stack: **Bun** everywhere (runtime, package manager, tests). No npm/pnpm/yarn.
 
 ```bash
-bun install            # installe tout le workspace
-bun run dev            # lance api + web en parallèle
-bun run dev:api        # api seule (http://localhost:3000)
-bun run dev:web        # web seul (http://localhost:5173)
+bun install            # install the whole workspace
+cp .env.example .env   # single .env at the repo root, read by both apps
+bun run dev            # api + web in parallel
+bun run dev:api        # api only  (http://localhost:3000)
+bun run dev:web        # web only  (http://localhost:5173)
 bun run typecheck      # typecheck api + web
-bun test               # tests de l'api
+bun test               # api tests
 ```
 
-L'API a besoin d'un PostgreSQL et d'un Redis. Le plus simple en dev :
+The API needs PostgreSQL and Redis. Simplest in dev:
 
 ```bash
 docker compose up -d postgres redis
-cd apps/api && cp .env.example .env   # ajuster si besoin
-bun run migrate                        # depuis la racine
+bun run migrate
 ```
+
+> **One `.env` at the repo root.** Both apps read the root `.env` (the API via `--env-file`, the web via Vite `envDir`). Required keys: `DATABASE_URL`, `AUTH_SECRET` (≥32 chars), `ENCRYPTION_KEY` (≥44 chars, `openssl rand -base64 32`).
 
 ---
 
-## Structure du monorepo
+## Monorepo layout
 
 ```
 tanchi/
   apps/
-    api/          # back Hono + Bun + PostgreSQL (SQL brut, sans ORM) + BullMQ
-    web/          # front React + Vite
+    api/          # Hono + Bun + PostgreSQL backend (raw SQL, no ORM) + BullMQ
+    web/          # React + Vite frontend
   packages/
-    shared/       # vocabulaire et types partagés front/back (@app/shared)
+    shared/       # vocabulary and types shared front/back (@app/shared)
+  docker/aio/     # all-in-one image (postgres + redis + api + web)
   docker-compose.yml
   .env.example
   LICENSE         # AGPL-3.0
 ```
 
-Chaque app garde son propre `README.md` et son `CLAUDE.md` (les conventions back et front
-diffèrent). Le back suit des règles strictes : SQL brut sans ORM, erreurs comme valeurs,
-zéro commentaire, tout immuable — voir [apps/api/CLAUDE.md](./apps/api/CLAUDE.md).
+Each app keeps its own `README.md` and `CLAUDE.md` (the backend and frontend conventions differ). The backend follows strict rules: raw SQL without an ORM, errors as values, zero comments, everything immutable — see [apps/api/CLAUDE.md](./apps/api/CLAUDE.md).
 
 ---
 
-## Contribuer
+## Contributing
 
-Les contributions sont bienvenues — voir [CONTRIBUTING.md](./CONTRIBUTING.md). En résumé :
-Bun uniquement, respect des conventions de chaque app, `bun run typecheck` et `bun test`
-au vert avant toute PR.
+Contributions are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md). In short: Bun only, follow each app's conventions, `bun run typecheck` and `bun test` green before any PR.
 
-## Licence
+## License
 
-[AGPL-3.0](./LICENSE). Vous pouvez héberger et modifier Tanchi librement ; si vous en
-proposez une version modifiée en service réseau, vous devez en publier les sources.
+[AGPL-3.0](./LICENSE). You may host and modify Tanchi freely; if you offer a modified version as a network service, you must publish its source.
 
-Statut : pré-alpha. Usage interne d'abord, ouverture publique en cours.
+Status: pre-alpha. Internal use first, public opening in progress.

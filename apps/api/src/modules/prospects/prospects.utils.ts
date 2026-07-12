@@ -9,12 +9,12 @@ import type {
 import type * as ResponseDto from "./dto/response/index.ts";
 
 const SIGNAL_TITLES: Readonly<Record<string, string>> = {
-  sent: "Message envoyé",
-  delivered: "Délivré",
-  opened: "Ouvert",
-  replied: "Réponse reçue",
-  positive: "Réponse positive",
-  meeting: "RDV",
+  sent: "Message sent",
+  delivered: "Delivered",
+  opened: "Opened",
+  replied: "Reply received",
+  positive: "Positive reply",
+  meeting: "Meeting",
   deal: "Deal",
 };
 

@@ -1,8 +1,8 @@
 import { closeDb, db } from "../src/db.ts";
 
-const SUBJECT = "Test Tanchi — envoi SMTP";
+const SUBJECT = "Test Tanchi — SMTP send";
 const BODY =
-  "Bonjour,\n\nCeci est un email de test envoyé depuis Tanchi. Si tu reçois ce message, l'envoi SMTP fonctionne de bout en bout.\n\nÀ très vite,\nL'agent Tanchi";
+  "Hello,\n\nThis is a test email sent from Tanchi. If you receive this message, SMTP sending works end to end.\n\nSee you very soon,\nThe Tanchi agent";
 
 async function main(): Promise<void> {
   try {
@@ -11,7 +11,7 @@ async function main(): Promise<void> {
     `;
     const org = orgs[0];
     if (!org) {
-      console.error("Aucune organisation en base — fais l'onboarding d'abord.");
+      console.error("No organization in the database — do the onboarding first.");
       process.exit(1);
     }
     const organizationId = org.id;
@@ -55,10 +55,10 @@ async function main(): Promise<void> {
       )
     `;
 
-    console.log(`✓ Prospect créé : ${leadId}`);
+    console.log(`✓ Prospect created: ${leadId}`);
     console.log("  email    : contact@sweescape.com");
-    console.log("  stage    : identified (brouillon prêt)");
-    console.log(`  Envoyer  : POST /api/v1/prospects/${leadId}/contact`);
+    console.log("  stage    : identified (draft ready)");
+    console.log(`  Send     : POST /api/v1/prospects/${leadId}/contact`);
   } catch (err) {
     console.error("Seed failed:", err);
     process.exit(1);

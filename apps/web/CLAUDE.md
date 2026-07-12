@@ -1,104 +1,104 @@
-# CLAUDE.md, repo front Tanchi
+# CLAUDE.md, front repo Tanchi
 
-Instructions pour l'agent de code sur le repo **front**. Le repo back est séparé et a son propre CLAUDE.md.
+Instructions for the code agent on the **front** repo. The back repo is separate and has its own CLAUDE.md.
 
-Le QUOI et le POURQUOI du produit sont dans `README.md` (produit global). Lis-le, surtout la section interface, avant de coder l'UI.
-
----
-
-## Stack figée, non négociable
-
-- **Runtime + package manager + test : Bun. Full Bun.**
-- Front : TypeScript, React, Vite.
+The WHAT and the WHY of the product are in `README.md` (global product). Read it, especially the interface section, before coding the UI.
 
 ---
 
-## Règles Bun, dures
+## Frozen stack, non-negotiable
 
-- **Jamais npm, jamais pnpm, jamais yarn. Aucune exception.**
-- Installer : `bun install`. Ajouter : `bun add <pkg>`. Retirer : `bun remove <pkg>`.
-- Lancer : `bun run <script>` (Vite tourne via `bun run dev`).
-- Tests : `bun test`. Pas de vitest ni jest.
-- **Lockfile : `bun.lock` uniquement.** Supprime tout `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`. Ne les génère jamais.
+- **Runtime + package manager + test: Bun. Full Bun.**
+- Front: TypeScript, React, Vite.
 
 ---
 
-## L'UI : épurée, simple, prise en main sans doc
+## Bun rules, hard
 
-Exigence produit de premier ordre. Un commercial ouvre l'appli le soir, valide sa file en 10 minutes, ferme.
-
-- **Un écran, un job.** Le dashboard du soir montre les leads du jour, leur dossier, le message proposé, l'état des relances. Rien de plus par défaut.
-- **La file de revue de messages est l'écran central.** Valider, éditer ou envoyer un draft en quelques secondes. C'est là que l'UX doit être irréprochable. Optimise ce parcours avant tout le reste.
-- **Le mode auto est explicite et réversible.** On voit toujours ce qui part seul et ce qui attend validation. Aucune magie opaque.
-- **Onboarding guidé.** Setup entreprise + ICP + ressources en parcours linéaire, pas un formulaire de 40 champs d'un bloc.
-- Sobriété visuelle, hiérarchie claire, densité maîtrisée.
+- **Never npm, never pnpm, never yarn. No exception.**
+- Install: `bun install`. Add: `bun add <pkg>`. Remove: `bun remove <pkg>`.
+- Run: `bun run <script>` (Vite runs via `bun run dev`).
+- Tests: `bun test`. No vitest or jest.
+- **Lockfile: `bun.lock` only.** Delete any `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`. Never generate them.
 
 ---
 
-## Ce qu'on ne fait jamais dans l'UI
+## The UI: clean, simple, usable without docs
 
-- Exposer le jargon interne : pas de "bandit", "vectorisation", "reward", "few-shot" à l'écran. Les enseignements se montrent en clair : "ce qui marche sur cet ICP en ce moment".
-- Laisser croire à un multi-canal auto. L'UI reflète la vérité des canaux : auto sur email, assisté ailleurs.
-- Cacher ce qui part en automatique. La transparence sur les envois auto est une règle.
-- Utiliser un autre gestionnaire de paquets que Bun.
+First-order product requirement. A salesperson opens the app in the evening, validates their queue in 10 minutes, closes.
+
+- **One screen, one job.** The evening dashboard shows the day's leads, their dossier, the proposed message, the state of follow-ups. Nothing more by default.
+- **The message review queue is the central screen.** Validate, edit or send a draft in a few seconds. This is where the UX must be flawless. Optimize this flow before everything else.
+- **Auto mode is explicit and reversible.** You always see what goes out on its own and what awaits validation. No opaque magic.
+- **Guided onboarding.** Company setup + ICP + resources in a linear flow, not a 40-field form in one block.
+- Visual sobriety, clear hierarchy, controlled density.
 
 ---
 
-## Conventions de code
+## What we never do in the UI
 
-Ces conventions sont alignées sur le repo `Sweescape/SweeBadge`. Quand un doute
-subsiste, on va voir comment c'est fait là-bas. Le projet est destiné à devenir
-open source : le code doit être exemplaire.
+- Expose internal jargon: no "bandit", "vectorization", "reward", "few-shot" on screen. Learnings are shown in plain language: "what works on this ICP right now".
+- Let the user believe in auto multi-channel. The UI reflects the truth of channels: auto on email, assisted elsewhere.
+- Hide what goes out automatically. Transparency about auto sends is a rule.
+- Use a package manager other than Bun.
 
-### Clarté : aucun commentaire
+---
 
-- **Aucun commentaire dans le code.** Un commentaire = un aveu que le code n'est
-  pas clair. On rend le code clair à la place : noms de variables/fonctions/types
-  explicites et simples. Zéro `//` et zéro `/* */`.
+## Code conventions
 
-### Structure des vues & composants
+These conventions are aligned with the `Sweescape/SweeBadge` repo. When a doubt
+remains, we go see how it's done over there. The project is meant to become
+open source: the code must be exemplary.
 
-Calquée sur `SweeBadge/src/views/authenticated/event`.
+### Clarity: no comments
 
-- Une vue (route) = un dossier avec **`index.tsx`** (composant principal, export
-  default), **`utils.ts`** pour les helpers, un dossier **`hooks/`** pour les
-  appels API (un hook par fichier, `useXxx`, export default, wrappant
+- **No comments in the code.** A comment = an admission that the code isn't
+  clear. We make the code clear instead: explicit and simple variable/function/type
+  names. Zero `//` and zero `/* */`.
+
+### View & component structure
+
+Modeled on `SweeBadge/src/views/authenticated/event`.
+
+- A view (route) = a folder with **`index.tsx`** (main component, default
+  export), **`utils.ts`** for helpers, a **`hooks/`** folder for the
+  API calls (one hook per file, `useXxx`, default export, wrapping
   `useAsync`/`useAsyncEvent`).
-- Chaque sous-composant vit dans son dossier **kebab-case** (`prospect-card/`)
-  avec son fichier **PascalCase** (`ProspectCard.tsx`, export default), et ses
-  propres `utils.ts` / `hooks/` co-localisés s'il en a.
-- **Co-localisation** : ce qu'un composant utilise vit au même niveau que lui.
-  Pas de dossiers fourre-tout `components/` ou `data/` dans une vue.
-- **Réutilisable → remonte en global** : composants partagés dans
-  `src/components/`, utils/formatage partagés dans `src/utils/`.
+- Each subcomponent lives in its own **kebab-case** folder (`prospect-card/`)
+  with its **PascalCase** file (`ProspectCard.tsx`, default export), and its
+  own `utils.ts` / `hooks/` co-located if it has any.
+- **Co-location**: what a component uses lives at the same level as it.
+  No catch-all `components/` or `data/` folders inside a view.
+- **Reusable → moves up to global**: shared components in
+  `src/components/`, shared utils/formatting in `src/utils/`.
 
-### Typage : strict et immuable
+### Typing: strict and immutable
 
-- **TypeScript strict.** Tout est typé. **Jamais `any`.** ESLint casse le build
-  sur `any` explicite (`@typescript-eslint/no-explicit-any: error`).
-- **Jamais `unknown`**, sauf à **un seul endroit** : les clauses `catch` (que TS
-  force en `unknown`) et le sanitizer d'erreur `throwSanitizeError`, seule
-  frontière où la forme de la valeur n'est pas garantie. Partout ailleurs, on
-  type précisément.
-- **Immuable partout.** Les objets et tableaux se déclarent en lecture seule :
-  `Readonly<{ ... }>` et `ReadonlyArray<T>`. Les DTOs, props, state, retours
-  d'API sont tous immuables.
-- Props d'un composant : `type Properties = Readonly<{ ... }>`.
+- **TypeScript strict.** Everything is typed. **Never `any`.** ESLint breaks the build
+  on explicit `any` (`@typescript-eslint/no-explicit-any: error`).
+- **Never `unknown`**, except in **one single place**: the `catch` clauses (which TS
+  forces to `unknown`) and the error sanitizer `throwSanitizeError`, the only
+  boundary where the shape of the value is not guaranteed. Everywhere else, we
+  type precisely.
+- **Immutable everywhere.** Objects and arrays are declared read-only:
+  `Readonly<{ ... }>` and `ReadonlyArray<T>`. DTOs, props, state, API
+  returns are all immutable.
+- Props of a component: `type Properties = Readonly<{ ... }>`.
 
-### Style fonctionnel
+### Functional style
 
-- **Pas de `for` ni de `forEach`.** On utilise `map`, `filter`, `reduce`,
-  `find`, etc. Exception uniquement pour une raison de perf réelle.
-- Composants fonctionnels + hooks. Pas de classes.
-- Fonctions fléchées (`const f = () => ...`), pas de `function`.
+- **No `for` or `forEach`.** We use `map`, `filter`, `reduce`,
+  `find`, etc. Exception only for a real perf reason.
+- Functional components + hooks. No classes.
+- Arrow functions (`const f = () => ...`), no `function`.
 
-### Couche API : rangée par module
+### API layer: organized by module
 
-Le back fonctionne en **modules** ; le front en est le miroir. Un module par
-dossier sous `src/api/`.
+The back works in **modules**; the front mirrors it. One module per
+folder under `src/api/`.
 
-- **Une fonction API = un fichier** curryfié qui reçoit d'abord l'instance
-  axios, puis les données :
+- **One API function = one file** curried, receiving first the axios
+  instance, then the data:
 
   ```ts
   // src/api/company/get-one-company.ts
@@ -129,86 +129,86 @@ dossier sous `src/api/`.
   export { getOneCompany };
   ```
 
-- **Entités du module** dans `entities/` : `response.entities.ts` (DTOs, tous en
+- **Module entities** in `entities/`: `response.entities.ts` (DTOs, all in
   `Readonly` / `ReadonlyArray`), `request.entities.ts` (payloads), `errors.ts`
-  (enums d'erreurs, une par opération).
-- **`src/api/api.ts`** est le point de câblage unique : il lie l'instance axios
-  partagée aux fonctions du module et réexporte des fonctions prêtes à l'emploi
-  suffixées `*Axios` (ex. `getOneCompanyAxios`).
-- **`src/api/utils.ts`** contient l'instance axios (une seule, le back est un
-  seul service Hono ; les modules sont des préfixes de route). Base URL :
-  `${import.meta.env.VITE_API_URL}/api/v1`. Auth par cookie via Better Auth →
-  `withCredentials: true`. Intercepteur de réponse pour les erreurs d'auth.
-- **Exception auth** : `sign-in` / `sign-out` passent par le **client Better
-  Auth** (`src/api/auth-client.ts`, `authClient.signIn.email` / `signOut`), pas
-  par un module axios. Le reste (session `/me`, sign-up, tout le domaine) reste
-  en modules axios curryfiés.
-- **Helper d'erreur** : `src/api/shared/extract-error.ts` (`throwApiError`) mappe
-  l'AppError back (`message` = code) ; les hooks switchent sur ce code → toast.
-  Enums partagés du domaine dans `src/api/shared/enums.ts`.
-- **Aucun secret ni clé API côté front.**
+  (error enums, one per operation).
+- **`src/api/api.ts`** is the single wiring point: it binds the shared axios
+  instance to the module functions and re-exports ready-to-use functions
+  suffixed `*Axios` (e.g. `getOneCompanyAxios`).
+- **`src/api/utils.ts`** contains the axios instance (a single one, the back is a
+  single Hono service; modules are route prefixes). Base URL:
+  `${import.meta.env.VITE_API_URL}/api/v1`. Cookie auth via Better Auth →
+  `withCredentials: true`. Response interceptor for auth errors.
+- **Auth exception**: `sign-in` / `sign-out` go through the **Better
+  Auth client** (`src/api/auth-client.ts`, `authClient.signIn.email` / `signOut`), not
+  through an axios module. The rest (session `/me`, sign-up, the whole domain) stays
+  in curried axios modules.
+- **Error helper**: `src/api/shared/extract-error.ts` (`throwApiError`) maps
+  the back AppError (`message` = code); the hooks switch on this code → toast.
+  Shared domain enums in `src/api/shared/enums.ts`.
+- **No secret or API key on the front side.**
 
-### Appels API : toujours via un hook
+### API calls: always through a hook
 
-Aucun `fetch`/`axios` appelé directement dans un composant. Tout passe par l'un
-des deux hooks maison (`src/hooks/`) :
+No `fetch`/`axios` called directly in a component. Everything goes through one
+of the two in-house hooks (`src/hooks/`):
 
-- **`useAsync`** : chargement au montage du composant (fetch initial d'une page).
-  Retourne `{ data, status, refetch, errorMessage }`.
-- **`useAsyncEvent`** : action déclenchée par l'utilisateur (submit, clic). Ne
-  part pas au montage. Retourne `{ onFetch, isLoading, isError, status, ... }`.
+- **`useAsync`**: loading on component mount (initial fetch of a page).
+  Returns `{ data, status, refetch, errorMessage }`.
+- **`useAsyncEvent`**: action triggered by the user (submit, click). Does not
+  fire on mount. Returns `{ onFetch, isLoading, isError, status, ... }`.
 
-On les enveloppe dans un petit hook dédié par usage, ex.
-`src/views/.../hooks/useRetrieveManyLead.tsx`, qui branche `onSuccess`/`onError`
-(toasts) et l'appel `*Axios`.
+We wrap them in a small dedicated hook per usage, e.g.
+`src/views/.../hooks/useRetrieveManyLead.tsx`, which wires `onSuccess`/`onError`
+(toasts) and the `*Axios` call.
 
 ### UI
 
-- **shadcn/ui + Tailwind CSS v4** (config CSS-first dans `src/index.css`,
-  variables de thème en `oklch`, plugin `@tailwindcss/vite`). Composants dans
-  `src/components/ui/`. **On maximise l'usage des composants shadcn**, customisés
-  à nos besoins, pour une UX/UI stable.
-- **`Button` a une prop `isLoading`** : on y branche directement le `isLoading`
-  d'un `useAsyncEvent` → spinner intégré + `disabled`. Tout bouton qui déclenche
-  un appel API montre son chargement (jamais l'impression qu'il ne se passe rien).
-- `cn()` (clsx + tailwind-merge) dans `src/utils/lib/utils.ts`.
-- Icônes : **`lucide-react` uniquement** (glyphes de marque absents de lucide v1
-  → SVG inline dans `ChannelIcon`). Toasts : `sonner` (`<Toaster />` monté dans
+- **shadcn/ui + Tailwind CSS v4** (CSS-first config in `src/index.css`,
+  theme variables in `oklch`, `@tailwindcss/vite` plugin). Components in
+  `src/components/ui/`. **We maximize the use of shadcn components**, customized
+  to our needs, for a stable UX/UI.
+- **`Button` has an `isLoading` prop**: we wire the `isLoading` of a
+  `useAsyncEvent` directly to it → integrated spinner + `disabled`. Every button that triggers
+  an API call shows its loading (never the impression that nothing is happening).
+- `cn()` (clsx + tailwind-merge) in `src/utils/lib/utils.ts`.
+- Icons: **`lucide-react` only** (brand glyphs absent from lucide v1
+  → inline SVG in `ChannelIcon`). Toasts: `sonner` (`<Toaster />` mounted in
   `main.tsx`).
-- **Formulaires : `react-hook-form` + `zod` systématiquement**, avec le composant
-  shadcn `Form` (`Form` / `FormField` / `FormItem` / `FormLabel` / `FormControl` /
-  `FormMessage` dans `@/components/ui/form`). Le **schéma zod vit dans le `utils.ts`**
-  de la vue (avec le type `z.infer` + les valeurs par défaut), jamais inline dans le
-  composant. `useForm({ resolver: zodResolver(schema), mode: 'onChange' })`, erreurs
-  typées affichées par `<FormMessage />`, submit `disabled={!form.formState.isValid}`
-  + `isLoading`. Listes dynamiques via `useFieldArray`.
-- **Routing : `react-router-dom`.** Guards par groupe (public / non-authentifié /
-  authentifié) quand l'auth arrivera.
-- **Strings de l'UI en anglais, en dur.** Pas de i18n / Lingui pour l'instant.
-- **Design system** dans `src/index.css` : tokens Tailwind v4 (`@theme`) extraits
-  du design produit. Marque indigo `brand-*` (#0501F0), neutres chauds `paper` /
-  `sand` / `ink`, univers verre sombre `night-*` / `glass-*`, statuts
-  `success` / `warn` / `danger`, ombres signature (`shadow-glass`, `shadow-brand`,
-  `shadow-well`), rayons `rounded-well` (14px) / `rounded-card` (28px). Les
-  variables sémantiques shadcn sont retunées sur la marque. Surfaces verre
-  réutilisables : classes `.glass-card`, `.glass-well`, `.glass-hairline`.
-- Gestion d'erreur : enums par opération côté API → `switch` sur `error.message`
-  dans le hook → toast clair pour l'utilisateur.
+- **Forms: `react-hook-form` + `zod` systematically**, with the shadcn
+  `Form` component (`Form` / `FormField` / `FormItem` / `FormLabel` / `FormControl` /
+  `FormMessage` in `@/components/ui/form`). The **zod schema lives in the `utils.ts`**
+  of the view (with the `z.infer` type + the default values), never inline in the
+  component. `useForm({ resolver: zodResolver(schema), mode: 'onChange' })`, typed
+  errors displayed by `<FormMessage />`, submit `disabled={!form.formState.isValid}`
+  + `isLoading`. Dynamic lists via `useFieldArray`.
+- **Routing: `react-router-dom`.** Guards by group (public / non-authenticated /
+  authenticated) when auth arrives.
+- **UI strings in English, hardcoded.** No i18n / Lingui for now.
+- **Design system** in `src/index.css`: Tailwind v4 tokens (`@theme`) extracted
+  from the product design. Indigo brand `brand-*` (#0501F0), warm neutrals `paper` /
+  `sand` / `ink`, dark glass universe `night-*` / `glass-*`, statuses
+  `success` / `warn` / `danger`, signature shadows (`shadow-glass`, `shadow-brand`,
+  `shadow-well`), radii `rounded-well` (14px) / `rounded-card` (28px). The
+  shadcn semantic variables are retuned onto the brand. Reusable glass
+  surfaces: classes `.glass-card`, `.glass-well`, `.glass-hairline`.
+- Error handling: enums per operation on the API side → `switch` on `error.message`
+  in the hook → clear toast for the user.
 
-### Nommage & fichiers
+### Naming & files
 
-- Fichiers et dossiers : **kebab-case** (`get-one-company.ts`, `lead-queue/`).
-- Composants : **PascalCase**. Hooks : **`useXxx`**.
-- Fonctions API réexportées : **`{action}{Ressource}Axios`**.
-- Alias d'import : **`@/` → `src/`** (configuré dans `tsconfig` + `vite`).
+- Files and folders: **kebab-case** (`get-one-company.ts`, `lead-queue/`).
+- Components: **PascalCase**. Hooks: **`useXxx`**.
+- Re-exported API functions: **`{action}{Ressource}Axios`**.
+- Import alias: **`@/` → `src/`** (configured in `tsconfig` + `vite`).
 
 ---
 
-## Commandes
+## Commands
 
 ```
-bun install     # dépendances
+bun install     # dependencies
 bun run dev     # dev Vite
-bun run build   # build prod
+bun run build   # prod build
 bun test        # tests
 ```
