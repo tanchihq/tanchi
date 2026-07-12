@@ -1,9 +1,9 @@
 {
   "name": "@app/api",
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
-    "migrate": "bun scripts/migrate.ts",
-    "reset": "bun scripts/reset.ts",
+    "dev": "bun --env-file=../../.env --hot src/index.ts",
+    "migrate": "bun --env-file=../../.env scripts/migrate.ts",
+    "reset": "bun --env-file=../../.env scripts/reset.ts",
     "typecheck": "tsc --noEmit",
     "test": "bun test"
   },
