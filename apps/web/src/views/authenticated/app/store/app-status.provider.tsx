@@ -7,7 +7,7 @@ import {
 import { AppStatusContext, type AppStatusValue } from './app-status.context';
 
 const RUNNING_POLL_MS = 4000;
-const SEEN_STORAGE_KEY = 'sweeleads-activity-seen';
+const SEEN_STORAGE_KEY = 'tanchi-activity-seen';
 
 const AppStatusProvider = ({ children }: Readonly<{ children: ReactNode }>) => {
   const [status, setStatus] = useState<ActivityStatusDto | null>(null);

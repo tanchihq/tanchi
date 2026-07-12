@@ -100,12 +100,12 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
           </Section>
           <Section style={footer}>
             <Text style={footerText}>
-              SweeLeads — sourced outreach, never a made-up fact.
+              Tanchi — sourced outreach, never a made-up fact.
             </Text>
             <Text style={footerText}>
-              You're receiving this email because you have a SweeLeads account.{" "}
-              <Link href="https://sweeleads.com" style={footerLink}>
-                sweeleads.com
+              You're receiving this email because you have a Tanchi account.{" "}
+              <Link href="https://tanchi.io" style={footerLink}>
+                tanchi.io
               </Link>
             </Text>
           </Section>

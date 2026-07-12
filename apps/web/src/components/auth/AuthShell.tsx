@@ -63,7 +63,7 @@ const AuthShell = ({
         </div>
 
         <div className="text-ink-faint mt-5 text-center text-xs tracking-tight">
-          SweeLeads · autonomous prospecting
+          Tanchi · autonomous prospecting
         </div>
       </div>
     </div>

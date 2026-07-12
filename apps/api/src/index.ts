@@ -45,7 +45,7 @@ app.onError((err, c) => {
   );
 });
 
-app.get("/", (c) => c.json({ name: "sweeleads-api", version: "0.1.0" }));
+app.get("/", (c) => c.json({ name: "tanchi-api", version: "0.1.0" }));
 
 const api = new Hono();
 
@@ -88,7 +88,7 @@ process.on("SIGTERM", () => {
   void shutdown("SIGTERM");
 });
 
-console.log(`🚀 sweeleads-api running on http://localhost:${env.PORT}`);
+console.log(`🚀 tanchi-api running on http://localhost:${env.PORT}`);
 
 export default {
   port: env.PORT,

@@ -1,4 +1,4 @@
-# SweeLeads, le moteur
+# Tanchi, le moteur
 
 > Le coeur du produit : comment on source, comment on renseigne, et comment on apprend de ce qui convertit vraiment. C'est ici que se joue la différence avec les autres outils de prospection IA.
 
@@ -116,7 +116,7 @@ Ce playbook est réinjecté dans le prompt du Copywriter. Interprétable, corrig
 
 Constat de terrain : la version `IA éditée par l'humain` convertit souvent mieux que le full auto.
 
-Chaque édition humaine d'un draft produit une **paire de préférence** : `version IA → version éditée → résultat`. La plupart des outils la jettent. SweeLeads la stocke et en fait la **priorité d'apprentissage** de l'Analyste.
+Chaque édition humaine d'un draft produit une **paire de préférence** : `version IA → version éditée → résultat`. La plupart des outils la jettent. Tanchi la stocke et en fait la **priorité d'apprentissage** de l'Analyste.
 
 En pratique, ce que l'humain ajoute est presque toujours **l'insight prospect-spécifique**, donc du renseignement. La boucle se referme : mieux on renseigne, moins l'humain a besoin d'éditer, et ce qu'il édite quand même devient le prochain enseignement.
 

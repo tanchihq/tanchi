@@ -13,13 +13,13 @@ export function OrganizationInvitation({
   url,
 }: OrganizationInvitationProps) {
   return (
-    <EmailLayout preview={`Join ${organizationName} on SweeLeads`}>
+    <EmailLayout preview={`Join ${organizationName} on Tanchi`}>
       <Heading style={sharedStyles.heading}>
         You're invited to {organizationName}
       </Heading>
       <Text style={sharedStyles.paragraph}>
         {inviterName === "" ? "Someone" : inviterName} invited you to join the{" "}
-        <strong>{organizationName}</strong> workspace on SweeLeads. Accept to
+        <strong>{organizationName}</strong> workspace on Tanchi. Accept to
         access the team's prospects, dossiers and sequences.
       </Text>
       <Section style={{ padding: "8px 0 4px" }}>

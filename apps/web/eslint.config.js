@@ -19,7 +19,7 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
-      // Conventions SweeLeads : tout est typé, aucune échappatoire `any`.
+      // Conventions Tanchi : tout est typé, aucune échappatoire `any`.
       '@typescript-eslint/no-explicit-any': 'error',
       // Les hooks maison useAsync/useAsyncEvent lancent volontairement le fetch
       // au montage : on assume le pattern (convention SweeBadge).

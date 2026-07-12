@@ -9,7 +9,7 @@ type ChangeEmailProps = Readonly<{
 
 export function ChangeEmail({ firstName, newEmail, url }: ChangeEmailProps) {
   return (
-    <EmailLayout preview="Confirm the email change on your SweeLeads account">
+    <EmailLayout preview="Confirm the email change on your Tanchi account">
       <Heading style={sharedStyles.heading}>Confirm your new email</Heading>
       <Text style={sharedStyles.paragraph}>
         {firstName === "" ? "Hi," : `Hi ${firstName},`} a request to change your

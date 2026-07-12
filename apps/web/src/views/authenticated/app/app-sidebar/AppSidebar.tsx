@@ -45,7 +45,7 @@ const AppSidebar = () => {
           S
         </div>
         <span className="text-glass-fg text-[15px] font-medium tracking-tighter">
-          SweeLeads
+          Tanchi
         </span>
       </div>
 

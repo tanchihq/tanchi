@@ -1,5 +1,5 @@
 {
-  "name": "sweeleads-api",
+  "name": "@app/api",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "migrate": "bun scripts/migrate.ts",

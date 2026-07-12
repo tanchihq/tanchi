@@ -8,7 +8,7 @@ type ResetPasswordProps = Readonly<{
 
 export function ResetPassword({ firstName, url }: ResetPasswordProps) {
   return (
-    <EmailLayout preview="Reset your SweeLeads password">
+    <EmailLayout preview="Reset your Tanchi password">
       <Heading style={sharedStyles.heading}>Reset your password</Heading>
       <Text style={sharedStyles.paragraph}>
         {firstName === "" ? "Hi," : `Hi ${firstName},`} you requested to reset

@@ -1,8 +1,8 @@
 import { closeDb, db } from "../src/db.ts";
 
-const SUBJECT = "Test SweeLeads — envoi SMTP";
+const SUBJECT = "Test Tanchi — envoi SMTP";
 const BODY =
-  "Bonjour,\n\nCeci est un email de test envoyé depuis SweeLeads. Si tu reçois ce message, l'envoi SMTP fonctionne de bout en bout.\n\nÀ très vite,\nL'agent SweeLeads";
+  "Bonjour,\n\nCeci est un email de test envoyé depuis Tanchi. Si tu reçois ce message, l'envoi SMTP fonctionne de bout en bout.\n\nÀ très vite,\nL'agent Tanchi";
 
 async function main(): Promise<void> {
   try {

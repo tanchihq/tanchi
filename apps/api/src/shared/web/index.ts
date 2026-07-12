@@ -1,5 +1,5 @@
 const DEFAULT_FETCH_TIMEOUT_MS = 15000;
-const USER_AGENT = "Mozilla/5.0 (compatible; SweeLeadsBot/1.0)";
+const USER_AGENT = "Mozilla/5.0 (compatible; TanchiBot/1.0)";
 
 function decodeEntities(value: string): string {
   return value

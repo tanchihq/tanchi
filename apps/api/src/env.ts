@@ -28,7 +28,7 @@ const envSchema = z.object({
   MAIL_FROM_EMAIL: z
     .string()
     .min(1)
-    .default("SweeLeads <no-reply@sweeleads.app>"),
+    .default("Tanchi <no-reply@tanchi.io>"),
   RESEND_API_KEY: z.string().optional(),
   RESEND_FROM_EMAIL: z.string().min(1).optional(),
   MAIL_SMTP_HOST: z.string().optional(),

@@ -1,4 +1,4 @@
-# SweeLeads
+# Tanchi
 
 > Moteur de prospection B2B autonome, open source, self-hostable. L'IA source, renseigne, rédige et relance chaque soir. Vous gardez la main sur l'envoi. Le système apprend de ce qui convertit vraiment, pas de ce qui fait joli.
 
@@ -8,7 +8,7 @@
 
 La plupart des outils de prospection IA vendent deux mensonges : le "full auto multi-canal" (en vrai seul l'email est automatisable proprement) et "l'IA apprend de vos résultats" (en vrai, à faible volume, ils optimisent sur les ouvertures, un signal poubelle).
 
-SweeLeads prend le contre-pied :
+Tanchi prend le contre-pied :
 
 - **Email-first.** Le reste des canaux en assisté (l'IA rédige, l'humain envoie).
 - **Renseignement prospect** traité comme un pipeline de vérification à part entière.

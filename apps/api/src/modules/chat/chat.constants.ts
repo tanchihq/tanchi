@@ -14,4 +14,4 @@ export const RESEARCH_TIMEOUT_MS = 240000;
 export const REWRITE_MAX_TOKENS = 1200;
 export const REWRITE_TEMPERATURE = 0.7;
 
-export const MCP_SERVER_NAME = "sweeleads";
+export const MCP_SERVER_NAME = "tanchi";

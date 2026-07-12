@@ -8,12 +8,12 @@ type VerifyEmailProps = Readonly<{
 
 export function VerifyEmail({ firstName, url }: VerifyEmailProps) {
   return (
-    <EmailLayout preview="Confirm your email to activate your SweeLeads account">
+    <EmailLayout preview="Confirm your email to activate your Tanchi account">
       <Heading style={sharedStyles.heading}>
         Welcome{firstName === "" ? "" : ` ${firstName}`} 👋
       </Heading>
       <Text style={sharedStyles.paragraph}>
-        One last step: confirm your email address to activate your SweeLeads
+        One last step: confirm your email address to activate your Tanchi
         account and launch your first outreach.
       </Text>
       <Section style={{ padding: "8px 0 4px" }}>

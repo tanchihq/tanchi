@@ -1,4 +1,4 @@
-# CLAUDE.md, repo front SweeLeads
+# CLAUDE.md, repo front Tanchi
 
 Instructions pour l'agent de code sur le repo **front**. Le repo back est séparé et a son propre CLAUDE.md.
 

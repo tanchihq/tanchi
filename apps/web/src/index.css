@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================================
-   SweeLeads Design System
+   Tanchi Design System
    Extrait du design produit (Claude Design). Deux univers cohabitent :
    - "paper"  : l'app, fond crème clair, texte encre chaude.
    - "night" / "glass" : l'auth et l'onboarding, verre sombre sur fond nuit.
@@ -83,7 +83,7 @@
 }
 
 /* ============================================================================
-   Couche sémantique shadcn — retunée sur la marque SweeLeads.
+   Couche sémantique shadcn — retunée sur la marque Tanchi.
    Les composants shadcn (light) tapent dans ces variables.
    ========================================================================== */
 

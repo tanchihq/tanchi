@@ -30,7 +30,7 @@ async function resolveActiveOrganizationId(
 }
 
 export const auth = betterAuth({
-  appName: "sweeleads-api",
+  appName: "tanchi-api",
   baseURL: env.AUTH_BASE_URL,
   basePath: "/api/v1/auth",
   secret: env.AUTH_SECRET,
@@ -67,7 +67,7 @@ export const auth = betterAuth({
     },
   },
   advanced: {
-    cookiePrefix: "sweeleads",
+    cookiePrefix: "tanchi",
     defaultCookieAttributes: {
       httpOnly: true,
       sameSite: "lax",
