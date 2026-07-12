@@ -1,0 +1,97 @@
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { AppError, sendError, type HttpErrorStatus } from "@shared/errors";
+import { auth } from "@shared/auth";
+import { requireAuth } from "@shared/middleware/requireAuth.ts";
+import { onboardingRouter } from "./modules/onboarding/onboarding.module.ts";
+import { settingsRouter } from "./modules/settings/settings.module.ts";
+import { learningsRouter } from "./modules/learnings/learnings.module.ts";
+import { sendersRouter } from "./modules/senders/senders.module.ts";
+import { prospectsRouter } from "./modules/prospects/prospects.module.ts";
+import { queueRouter } from "./modules/queue/queue.module.ts";
+import { engineRouter, startEngineWorkers } from "./modules/engine/engine.module.ts";
+import { startRewardWorkers } from "./modules/reward/reward.module.ts";
+import { startSequencesWorkers } from "./modules/sequences/sequences.module.ts";
+import { activityRouter } from "./modules/activity/activity.module.ts";
+import { suppressionRouter } from "./modules/suppression/suppression.module.ts";
+import { messagesRouter } from "./modules/messages/messages.module.ts";
+import { chatRouter } from "./modules/chat/chat.module.ts";
+import { closeQueues } from "@shared/queue";
+import { env } from "./env.ts";
+
+const HTTP_INTERNAL_SERVER_ERROR = 500;
+
+const app = new Hono();
+
+app.use("*", logger());
+app.use(
+  "*",
+  cors({
+    origin: [env.APP_URL],
+    credentials: true,
+  })
+);
+
+app.onError((err, c) => {
+  if (err instanceof AppError) {
+    return sendError(c, err.statusCode as HttpErrorStatus, err.message);
+  }
+  console.error("[Unhandled error]", err);
+  return sendError(
+    c,
+    HTTP_INTERNAL_SERVER_ERROR,
+    "An unexpected error occurred"
+  );
+});
+
+app.get("/", (c) => c.json({ name: "sweeleads-api", version: "0.1.0" }));
+
+const api = new Hono();
+
+api.on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));
+
+api.route("/onboarding", onboardingRouter);
+api.route("/settings", settingsRouter);
+api.route("/learnings", learningsRouter);
+api.route("/senders", sendersRouter);
+api.route("/prospects", prospectsRouter);
+api.route("/queue", queueRouter);
+api.route("/engine", engineRouter);
+api.route("/activity", activityRouter);
+api.route("/suppression", suppressionRouter);
+api.route("/messages", messagesRouter);
+api.route("/chat", chatRouter);
+
+api.get("/me", requireAuth(), (c) =>
+  c.json({ user: c.get("user"), session: c.get("session") })
+);
+
+app.route("/api/v1", api);
+
+if (env.RUN_WORKERS === "true") {
+  startEngineWorkers();
+  startRewardWorkers();
+  startSequencesWorkers();
+  console.log("[workers] engine-nightly + reward-poll + sequences démarrés");
+}
+
+const shutdown = async (signal: string): Promise<void> => {
+  console.log(`[shutdown] ${signal} reçu, fermeture des queues...`);
+  await closeQueues();
+  process.exit(0);
+};
+process.on("SIGINT", () => {
+  void shutdown("SIGINT");
+});
+process.on("SIGTERM", () => {
+  void shutdown("SIGTERM");
+});
+
+console.log(`🚀 sweeleads-api running on http://localhost:${env.PORT}`);
+
+export default {
+  port: env.PORT,
+  idleTimeout: 255,
+  fetch: app.fetch,
+};

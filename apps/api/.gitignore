@@ -1,0 +1,15 @@
+# deps
+node_modules/
+
+# env & secrets — tout sauf les exemples
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# os junk
+.DS_Store
+Thumbs.db
+
+# logs
+*.log

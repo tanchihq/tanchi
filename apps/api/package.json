@@ -1,0 +1,34 @@
+{
+  "name": "sweeleads-api",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "migrate": "bun scripts/migrate.ts",
+    "reset": "bun scripts/reset.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.110.0",
+    "@hono/zod-validator": "^0.7.6",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.0.10",
+    "better-auth": "^1.6.9",
+    "bullmq": "^5.79.2",
+    "hono": "^4.12.27",
+    "imapflow": "^1.4.3",
+    "ioredis": "^5.11.1",
+    "nodemailer": "^9.0.3",
+    "postgres": "^3.4.9",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/nodemailer": "^8.0.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3"
+  }
+}
