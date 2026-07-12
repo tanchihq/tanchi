@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment & secrets — everything except the examples
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+*.pid
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.sw?
+
+# Bun
+.bun/
