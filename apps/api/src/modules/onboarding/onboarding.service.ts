@@ -32,6 +32,10 @@ export class OnboardingService {
   ): Promise<SignUpSuccess | SignUpErrors> {
     const name = `${dto.firstName} ${dto.lastName}`;
 
+    if (await this.onboardingRepository.existsUserByEmail(dto.email)) {
+      return SignUpErrors.emailAlreadyExists;
+    }
+
     const userId = await this.tryCreateUser({
       email: dto.email,
       password: dto.password,

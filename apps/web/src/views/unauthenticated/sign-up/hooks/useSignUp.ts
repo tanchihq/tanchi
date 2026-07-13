@@ -18,7 +18,7 @@ const useSignUp = () => {
           toast.error('Invalid email.');
           break;
         case SignUpErrors.invalidPassword:
-          toast.error('Invalid password (at least 8 characters).');
+          toast.error('Invalid password (at least 12 characters).');
           break;
         case SignUpErrors.invalidFirstName:
         case SignUpErrors.invalidLastName:

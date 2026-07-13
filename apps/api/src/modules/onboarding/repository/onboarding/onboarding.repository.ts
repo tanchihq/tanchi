@@ -9,6 +9,10 @@ import type {
 export class OnboardingRepository {
   constructor(private readonly onboardingPostgres: OnboardingPostgres) {}
 
+  existsUserByEmail(email: string): Promise<boolean> {
+    return this.onboardingPostgres.existsUserByEmail(email);
+  }
+
   deleteOneUser(id: string): Promise<void> {
     return this.onboardingPostgres.deleteOneUser(id);
   }

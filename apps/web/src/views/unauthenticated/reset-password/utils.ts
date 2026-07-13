@@ -4,7 +4,7 @@ export const resetPasswordSchema = z
   .object({
     newPassword: z
       .string()
-      .min(8, 'At least 8 characters.')
+      .min(12, 'At least 12 characters.')
       .regex(/[A-Z]/, 'Add an uppercase letter.')
       .regex(/[0-9]/, 'Add a number.'),
     confirmPassword: z.string(),

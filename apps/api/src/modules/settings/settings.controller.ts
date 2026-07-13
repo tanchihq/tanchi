@@ -2,7 +2,12 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { sendError } from "@shared/errors";
 import { requireAuth, type AuthVariables } from "@shared/middleware/requireAuth.ts";
+import { rateLimit } from "@shared/ratelimit";
 import { zodValidationHook } from "@shared/middleware/zodValidationHook.ts";
+import {
+  GENERATE_PROFILE_RATE_LIMIT,
+  GENERATE_PROFILE_RATE_LIMIT_WINDOW_SECONDS,
+} from "./settings.constants.ts";
 import type { SettingsService } from "./settings.service.ts";
 import * as RequestDto from "./dto/request/index.ts";
 import {
@@ -61,7 +66,15 @@ export function createSettingsRouter(settingsService: SettingsService) {
         return context.json(result);
       }
     )
-    .post("/generate-profile", requireAuth(), async (context) => {
+    .post(
+      "/generate-profile",
+      requireAuth(),
+      rateLimit({
+        name: "settings-generate-profile",
+        limit: GENERATE_PROFILE_RATE_LIMIT,
+        windowSeconds: GENERATE_PROFILE_RATE_LIMIT_WINDOW_SECONDS,
+      }),
+      async (context) => {
       const session = context.get("session") as SessionOrganization;
       const result = await settingsService.generateProfile(
         session.activeOrganizationId

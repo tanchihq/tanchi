@@ -40,6 +40,8 @@ const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
+export const ENV_KEYS: ReadonlyArray<string> = Object.keys(envSchema.shape);
+
 export const env: Env = envSchema.parse(process.env);
 
 export const isDevelopment = env.NODE_ENV === "development";

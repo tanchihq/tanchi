@@ -2,7 +2,13 @@ import { Hono } from "hono";
 import type { Queue } from "bullmq";
 import { sendError } from "@shared/errors";
 import { requireAuth, type AuthVariables } from "@shared/middleware/requireAuth.ts";
+import { rateLimit } from "@shared/ratelimit";
 import { RunEngineErrors } from "./engine.errors.ts";
+import {
+  ANALYSTE_RATE_LIMIT,
+  ENGINE_RATE_LIMIT_WINDOW_SECONDS,
+  ENGINE_RUN_RATE_LIMIT,
+} from "./engine.constants.ts";
 import type * as ResponseDto from "./dto/response/index.ts";
 
 type SessionOrganization = Readonly<{
@@ -25,7 +31,15 @@ function resolveActiveOrganization(
 
 export function createEngineRouter(engineQueue: Queue, analysteQueue: Queue) {
   return new Hono<{ Variables: AuthVariables }>()
-    .post("/run", requireAuth(), async (context) => {
+    .post(
+      "/run",
+      requireAuth(),
+      rateLimit({
+        name: "engine-run",
+        limit: ENGINE_RUN_RATE_LIMIT,
+        windowSeconds: ENGINE_RATE_LIMIT_WINDOW_SECONDS,
+      }),
+      async (context) => {
       const session = context.get("session") as SessionOrganization;
       const organizationId = resolveActiveOrganization(session);
       if (organizationId === null) {
@@ -41,7 +55,15 @@ export function createEngineRouter(engineQueue: Queue, analysteQueue: Queue) {
       const body: ResponseDto.EngineRunQueuedDto = { queued: true };
       return context.json(body, 202);
     })
-    .post("/analyste", requireAuth(), async (context) => {
+    .post(
+      "/analyste",
+      requireAuth(),
+      rateLimit({
+        name: "engine-analyste",
+        limit: ANALYSTE_RATE_LIMIT,
+        windowSeconds: ENGINE_RATE_LIMIT_WINDOW_SECONDS,
+      }),
+      async (context) => {
       const session = context.get("session") as SessionOrganization;
       const organizationId = resolveActiveOrganization(session);
       if (organizationId === null) {

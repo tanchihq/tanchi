@@ -13,6 +13,8 @@ import {
 const SESSION_EXPIRES_IN_SECONDS = 60 * 60 * 24 * 7;
 const SESSION_UPDATE_AGE_SECONDS = 60 * 60 * 24;
 const COOKIE_CACHE_MAX_AGE_SECONDS = 60 * 5;
+const MIN_PASSWORD_LENGTH = 12;
+const MAX_PASSWORD_LENGTH = 128;
 
 async function resolveActiveOrganizationId(
   userId: string
@@ -39,6 +41,8 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
+    minPasswordLength: MIN_PASSWORD_LENGTH,
+    maxPasswordLength: MAX_PASSWORD_LENGTH,
     requireEmailVerification: env.REQUIRE_EMAIL_VERIFICATION === "true",
     sendResetPassword: sendResetPasswordEmail,
   },

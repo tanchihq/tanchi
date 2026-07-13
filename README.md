@@ -73,6 +73,19 @@ bun run migrate
 
 > **One `.env` at the repo root.** Both apps read the root `.env` (the API via `--env-file`, the web via Vite `envDir`). Required keys: `DATABASE_URL`, `AUTH_SECRET` (≥32 chars), `ENCRYPTION_KEY` (≥44 chars, `openssl rand -base64 32`).
 
+### Tests
+
+The API test suite is end-to-end: it drives the real Hono app against a real PostgreSQL and Redis, and mocks only the external boundaries (LLM, sourcing, mailbox, outbound web fetch). It uses a dedicated `tanchi_test` database so it never touches your dev data — every test truncates all tables between cases.
+
+```bash
+docker compose up -d postgres redis
+docker compose exec -T postgres createdb -U postgres tanchi_test
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/tanchi_test bun run migrate
+bun test                # runs the API suite (from apps/api)
+```
+
+`bun test` defaults to `postgres://postgres:postgres@localhost:5432/tanchi_test` and `redis://localhost:6379`; override `DATABASE_URL` / `REDIS_URL` to point elsewhere. Every route of every module is covered, with multi-tenant isolation, auth, input-validation and secret-non-leakage assertions.
+
 ---
 
 ## Monorepo layout

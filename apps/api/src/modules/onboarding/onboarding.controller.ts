@@ -2,7 +2,12 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { sendError } from "@shared/errors";
 import { requireAuth, type AuthVariables } from "@shared/middleware/requireAuth.ts";
+import { rateLimit } from "@shared/ratelimit";
 import { zodValidationHook } from "@shared/middleware/zodValidationHook.ts";
+import {
+  GENERATE_PROFILE_RATE_LIMIT,
+  GENERATE_PROFILE_RATE_LIMIT_WINDOW_SECONDS,
+} from "./onboarding.constants.ts";
 import type { OnboardingService } from "./onboarding.service.ts";
 import * as RequestDto from "./dto/request/index.ts";
 import {
@@ -117,6 +122,11 @@ export function createOnboardingRouter(onboardingService: OnboardingService) {
     .post(
       "/generate-profile",
       requireAuth(),
+      rateLimit({
+        name: "onboarding-generate-profile",
+        limit: GENERATE_PROFILE_RATE_LIMIT,
+        windowSeconds: GENERATE_PROFILE_RATE_LIMIT_WINDOW_SECONDS,
+      }),
       zValidator("json", RequestDto.GenerateProfileDto, zodValidationHook),
       async (context) => {
         const dto = context.req.valid("json");

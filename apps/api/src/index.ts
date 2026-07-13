@@ -18,6 +18,7 @@ import { suppressionRouter } from "./modules/suppression/suppression.module.ts";
 import { messagesRouter } from "./modules/messages/messages.module.ts";
 import { chatRouter } from "./modules/chat/chat.module.ts";
 import { closeQueues } from "@shared/queue";
+import { closeRateLimit } from "@shared/ratelimit";
 import { env } from "./env.ts";
 
 const HTTP_INTERNAL_SERVER_ERROR = 500;
@@ -69,6 +70,8 @@ api.get("/me", requireAuth(), (c) =>
 
 app.route("/api/v1", api);
 
+export { app };
+
 if (env.RUN_WORKERS === "true") {
   startEngineWorkers();
   startRewardWorkers();
@@ -78,7 +81,7 @@ if (env.RUN_WORKERS === "true") {
 
 const shutdown = async (signal: string): Promise<void> => {
   console.log(`[shutdown] ${signal} received, closing queues...`);
-  await closeQueues();
+  await Promise.all([closeQueues(), closeRateLimit()]);
   process.exit(0);
 };
 process.on("SIGINT", () => {
