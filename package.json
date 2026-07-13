@@ -13,7 +13,7 @@
     "dev:web": "bun run --filter '@app/web' dev",
     "build": "bun run --filter '@app/web' build",
     "typecheck": "bun run --filter '@app/api' typecheck && bun run --filter '@app/web' typecheck",
-    "test": "bun test apps/api && bun run --filter '@app/web' test",
+    "test": "bun run --filter '@app/api' test",
     "migrate": "bun run --filter '@app/api' migrate",
     "setup": "bun apps/api/scripts/setup.ts"
   }

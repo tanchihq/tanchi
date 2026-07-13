@@ -6,6 +6,7 @@ import type {
 } from "@shared/llm";
 import { agentModel } from "@shared/llm";
 import { todayLabel } from "@shared/utils";
+import { ENV_KEYS } from "../../env.ts";
 import type { ChatRepository } from "./repository/chat/chat.repository.ts";
 import { buildResearchPrompt, buildRewritePrompt } from "./chat.prompt.ts";
 import { extractJson, optionalString, parseDate } from "./chat.utils.ts";
@@ -510,8 +511,10 @@ export function buildChatMcpServer(
   context: Readonly<{ organizationId: string; conversationId: string }>
 ): LlmMcpServer {
   const inherited = Object.fromEntries(
-    Object.entries(process.env).filter(([, value]) => value !== undefined)
-  ) as Record<string, string>;
+    [...ENV_KEYS, "PATH", "HOME"]
+      .map((key) => [key, process.env[key]] as const)
+      .filter((entry): entry is readonly [string, string] => entry[1] !== undefined)
+  );
   return {
     serverName: MCP_SERVER_NAME,
     command: process.execPath,

@@ -11,7 +11,7 @@ export const signUpSchema = z.object({
   email: z.email('Invalid email.'),
   password: z
     .string()
-    .min(8, 'At least 8 characters.')
+    .min(12, 'At least 12 characters.')
     .regex(/[A-Z]/, 'Add an uppercase letter.')
     .regex(/[0-9]/, 'Add a number.'),
 });

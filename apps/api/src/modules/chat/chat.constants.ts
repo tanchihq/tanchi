@@ -15,3 +15,6 @@ export const REWRITE_MAX_TOKENS = 1200;
 export const REWRITE_TEMPERATURE = 0.7;
 
 export const MCP_SERVER_NAME = "tanchi";
+
+export const CHAT_RATE_LIMIT_WINDOW_SECONDS = 3600;
+export const CHAT_MESSAGE_RATE_LIMIT = 120;

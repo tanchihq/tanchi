@@ -1,4 +1,4 @@
-export const MIN_PASSWORD_LENGTH = 8;
+export const MIN_PASSWORD_LENGTH = 12;
 export const MAX_PASSWORD_LENGTH = 128;
 
 export const MAX_EMAIL_LENGTH = 255;
@@ -22,3 +22,6 @@ export const MAX_ICP_SHORT_FIELD_LENGTH = 500;
 
 export const MAX_DRAFT_TEXT_LENGTH = 10000;
 export const MAX_COMPANY_PROFILE_LENGTH = 5000;
+
+export const GENERATE_PROFILE_RATE_LIMIT_WINDOW_SECONDS = 3600;
+export const GENERATE_PROFILE_RATE_LIMIT = 30;

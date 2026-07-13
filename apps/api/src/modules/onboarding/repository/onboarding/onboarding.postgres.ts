@@ -14,6 +14,17 @@ function emptyToNull(value: string): string | null {
 export class OnboardingPostgres {
   constructor(private readonly db: DbClient) {}
 
+  async existsUserByEmail(email: string): Promise<boolean> {
+    try {
+      const rows = await this.db<ReadonlyArray<Readonly<{ exists: boolean }>>>`
+        SELECT EXISTS(SELECT 1 FROM "user" WHERE email = ${email}) AS exists
+      `;
+      return rows[ARRAY.FIRST_INDEX]?.exists ?? false;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
   async deleteOneUser(id: string): Promise<void> {
     try {
       await this.db`DELETE FROM "user" WHERE id = ${id}`;

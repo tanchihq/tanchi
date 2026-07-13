@@ -9,6 +9,36 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tanchi_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/tanchi_test
+      REDIS_URL: redis://localhost:6379
+      AUTH_SECRET: ci-auth-secret-that-is-at-least-32-characters
+      ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,6 +51,9 @@ jobs:
 
       - name: Typecheck
         run: bun run typecheck
+
+      - name: Run migrations
+        run: bun run migrate
 
       - name: Test
         run: bun run test

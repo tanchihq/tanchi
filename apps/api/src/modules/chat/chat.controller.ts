@@ -4,8 +4,13 @@ import { streamSSE } from "hono/streaming";
 import { zValidator } from "@hono/zod-validator";
 import { sendError } from "@shared/errors";
 import { requireAuth, type AuthVariables } from "@shared/middleware/requireAuth.ts";
+import { rateLimit } from "@shared/ratelimit";
 import { zodValidationHook } from "@shared/middleware/zodValidationHook.ts";
 import type { ChatService } from "./chat.service.ts";
+import {
+  CHAT_MESSAGE_RATE_LIMIT,
+  CHAT_RATE_LIMIT_WINDOW_SECONDS,
+} from "./chat.constants.ts";
 import * as RequestDto from "./dto/request/index.ts";
 import {
   AttachLeadErrors,
@@ -90,6 +95,11 @@ export function createChatRouter(chatService: ChatService) {
     .post(
       "/:id/messages",
       requireAuth(),
+      rateLimit({
+        name: "chat-message",
+        limit: CHAT_MESSAGE_RATE_LIMIT,
+        windowSeconds: CHAT_RATE_LIMIT_WINDOW_SECONDS,
+      }),
       zValidator("param", conversationParam, zodValidationHook),
       zValidator("json", RequestDto.SendMessageDto, zodValidationHook),
       (context) => {
