@@ -8,7 +8,7 @@ export type AgentKey =
 
 export const DEFAULT_MODEL = "claude-sonnet-5";
 
-const AGENT_DEFAULTS: Readonly<Record<AgentKey, string>> = {
+export const AGENT_DEFAULTS: Readonly<Record<AgentKey, string>> = {
   chasseur: "claude-sonnet-5",
   profiler: "claude-opus-4-8",
   copywriter: "claude-sonnet-5",
@@ -17,7 +17,7 @@ const AGENT_DEFAULTS: Readonly<Record<AgentKey, string>> = {
   chat: "claude-sonnet-5",
 };
 
-const ALLOWED_MODELS: ReadonlySet<string> = new Set([
+export const ALLOWED_MODELS: ReadonlySet<string> = new Set([
   "claude-opus-4-8",
   "claude-opus-4-7",
   "claude-sonnet-5",

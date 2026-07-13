@@ -6,9 +6,6 @@ import { DEFAULT_MODEL } from "./models.ts";
 
 function createLlmProvider(): LlmProvider {
   if (env.LLM_PROVIDER === "api") {
-    if (env.ANTHROPIC_API_KEY === undefined) {
-      throw new Error("[llm] LLM_PROVIDER=api requires ANTHROPIC_API_KEY");
-    }
     return new AnthropicApiProvider(env.ANTHROPIC_API_KEY, DEFAULT_MODEL);
   }
   return new ClaudeCliProvider(

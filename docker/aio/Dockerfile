@@ -41,7 +41,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/api-run.sh
 
 ENV NODE_ENV=production \
     PORT=3000 \
-    PGDATA=/var/lib/postgresql/data \
+    PGDATA=/var/lib/postgresql/data/pgdata \
     DATABASE_URL=postgres://postgres@127.0.0.1:5432/tanchi \
     REDIS_URL=redis://127.0.0.1:6379 \
     APP_URL=http://localhost:8080 \

@@ -22,17 +22,25 @@ function extractText(message: Anthropic.Message): string {
 }
 
 export class AnthropicApiProvider implements LlmProvider {
-  private readonly client: Anthropic;
+  private cachedClient: Anthropic | null = null;
 
   constructor(
-    apiKey: string,
+    private readonly apiKey: string | undefined,
     private readonly model: string
-  ) {
-    this.client = new Anthropic({ apiKey });
+  ) {}
+
+  private getClient(): Anthropic {
+    if (this.apiKey === undefined) {
+      throw new Error("[llm] LLM_PROVIDER=api requires ANTHROPIC_API_KEY");
+    }
+    if (this.cachedClient === null) {
+      this.cachedClient = new Anthropic({ apiKey: this.apiKey });
+    }
+    return this.cachedClient;
   }
 
   async research(input: LlmResearchInput): Promise<string> {
-    const message = await this.client.messages.create({
+    const message = await this.getClient().messages.create({
       model: input.model ?? this.model,
       max_tokens: RESEARCH_MAX_TOKENS,
       messages: [{ role: "user", content: input.prompt }],
@@ -48,7 +56,7 @@ export class AnthropicApiProvider implements LlmProvider {
   }
 
   async generate(input: LlmGenerateInput): Promise<string> {
-    const message = await this.client.messages.create({
+    const message = await this.getClient().messages.create({
       model: input.model ?? this.model,
       max_tokens: input.maxTokens ?? GENERATE_MAX_TOKENS,
       ...(input.temperature !== undefined && {
@@ -61,7 +69,7 @@ export class AnthropicApiProvider implements LlmProvider {
   }
 
   async *stream(input: LlmGenerateInput): AsyncIterable<string> {
-    const stream = this.client.messages.stream({
+    const stream = this.getClient().messages.stream({
       model: input.model ?? this.model,
       max_tokens: input.maxTokens ?? GENERATE_MAX_TOKENS,
       ...(input.temperature !== undefined && {
@@ -94,7 +102,7 @@ export class AnthropicApiProvider implements LlmProvider {
     let step = 0;
     while (step < maxSteps) {
       step += 1;
-      const stream = this.client.messages.stream({
+      const stream = this.getClient().messages.stream({
         model: input.model ?? this.model,
         max_tokens: input.maxTokens ?? GENERATE_MAX_TOKENS,
         ...(input.temperature !== undefined && {

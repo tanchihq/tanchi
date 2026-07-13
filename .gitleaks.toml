@@ -1,0 +1,11 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlist known false positives"
+regexTarget = "match"
+regexes = [
+  # React icon component exports (e.g. `LinkedinGlyph, InstagramGlyph`) match the
+  # linkedin-client-id rule (14 alphanumeric chars). Not a secret.
+  '''(Linkedin|Instagram)Glyph''',
+]

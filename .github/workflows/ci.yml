@@ -23,7 +23,19 @@ jobs:
         run: bun run typecheck
 
       - name: Test
-        run: bun test apps/api
+        run: bun run test
 
       - name: Build web
         run: bun run build
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan for secrets (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
