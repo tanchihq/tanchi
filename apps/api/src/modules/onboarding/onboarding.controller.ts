@@ -7,6 +7,8 @@ import { zodValidationHook } from "@shared/middleware/zodValidationHook.ts";
 import {
   GENERATE_PROFILE_RATE_LIMIT,
   GENERATE_PROFILE_RATE_LIMIT_WINDOW_SECONDS,
+  SIGN_UP_RATE_LIMIT,
+  SIGN_UP_RATE_LIMIT_WINDOW_SECONDS,
 } from "./onboarding.constants.ts";
 import type { OnboardingService } from "./onboarding.service.ts";
 import * as RequestDto from "./dto/request/index.ts";
@@ -26,6 +28,12 @@ export function createOnboardingRouter(onboardingService: OnboardingService) {
   return new Hono<{ Variables: AuthVariables }>()
     .post(
       "/sign-up",
+      rateLimit({
+        name: "signUp",
+        limit: SIGN_UP_RATE_LIMIT,
+        windowSeconds: SIGN_UP_RATE_LIMIT_WINDOW_SECONDS,
+        keyBy: "ip",
+      }),
       zValidator("json", RequestDto.SignUpDto, zodValidationHook),
       async (context) => {
         const dto = context.req.valid("json");
@@ -41,6 +49,8 @@ export function createOnboardingRouter(onboardingService: OnboardingService) {
             return sendError(context, 400, result);
           case SignUpErrors.emailAlreadyExists:
             return sendError(context, 409, result);
+          case SignUpErrors.signupDisabled:
+            return sendError(context, 403, result);
           case SignUpErrors.organizationCreationFailed:
             return sendError(context, 500, result);
         }

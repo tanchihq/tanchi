@@ -27,6 +27,9 @@ const useSignUp = () => {
         case SignUpErrors.invalidCompany:
           toast.error('Invalid company name.');
           break;
+        case SignUpErrors.signupDisabled:
+          toast.error('Sign-ups are disabled on this instance.');
+          break;
         default:
           toast.error('Something went wrong, please try again later.');
       }

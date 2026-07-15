@@ -22,7 +22,7 @@ export default defineConfig([
       // Tanchi conventions: everything is typed, no `any` escape hatch.
       '@typescript-eslint/no-explicit-any': 'error',
       // The in-house hooks useAsync/useAsyncEvent intentionally fire the fetch
-      // on mount: we own the pattern (SweeBadge convention).
+      // on mount: we own the pattern.
       'react-hooks/exhaustive-deps': 'off',
       'react-hooks/set-state-in-effect': 'off',
     },

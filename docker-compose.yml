@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: ${POSTGRES_DB:-tanchi}
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -41,13 +41,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-tanchi}
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-tanchi}
       REDIS_URL: redis://redis:6379
       APP_URL: ${APP_URL:-http://localhost:8080}
       AUTH_BASE_URL: ${AUTH_BASE_URL:-http://localhost:3000}
       AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET in .env}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:?set ENCRYPTION_KEY in .env}
       REQUIRE_EMAIL_VERIFICATION: ${REQUIRE_EMAIL_VERIFICATION:-false}
+      DISABLE_SIGNUP: ${DISABLE_SIGNUP:-false}
       LLM_PROVIDER: ${LLM_PROVIDER:-api}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       HUNTER_API_KEY: ${HUNTER_API_KEY:-}

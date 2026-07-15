@@ -1,7 +1,9 @@
 import { Redis } from "ioredis";
-import type { MiddlewareHandler } from "hono";
+import type { Context, MiddlewareHandler } from "hono";
+import { getConnInfo } from "hono/bun";
 import { AppError } from "@shared/errors";
 import type { AuthVariables } from "@shared/middleware/requireAuth.ts";
+import { ARRAY } from "@shared/utils";
 import { env } from "../../env.ts";
 
 const HTTP_TOO_MANY_REQUESTS = 429;
@@ -10,6 +12,7 @@ type RateLimitOptions = Readonly<{
   name: string;
   limit: number;
   windowSeconds: number;
+  keyBy?: "user" | "ip";
 }>;
 
 const client = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null });
@@ -18,12 +21,29 @@ client.on("error", (error) => {
   console.error("[ratelimit] redis connection error", error);
 });
 
+function clientIp(context: Context): string {
+  const forwarded = context.req.header("x-forwarded-for");
+  if (forwarded !== undefined) {
+    return forwarded.split(",")[ARRAY.FIRST_INDEX]?.trim() ?? "unknown";
+  }
+  try {
+    return getConnInfo(context).remote.address ?? "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
+function userIdentity(context: Context<{ Variables: AuthVariables }>): string {
+  const user = context.get("user");
+  return user === undefined ? "anonymous" : user.id;
+}
+
 export function rateLimit(
   options: RateLimitOptions
 ): MiddlewareHandler<{ Variables: AuthVariables }> {
   return async (context, next) => {
-    const user = context.get("user");
-    const identity = user === undefined ? "anonymous" : user.id;
+    const identity =
+      options.keyBy === "ip" ? clientIp(context) : userIdentity(context);
     const key = `ratelimit:${options.name}:${identity}`;
     try {
       const count = await client.incr(key);

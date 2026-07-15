@@ -25,8 +25,8 @@ async function main(): Promise<void> {
     const companyId = Bun.randomUUIDv7();
     await db`
       INSERT INTO companies (id, organization_id, name, domain, website, sector, size, hq)
-      VALUES (${companyId}, ${organizationId}, 'SweeScape Test', 'sweescape.com',
-              'https://sweescape.com', 'SaaS', '1-10', 'Paris')
+      VALUES (${companyId}, ${organizationId}, 'Acme Test', 'example.com',
+              'https://example.com', 'SaaS', '1-10', 'Paris')
     `;
 
     const leadId = Bun.randomUUIDv7();
@@ -37,8 +37,8 @@ async function main(): Promise<void> {
         source_provider
       )
       VALUES (
-        ${leadId}, ${organizationId}, ${companyId}, ${icpId}, 'Contact', 'SweeScape',
-        'CEO', 'contact@sweescape.com', 'verified', 'email', 'identified', 'manual',
+        ${leadId}, ${organizationId}, ${companyId}, ${icpId}, 'Contact', 'Acme',
+        'CEO', 'contact@example.com', 'verified', 'email', 'identified', 'manual',
         true, 90, 'A', 'manual'
       )
     `;
@@ -56,7 +56,7 @@ async function main(): Promise<void> {
     `;
 
     console.log(`✓ Prospect created: ${leadId}`);
-    console.log("  email    : contact@sweescape.com");
+    console.log("  email    : contact@example.com");
     console.log("  stage    : identified (draft ready)");
     console.log(`  Send     : POST /api/v1/prospects/${leadId}/contact`);
   } catch (err) {

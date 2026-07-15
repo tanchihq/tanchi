@@ -20,7 +20,7 @@ bun run dev
 ## Before opening a PR
 
 - `bun run typecheck` green (api + web).
-- `bun test` green.
+- `bun run test` green.
 - Follow the conventions of the app you touch:
   - **Backend** (`apps/api`): raw SQL without an ORM, errors as values, everything
     immutable, **zero comments**, one module per domain. Details in
