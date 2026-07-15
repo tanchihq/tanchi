@@ -13,6 +13,12 @@ function firstNameOf(name: string): string {
   return name.trim().split(/\s+/)[0] ?? "";
 }
 
+function redirectToApp(url: string): string {
+  const parsed = new URL(url);
+  parsed.searchParams.set("callbackURL", env.APP_URL);
+  return parsed.toString();
+}
+
 export const sendResetPasswordEmail = async ({
   user,
   url,
@@ -30,7 +36,7 @@ export const sendVerificationEmail = async ({
 }: Readonly<{ user: EmailUser; url: string }>): Promise<void> => {
   const email = await buildVerifyEmail({
     firstName: firstNameOf(user.name),
-    url,
+    url: redirectToApp(url),
   });
   await sendSystemEmail({ to: user.email, ...email });
 };
@@ -47,7 +53,7 @@ export const sendChangeEmailConfirmation = async ({
   const email = await buildChangeEmailEmail({
     firstName: firstNameOf(user.name),
     newEmail,
-    url,
+    url: redirectToApp(url),
   });
   await sendSystemEmail({ to: user.email, ...email });
 };
