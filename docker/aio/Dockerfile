@@ -4,17 +4,25 @@
 
 # ---- web build (same-origin: SPA calls /api/* on its own origin) ----
 FROM oven/bun:1.3.14 AS web
-WORKDIR /web
-COPY apps/web/package.json apps/web/bun.lock ./
-RUN bun install --frozen-lockfile
-COPY apps/web/ ./
+WORKDIR /repo
+COPY package.json bun.lock ./
+COPY apps/web/package.json ./apps/web/package.json
+COPY apps/api/package.json ./apps/api/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
+RUN bun install --frozen-lockfile --filter '@app/web'
+COPY packages ./packages
+COPY apps/web ./apps/web
+WORKDIR /repo/apps/web
 ENV VITE_API_URL=""
 RUN bun run build
 
 # ---- api production deps ----
 FROM oven/bun:1.3.14 AS api-deps
-WORKDIR /api
-COPY apps/api/package.json apps/api/bun.lock ./
+WORKDIR /repo
+COPY package.json bun.lock bunfig.toml ./
+COPY apps/api/package.json ./apps/api/package.json
+COPY apps/web/package.json ./apps/web/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
 RUN bun install --frozen-lockfile --production
 
 # ---- runtime ----
@@ -26,12 +34,12 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app/api
-COPY --from=api-deps /api/node_modules ./node_modules
+COPY --from=api-deps /repo/node_modules ./node_modules
 COPY apps/api/package.json apps/api/tsconfig.json ./
 COPY apps/api/src ./src
 COPY apps/api/scripts ./scripts
 COPY apps/api/migrations ./migrations
-COPY --from=web /web/dist /usr/share/nginx/html
+COPY --from=web /repo/apps/web/dist /usr/share/nginx/html
 
 COPY docker/aio/nginx.conf /etc/nginx/sites-available/default
 COPY docker/aio/supervisord.conf /etc/supervisor/tanchi.conf
