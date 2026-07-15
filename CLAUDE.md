@@ -20,7 +20,7 @@ app and take precedence when you work inside it:
 bun install          # whole workspace
 bun run dev          # api + web in parallel
 bun run typecheck    # api + web
-bun test             # api tests
+bun run test         # api tests
 bun run migrate      # API SQL migrations
 ```
 

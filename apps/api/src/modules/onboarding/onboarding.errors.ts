@@ -7,6 +7,7 @@ export enum SignUpErrors {
   emailAlreadyExists = "emailAlreadyExists",
   signUpFailed = "signUpFailed",
   organizationCreationFailed = "organizationCreationFailed",
+  signupDisabled = "signupDisabled",
 }
 
 export enum OnboardingStateErrors {

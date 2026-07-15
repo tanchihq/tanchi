@@ -42,7 +42,10 @@ export async function createAccount(): Promise<Account> {
   const email = `user-${unique}@example.test`;
   const signUp = await request("/api/v1/onboarding/sign-up", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      "x-forwarded-for": `account-${unique}`,
+    },
     body: JSON.stringify({
       email,
       password: DEFAULT_PASSWORD,

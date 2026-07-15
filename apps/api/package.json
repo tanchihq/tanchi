@@ -1,5 +1,6 @@
 {
   "name": "@app/api",
+  "private": true,
   "scripts": {
     "dev": "bun --env-file=../../.env --hot src/index.ts",
     "migrate": "bun --env-file=../../.env scripts/migrate.ts",

@@ -1,5 +1,15 @@
 import { db } from "../../src/db.ts";
 
+const databaseUrl = process.env.DATABASE_URL;
+if (
+  databaseUrl === undefined ||
+  !new URL(databaseUrl).pathname.slice(1).includes("test")
+) {
+  throw new Error(
+    '[test] refusing to run: DATABASE_URL must point at a database whose name contains "test"'
+  );
+}
+
 export { db };
 
 export async function truncateAll(): Promise<void> {

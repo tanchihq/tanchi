@@ -5,7 +5,12 @@ import {
   jsonRequest,
   request,
 } from "../helpers/client.ts";
-import { truncateAll } from "../helpers/db.ts";
+import { db, truncateAll } from "../helpers/db.ts";
+import { auth } from "@shared/auth";
+import { OnboardingService } from "../../src/modules/onboarding/onboarding.service.ts";
+import { SignUpErrors } from "../../src/modules/onboarding/onboarding.errors.ts";
+import { OnboardingRepository } from "../../src/modules/onboarding/repository/onboarding/onboarding.repository.ts";
+import { OnboardingPostgres } from "../../src/modules/onboarding/repository/onboarding/onboarding.postgres.ts";
 
 const SIGN_UP_PATH = "/api/v1/onboarding/sign-up";
 const STATE_PATH = "/api/v1/onboarding/state";
@@ -17,6 +22,7 @@ const VALID_PASSWORD = "TestPassword12345";
 const MAX_DRAFT_ICPS = 10;
 const MAX_ICPS = 3;
 const MAX_STEP = 3;
+const SIGN_UP_RATE_LIMIT = 10;
 
 type SignUpBody = Readonly<{
   email: string;
@@ -40,8 +46,15 @@ const signUpPayload = (
   };
 };
 
-const signUp = (body: SignUpBody) =>
-  jsonRequest(SIGN_UP_PATH, null, "POST", body);
+const signUp = (body: SignUpBody, ip: string = `ip-${Bun.randomUUIDv7()}`) =>
+  request(SIGN_UP_PATH, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-forwarded-for": ip,
+    },
+    body: JSON.stringify(body),
+  });
 
 const validIcp = () => ({
   name: "Founders",
@@ -140,6 +153,45 @@ describe("onboarding sign-up: duplicate email", () => {
     const dup = await signUp(signUpPayload({ email: first.email }));
     expect(dup.status).toBe(409);
     expect((await dup.json()).message).toBe("emailAlreadyExists");
+  });
+});
+
+describe("onboarding sign-up: rate limiting per client", () => {
+  it("returns 429 rateLimited after SIGN_UP_RATE_LIMIT=10 attempts from the same client", async () => {
+    const ip = `ratelimit-${Bun.randomUUIDv7()}`;
+    const allowed = await Promise.all(
+      Array.from({ length: SIGN_UP_RATE_LIMIT }, () =>
+        signUp(signUpPayload(), ip)
+      )
+    );
+    allowed.map((res) => expect(res.status).toBe(201));
+
+    const blocked = await signUp(signUpPayload(), ip);
+    expect(blocked.status).toBe(429);
+    expect((await blocked.json()).message).toBe("rateLimited");
+  });
+
+  it("does not throttle sign-ups coming from distinct clients", async () => {
+    const first = await signUp(signUpPayload());
+    const second = await signUp(signUpPayload());
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(201);
+  });
+});
+
+describe("onboarding sign-up: DISABLE_SIGNUP flag", () => {
+  it("returns signupDisabled without creating the user when signup is disabled", async () => {
+    const disabledService = new OnboardingService(
+      auth,
+      new OnboardingRepository(new OnboardingPostgres(db)),
+      true
+    );
+    const body = signUpPayload();
+    const result = await disabledService.signUp(body);
+    expect(result).toBe(SignUpErrors.signupDisabled);
+
+    const stillAvailable = await signUp(body);
+    expect(stillAvailable.status).toBe(201);
   });
 });
 

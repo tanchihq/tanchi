@@ -37,6 +37,8 @@ const signUp =
             return throwSanitizeError(SignUpErrors.invalidCompany);
           case SignUpErrors.emailAlreadyExists:
             return throwSanitizeError(SignUpErrors.emailAlreadyExists);
+          case SignUpErrors.signupDisabled:
+            return throwSanitizeError(SignUpErrors.signupDisabled);
           case SignUpErrors.organizationCreationFailed:
             return throwSanitizeError(SignUpErrors.organizationCreationFailed);
           default:

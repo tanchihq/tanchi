@@ -24,12 +24,15 @@ export type SignUpSuccess = Readonly<{
 export class OnboardingService {
   constructor(
     private readonly auth: Auth,
-    private readonly onboardingRepository: OnboardingRepository
+    private readonly onboardingRepository: OnboardingRepository,
+    private readonly signupDisabled: boolean
   ) {}
 
   async signUp(
     dto: RequestDto.SignUpDto
   ): Promise<SignUpSuccess | SignUpErrors> {
+    if (this.signupDisabled) return SignUpErrors.signupDisabled;
+
     const name = `${dto.firstName} ${dto.lastName}`;
 
     if (await this.onboardingRepository.existsUserByEmail(dto.email)) {

@@ -46,9 +46,8 @@ First-order product requirement. A salesperson opens the app in the evening, val
 
 ## Code conventions
 
-These conventions are aligned with the `Sweescape/SweeBadge` repo. When a doubt
-remains, we go see how it's done over there. The project is meant to become
-open source: the code must be exemplary.
+These conventions are the project's own and this file is their single source of
+truth. The project is open source: the code must be exemplary.
 
 ### Clarity: no comments
 
@@ -57,8 +56,6 @@ open source: the code must be exemplary.
   names. Zero `//` and zero `/* */`.
 
 ### View & component structure
-
-Modeled on `SweeBadge/src/views/authenticated/event`.
 
 - A view (route) = a folder with **`index.tsx`** (main component, default
   export), **`utils.ts`** for helpers, a **`hooks/`** folder for the

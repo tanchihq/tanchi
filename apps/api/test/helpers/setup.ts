@@ -4,8 +4,14 @@ import { applyMigrations, ensureTestDatabase } from "./migrate.ts";
 const ENCRYPTION_KEY_BYTES = 32;
 
 process.env.NODE_ENV = "test";
-process.env.DATABASE_URL ??=
-  "postgres://postgres:postgres@localhost:5432/tanchi_test";
+const configuredDatabaseUrl = new URL(
+  process.env.DATABASE_URL ??
+    "postgres://postgres:postgres@localhost:5432/tanchi_test"
+);
+if (!configuredDatabaseUrl.pathname.slice(1).includes("test")) {
+  configuredDatabaseUrl.pathname = "/tanchi_test";
+}
+process.env.DATABASE_URL = configuredDatabaseUrl.toString();
 process.env.REDIS_URL ??= "redis://localhost:6379";
 process.env.AUTH_SECRET = "test-auth-secret-that-is-at-least-32-characters";
 process.env.ENCRYPTION_KEY = Buffer.alloc(ENCRYPTION_KEY_BYTES).toString(

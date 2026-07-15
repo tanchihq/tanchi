@@ -61,7 +61,7 @@ bun run dev            # api + web in parallel
 bun run dev:api        # api only  (http://localhost:3000)
 bun run dev:web        # web only  (http://localhost:5173)
 bun run typecheck      # typecheck api + web
-bun test               # api tests
+bun run test           # api tests
 ```
 
 The API needs PostgreSQL and Redis. Simplest in dev:
@@ -79,12 +79,10 @@ The API test suite is end-to-end: it drives the real Hono app against a real Pos
 
 ```bash
 docker compose up -d postgres redis
-docker compose exec -T postgres createdb -U postgres tanchi_test
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/tanchi_test bun run migrate
-bun test                # runs the API suite (from apps/api)
+bun run test            # runs the API suite (creates and migrates tanchi_test itself)
 ```
 
-`bun test` defaults to `postgres://postgres:postgres@localhost:5432/tanchi_test` and `redis://localhost:6379`; override `DATABASE_URL` / `REDIS_URL` to point elsewhere. Every route of every module is covered, with multi-tenant isolation, auth, input-validation and secret-non-leakage assertions.
+The suite defaults to `postgres://postgres:postgres@localhost:5432/tanchi_test` and `redis://localhost:6379`; override `DATABASE_URL` / `REDIS_URL` to point elsewhere. As a safety net it refuses any database whose name does not contain `test`, and rewrites the database name to `tanchi_test` when `DATABASE_URL` points at a non-test database. Every route of every module is covered, with multi-tenant isolation, auth, input-validation and secret-non-leakage assertions.
 
 ---
 
@@ -109,7 +107,7 @@ Each app keeps its own `README.md` and `CLAUDE.md` (the backend and frontend con
 
 ## Contributing
 
-Contributions are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md). In short: Bun only, follow each app's conventions, `bun run typecheck` and `bun test` green before any PR.
+Contributions are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md). In short: Bun only, follow each app's conventions, `bun run typecheck` and `bun run test` green before any PR.
 
 ## License
 

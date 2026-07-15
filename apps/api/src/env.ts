@@ -25,6 +25,7 @@ const envSchema = z.object({
   RUN_WORKERS: z.enum(["true", "false"]).default("true"),
 
   REQUIRE_EMAIL_VERIFICATION: z.enum(["true", "false"]).default("true"),
+  DISABLE_SIGNUP: z.enum(["true", "false"]).default("false"),
   MAIL_FROM_EMAIL: z
     .string()
     .min(1)
