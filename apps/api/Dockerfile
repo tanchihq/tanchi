@@ -1,9 +1,13 @@
 # syntax=docker/dockerfile:1
+# Build context = repo root (the workspace lockfile lives there).
 
-# ---- deps: production dependencies only, cached on the lockfile ----
+# ---- deps: production dependencies only, cached on the workspace lockfile ----
 FROM oven/bun:1.3.14-slim AS deps
-WORKDIR /app
-COPY package.json bun.lock ./
+WORKDIR /repo
+COPY package.json bun.lock bunfig.toml ./
+COPY apps/api/package.json ./apps/api/package.json
+COPY apps/web/package.json ./apps/web/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
 RUN bun install --frozen-lockfile --production
 
 # ---- release: final image (prod + dev) ----
@@ -20,12 +24,12 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends curl ca-certificates git \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY package.json bun.lock tsconfig.json ./
-COPY src ./src
-COPY scripts ./scripts
-COPY migrations ./migrations
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY --from=deps /repo/node_modules ./node_modules
+COPY apps/api/package.json apps/api/tsconfig.json ./
+COPY apps/api/src ./src
+COPY apps/api/scripts ./scripts
+COPY apps/api/migrations ./migrations
+COPY apps/api/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # the non-root `bun` user is provided by the image
