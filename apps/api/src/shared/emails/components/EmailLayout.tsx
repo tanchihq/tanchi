@@ -45,14 +45,10 @@ const brandRow = {
 const wordmark = {
   fontFamily: fontStack,
   fontSize: "19px",
-  fontWeight: 700,
-  letterSpacing: "-0.02em",
+  fontWeight: 600,
+  letterSpacing: "-0.04em",
   color: palette.ink,
   margin: 0,
-};
-
-const wordmarkAccent = {
-  color: palette.brand,
 };
 
 const footer = {
@@ -92,9 +88,7 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
         <Container style={container}>
           <Section style={card}>
             <Section style={brandRow}>
-              <Text style={wordmark}>
-                Swee<span style={wordmarkAccent}>Leads</span>
-              </Text>
+              <Text style={wordmark}>tanchi</Text>
             </Section>
             {children}
           </Section>
