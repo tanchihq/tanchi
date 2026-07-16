@@ -5,6 +5,7 @@ export enum EngineErrors {
   noActiveOrganization = 'noActiveOrganization',
   noIcps = 'noIcps',
   runFailed = 'runFailed',
+  subscriptionExpired = 'subscriptionExpired',
 }
 
 export type EngineRunSummaryDto = Readonly<{

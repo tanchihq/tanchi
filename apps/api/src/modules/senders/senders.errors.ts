@@ -8,6 +8,8 @@ export enum CreateSenderErrors {
   invalidSecret = "invalidSecret",
   invalidDailyCap = "invalidDailyCap",
   invalidSignature = "invalidSignature",
+  subscriptionExpired = "subscriptionExpired",
+  senderLimitReached = "senderLimitReached",
   createFailed = "createFailed",
 }
 

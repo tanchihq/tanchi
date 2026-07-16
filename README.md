@@ -24,12 +24,25 @@ The heart of the project — sourcing, the intelligence pipeline, the agents, th
 Everything (PostgreSQL, Redis, API, web) in a single image. You only need Docker and an Anthropic API key.
 
 ```bash
+docker run -it --name tanchi \
+  -p 8080:8080 \
+  -v tanchi-data:/var/lib/postgresql/data \
+  tanchihq/tanchi
+```
+
+On first run with a terminal attached (`-it`), a short setup wizard asks how you want to use Claude (API key or the `claude` CLI), for an optional Hunter.io key and optional SMTP, saves everything to the data volume, then starts. Next runs skip the wizard.
+
+Prefer a fully non-interactive start (CI, one-liner)? Pass the key as an env var instead — the wizard is skipped when no terminal is attached:
+
+```bash
 docker run -d --name tanchi \
   -p 8080:8080 \
   -e ANTHROPIC_API_KEY=sk-ant-... \
   -v tanchi-data:/var/lib/postgresql/data \
   tanchihq/tanchi
 ```
+
+To reconfigure later: `docker exec -it tanchi entrypoint.sh setup`, then restart the container. If you picked the `claude` CLI provider, authenticate once with `docker exec -it tanchi claude` (mount `-v tanchi-claude:/root/.claude` to keep the session).
 
 Open http://localhost:8080. Database migrations run automatically; session secrets are generated and persisted to the data volume on first boot. Because the web app and API are served same-origin behind one port, cookie auth works out of the box over `http://localhost`.
 

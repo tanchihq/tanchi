@@ -24,6 +24,11 @@ const envSchema = z.object({
 
   RUN_WORKERS: z.enum(["true", "false"]).default("true"),
 
+  BILLING_ENABLED: z.enum(["true", "false"]).default("false"),
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_SOLO_PRICE_ID: z.string().optional(),
+
   REQUIRE_EMAIL_VERIFICATION: z.enum(["true", "false"]).default("true"),
   DISABLE_SIGNUP: z.enum(["true", "false"]).default("false"),
   MAIL_FROM_EMAIL: z
@@ -46,3 +51,21 @@ export const ENV_KEYS: ReadonlyArray<string> = Object.keys(envSchema.shape);
 export const env: Env = envSchema.parse(process.env);
 
 export const isDevelopment = env.NODE_ENV === "development";
+export const isBillingEnabled = env.BILLING_ENABLED === "true";
+
+const MISSING_STRIPE_VARS = [
+  ["STRIPE_SECRET_KEY", env.STRIPE_SECRET_KEY],
+  ["STRIPE_WEBHOOK_SECRET", env.STRIPE_WEBHOOK_SECRET],
+  ["STRIPE_SOLO_PRICE_ID", env.STRIPE_SOLO_PRICE_ID],
+] as const;
+
+if (isBillingEnabled) {
+  const missing = MISSING_STRIPE_VARS.filter(
+    ([, value]) => value === undefined || value === ""
+  ).map(([name]) => name);
+  if (missing.length > 0) {
+    throw new Error(
+      `BILLING_ENABLED=true requires ${missing.join(", ")} to be set`
+    );
+  }
+}

@@ -1,3 +1,4 @@
+import { getBillingAccess } from "@shared/billing";
 import { decryptSecret, encryptSecret } from "@shared/crypto";
 import { verifyMailbox } from "@shared/mailbox";
 import type { SendersRepository } from "./repository/senders/senders.repository.ts";
@@ -23,6 +24,20 @@ export class SendersService {
     const organizationId = resolveActiveOrganization(activeOrganizationId);
     if (organizationId === null) {
       return CreateSenderErrors.noActiveOrganization;
+    }
+
+    const access = await getBillingAccess(organizationId);
+    if (access.state === "expired") {
+      return CreateSenderErrors.subscriptionExpired;
+    }
+    if (Number.isFinite(access.entitlements.senders)) {
+      const existing =
+        await this.sendersRepository.getManySendersByOrganization(
+          organizationId
+        );
+      if (existing.length >= access.entitlements.senders) {
+        return CreateSenderErrors.senderLimitReached;
+      }
     }
 
     try {

@@ -1,3 +1,8 @@
+import {
+  getBillingAccess,
+  getRemainingMonthlyLeads,
+  incrementMonthlyUsage,
+} from "@shared/billing";
 import type { LlmProvider } from "@shared/llm";
 import { agentModel } from "@shared/llm";
 import type { SourcingProvider } from "@shared/sourcing";
@@ -109,20 +114,34 @@ export class ChasseurService {
       [...leadEmails, ...excludedEmails].map((email) => email.toLowerCase())
     );
 
-    const leadsPerDay =
-      await this.engineRepository.getLeadsPerDay(organizationId);
+    const [leadsPerDay, access] = await Promise.all([
+      this.engineRepository.getLeadsPerDay(organizationId),
+      getBillingAccess(organizationId),
+    ]);
+    const remainingMonthlyLeads = await getRemainingMonthlyLeads(
+      organizationId,
+      access.entitlements
+    );
+    const budget = Math.min(leadsPerDay, remainingMonthlyLeads);
+    if (budget <= 0) {
+      console.log(
+        `[engine:chasseur] monthly lead quota reached orgId=${organizationId}, sourcing skipped`
+      );
+      return 0;
+    }
     let created = 0;
     for (const icp of icps) {
-      if (created >= leadsPerDay) break;
+      if (created >= budget) break;
       created += await this.sourceForIcp(
         organizationId,
         icp,
         offer,
         existingDomains,
         existingEmails,
-        leadsPerDay - created
+        budget - created
       );
     }
+    await incrementMonthlyUsage(organizationId, "leads", created);
     return created;
   }
 

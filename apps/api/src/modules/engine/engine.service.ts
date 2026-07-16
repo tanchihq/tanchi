@@ -3,6 +3,7 @@ import type { ChasseurService } from "./agents/chasseur/chasseur.service.ts";
 import type { ProfilerService } from "./agents/profiler/profiler.service.ts";
 import type { CopywriterService } from "./agents/copywriter/copywriter.service.ts";
 import { recordActivity } from "@shared/activity";
+import { getBillingAccess } from "@shared/billing";
 import { sendSystemEmail } from "@shared/mailer";
 import { buildAgentRecapEmail } from "@shared/emails";
 import { env } from "../../env.ts";
@@ -37,6 +38,11 @@ export class EngineService {
     const organizationId = resolveActiveOrganization(activeOrganizationId);
     if (organizationId === null) {
       return RunEngineErrors.noActiveOrganization;
+    }
+
+    const access = await getBillingAccess(organizationId);
+    if (access.state === "expired") {
+      return RunEngineErrors.subscriptionExpired;
     }
 
     const icps =

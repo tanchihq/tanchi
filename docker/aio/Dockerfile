@@ -30,8 +30,14 @@ FROM oven/bun:1.3.14
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-     postgresql postgresql-client redis-server nginx supervisor openssl curl ca-certificates \
+     postgresql postgresql-client redis-server nginx supervisor openssl curl ca-certificates git \
   && rm -rf /var/lib/apt/lists/*
+
+# `claude` CLI so the wizard's "cli" provider choice works out of the box.
+# Auth: docker exec -it tanchi claude — mount a volume on /root/.claude to
+# persist the session across container recreations.
+RUN curl -fsSL https://claude.ai/install.sh | bash
+ENV PATH="/root/.local/bin:${PATH}"
 
 WORKDIR /app/api
 COPY --from=api-deps /repo/node_modules ./node_modules

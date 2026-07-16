@@ -1,3 +1,8 @@
+import {
+  getBillingAccess,
+  getMonthlyUsage,
+  incrementMonthlyUsage,
+} from "@shared/billing";
 import type { LlmProvider } from "@shared/llm";
 import { agentModel } from "@shared/llm";
 import { todayLabel } from "@shared/utils";
@@ -146,6 +151,20 @@ export class ChatService {
       yield { type: "error", error: SendMessageErrors.notInMyOrg };
       return;
     }
+
+    const access = await getBillingAccess(organizationId);
+    if (access.state === "expired") {
+      yield { type: "error", error: SendMessageErrors.subscriptionExpired };
+      return;
+    }
+    if (Number.isFinite(access.entitlements.monthlyChatMessages)) {
+      const usage = await getMonthlyUsage(organizationId);
+      if (usage.chatMessages >= access.entitlements.monthlyChatMessages) {
+        yield { type: "error", error: SendMessageErrors.chatQuotaReached };
+        return;
+      }
+    }
+    await incrementMonthlyUsage(organizationId, "chat_messages", 1);
 
     const title =
       conversation.title === ""

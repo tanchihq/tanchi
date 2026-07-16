@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import SettingsSection from './settings-section/SettingsSection';
+import BillingSection from './billing-section/BillingSection';
 import IcpEditor from './icp-editor/IcpEditor';
 import SearchSendDaysEditor from './search-send-days-editor/SearchSendDaysEditor';
 import FollowUpEditor from './follow-up-editor/FollowUpEditor';
@@ -247,6 +248,9 @@ const Settings = () => {
             </SettingsSection>
           </form>
         </Form>
+        <div className="mx-auto mt-4 flex max-w-[720px] flex-col gap-4 pb-7">
+          <BillingSection />
+        </div>
       </div>
     </AppScreen>
   );
