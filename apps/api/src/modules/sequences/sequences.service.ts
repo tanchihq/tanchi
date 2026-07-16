@@ -1,4 +1,5 @@
 import { recordActivity } from "@shared/activity";
+import { getBillingAccess } from "@shared/billing";
 import type { LlmProvider } from "@shared/llm";
 import type { SequencesRepository } from "./repository/sequences/sequences.repository.ts";
 import type {
@@ -46,6 +47,14 @@ export class SequencesService {
   }
 
   async processOrganization(organizationId: string): Promise<void> {
+    const access = await getBillingAccess(organizationId);
+    if (access.state === "expired") {
+      console.log(
+        `[sequences] org=${organizationId} skipped (subscription expired)`
+      );
+      return;
+    }
+
     const config =
       await this.sequencesRepository.getSequenceConfig(organizationId);
     if (config === null) return;

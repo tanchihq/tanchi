@@ -23,6 +23,8 @@ export enum SendMessageErrors {
   notInMyOrg = "notInMyOrg",
   llmFailed = "llmFailed",
   sendFailed = "sendFailed",
+  subscriptionExpired = "subscriptionExpired",
+  chatQuotaReached = "chatQuotaReached",
 }
 
 export enum AttachLeadErrors {

@@ -17,6 +17,7 @@ import { activityRouter } from "./modules/activity/activity.module.ts";
 import { suppressionRouter } from "./modules/suppression/suppression.module.ts";
 import { messagesRouter } from "./modules/messages/messages.module.ts";
 import { chatRouter } from "./modules/chat/chat.module.ts";
+import { billingRouter } from "./modules/billing/billing.module.ts";
 import { closeQueues } from "@shared/queue";
 import { closeRateLimit } from "@shared/ratelimit";
 import { env } from "./env.ts";
@@ -63,6 +64,7 @@ api.route("/activity", activityRouter);
 api.route("/suppression", suppressionRouter);
 api.route("/messages", messagesRouter);
 api.route("/chat", chatRouter);
+api.route("/billing", billingRouter);
 
 api.get("/me", requireAuth(), (c) =>
   c.json({ user: c.get("user"), session: c.get("session") })

@@ -89,6 +89,10 @@ const run = async (): Promise<void> => {
   put("LLM_PROVIDER", provider);
   if (provider === "api") {
     put("ANTHROPIC_API_KEY", await ask("Anthropic API key", ""));
+  } else if (aioMode) {
+    console.log(
+      "  cli mode: after startup, run `docker exec -it tanchi claude` once to authenticate."
+    );
   } else {
     console.log(
       "  cli mode uses the local `claude` binary; authenticate it before use."

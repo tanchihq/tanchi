@@ -11,6 +11,7 @@ import * as activity from './activity';
 import * as messages from './messages';
 import * as suppression from './suppression';
 import * as chat from './chat';
+import * as billing from './billing';
 
 const { axiosInstance } = instances;
 
@@ -62,6 +63,8 @@ const deleteConversationAxios = chat.deleteConversation(axiosInstance);
 const attachChatLeadAxios = chat.attachLead(axiosInstance);
 const detachChatLeadAxios = chat.detachLead(axiosInstance);
 
+const getBillingStatusAxios = billing.getBillingStatus(axiosInstance);
+
 export {
   getSessionAxios,
   signUpAxios,
@@ -99,4 +102,5 @@ export {
   deleteConversationAxios,
   attachChatLeadAxios,
   detachChatLeadAxios,
+  getBillingStatusAxios,
 };

@@ -12,6 +12,9 @@ const useRunEngine = ({ onDone }: UseRunEngineProps) =>
         case EngineErrors.noIcps:
           toast.error('Configure at least one ICP in Settings first.');
           break;
+        case EngineErrors.subscriptionExpired:
+          toast.error('Your trial has ended. Subscribe in Settings to keep going.');
+          break;
         default:
           toast.error("Couldn't run the engine, please try again.");
       }

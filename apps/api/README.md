@@ -155,6 +155,19 @@ An unknown ID is ignored (fallback to the default). Allowed models: `claude-opus
 - **Open source, self-hosted, free.** You plug in your key, you host, you take on your own compliance and sourcing.
 - **Hosted SaaS, paid.** Managed usage, billing, updates. Model for billed internal use and for resale.
 
+### Billing (hosted offering)
+
+Billing is entirely opt-in via `BILLING_ENABLED` (default `false`). Self-hosted instances never touch Stripe and run without any limit.
+
+When enabled (`BILLING_ENABLED=true` + `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_SOLO_PRICE_ID`):
+
+- **One plan, Solo** — 300 leads processed/month, 1 seat, 1 sender, 3 ICPs, 500 copilot messages/month. Limits live in `src/shared/billing/constants.ts`; the price lives on the Stripe price (`STRIPE_SOLO_PRICE_ID`).
+- **14-day trial, no card** — starts at organization creation, capped at 50 leads and 50 copilot messages.
+- **On expiry: read-only + engine stopped.** Nightly runs, manual runs and follow-up drafting skip the org; the copilot and new senders are blocked. Data, the review queue and sending already-drafted messages stay available. Nothing is deleted.
+- Subscriptions are handled by the `@better-auth/stripe` plugin (checkout, webhook at `/api/v1/auth/stripe/webhook`, `subscription` table keyed on the organization id). Monthly usage is tracked in `usage_counters` and enforced in the engine (Hunter cap), chat and senders services.
+
+Point the Stripe webhook at `https://<api-domain>/api/v1/auth/stripe/webhook` with the events `checkout.session.completed`, `customer.subscription.updated` and `customer.subscription.deleted`.
+
 ---
 
 ## Roadmap

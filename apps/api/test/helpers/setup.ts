@@ -20,6 +20,7 @@ process.env.ENCRYPTION_KEY = Buffer.alloc(ENCRYPTION_KEY_BYTES).toString(
 process.env.LLM_PROVIDER = "api";
 process.env.ANTHROPIC_API_KEY = "test-anthropic-key";
 process.env.RUN_WORKERS = "false";
+process.env.BILLING_ENABLED = "false";
 process.env.REQUIRE_EMAIL_VERIFICATION = "false";
 process.env.APP_URL = "http://localhost";
 process.env.AUTH_BASE_URL = "http://localhost";

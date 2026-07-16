@@ -44,6 +44,9 @@ export function createSendersRouter(sendersService: SendersService) {
             return sendError(context, 400, result);
           case CreateSenderErrors.noActiveOrganization:
             return sendError(context, 409, result);
+          case CreateSenderErrors.subscriptionExpired:
+          case CreateSenderErrors.senderLimitReached:
+            return sendError(context, 403, result);
           case CreateSenderErrors.createFailed:
             return sendError(context, 500, result);
         }

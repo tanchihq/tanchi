@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import type { Queue } from "bullmq";
+import { getBillingAccess } from "@shared/billing";
 import { sendError } from "@shared/errors";
 import { requireAuth, type AuthVariables } from "@shared/middleware/requireAuth.ts";
 import { rateLimit } from "@shared/ratelimit";
@@ -44,6 +45,11 @@ export function createEngineRouter(engineQueue: Queue, analysteQueue: Queue) {
       const organizationId = resolveActiveOrganization(session);
       if (organizationId === null) {
         return sendError(context, 409, RunEngineErrors.noActiveOrganization);
+      }
+
+      const access = await getBillingAccess(organizationId);
+      if (access.state === "expired") {
+        return sendError(context, 403, RunEngineErrors.subscriptionExpired);
       }
 
       await engineQueue.add(

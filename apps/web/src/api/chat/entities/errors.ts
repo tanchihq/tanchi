@@ -8,6 +8,8 @@ export enum ChatErrors {
   createFailed = 'createFailed',
   llmFailed = 'llmFailed',
   sendFailed = 'sendFailed',
+  subscriptionExpired = 'subscriptionExpired',
+  chatQuotaReached = 'chatQuotaReached',
   attachFailed = 'attachFailed',
   detachFailed = 'detachFailed',
   deleteFailed = 'deleteFailed',

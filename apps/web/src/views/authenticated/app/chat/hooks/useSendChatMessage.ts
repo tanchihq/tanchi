@@ -25,6 +25,12 @@ const errorToast = (code: string): void => {
     case ChatErrors.llmFailed:
       toast.error('The assistant could not respond. Please try again.');
       break;
+    case ChatErrors.subscriptionExpired:
+      toast.error('Your trial has ended. Subscribe in Settings to keep going.');
+      break;
+    case ChatErrors.chatQuotaReached:
+      toast.error('Monthly copilot quota reached. It resets on the 1st.');
+      break;
     default:
       toast.error("Couldn't send the message, please try again.");
   }

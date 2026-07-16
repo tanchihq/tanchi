@@ -1,7 +1,14 @@
 import { betterAuth } from "better-auth";
 import { openAPI, organization } from "better-auth/plugins";
+import { stripe } from "@better-auth/stripe";
+import Stripe from "stripe";
 import { db } from "../../db.ts";
-import { env, isDevelopment } from "../../env.ts";
+import { env, isBillingEnabled, isDevelopment } from "../../env.ts";
+import {
+  SOLO_ENTITLEMENTS,
+  SOLO_PLAN_NAME,
+  TRIAL_DURATION_DAYS,
+} from "../billing/constants.ts";
 import { postgresAdapter } from "./adapter.ts";
 import {
   sendChangeEmailConfirmation,
@@ -29,6 +36,53 @@ async function resolveActiveOrganizationId(
     LIMIT 1
   `;
   return rows[0]?.organization_id;
+}
+
+async function isOrganizationOwner(
+  userId: string,
+  organizationId: string
+): Promise<boolean> {
+  const rows = await db<ReadonlyArray<Readonly<{ role: string }>>>`
+    SELECT role
+    FROM member
+    WHERE user_id = ${userId} AND organization_id = ${organizationId}
+    LIMIT 1
+  `;
+  const role = rows[0]?.role;
+  return role === "owner" || role === "admin";
+}
+
+function buildStripePlugin() {
+  const secretKey = env.STRIPE_SECRET_KEY;
+  const webhookSecret = env.STRIPE_WEBHOOK_SECRET;
+  const soloPriceId = env.STRIPE_SOLO_PRICE_ID;
+  if (
+    !isBillingEnabled ||
+    secretKey === undefined ||
+    webhookSecret === undefined ||
+    soloPriceId === undefined
+  ) {
+    return [];
+  }
+  return [
+    stripe({
+      stripeClient: new Stripe(secretKey),
+      stripeWebhookSecret: webhookSecret,
+      subscription: {
+        enabled: true,
+        requireEmailVerification: true,
+        plans: [
+          {
+            name: SOLO_PLAN_NAME,
+            priceId: soloPriceId,
+            freeTrial: { days: TRIAL_DURATION_DAYS },
+          },
+        ],
+        authorizeReference: ({ user, referenceId }) =>
+          isOrganizationOwner(user.id, referenceId),
+      },
+    }),
+  ];
 }
 
 export const auth = betterAuth({
@@ -104,7 +158,11 @@ export const auth = betterAuth({
   plugins: [
     organization({
       sendInvitationEmail: sendOrganizationInvitationEmail,
+      ...(isBillingEnabled
+        ? { membershipLimit: SOLO_ENTITLEMENTS.seats }
+        : {}),
     }),
+    ...buildStripePlugin(),
     ...(isDevelopment ? [openAPI()] : []),
   ],
 });
