@@ -52,6 +52,8 @@ export const env: Env = envSchema.parse(process.env);
 
 export const isDevelopment = env.NODE_ENV === "development";
 export const isBillingEnabled = env.BILLING_ENABLED === "true";
+export const isEmailVerificationRequired =
+  env.REQUIRE_EMAIL_VERIFICATION === "true";
 
 const MISSING_STRIPE_VARS = [
   ["STRIPE_SECRET_KEY", env.STRIPE_SECRET_KEY],
