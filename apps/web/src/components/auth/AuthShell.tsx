@@ -9,6 +9,7 @@ type AuthShellProps = Readonly<{
   footerText: string;
   footerLinkLabel: string;
   footerTo: string;
+  onFooterClick?: () => void;
   children: ReactNode;
 }>;
 
@@ -19,6 +20,7 @@ const AuthShell = ({
   footerText,
   footerLinkLabel,
   footerTo,
+  onFooterClick,
   children,
 }: AuthShellProps) => (
   <div className="bg-night-900 relative min-h-screen w-full overflow-hidden">
@@ -56,9 +58,19 @@ const AuthShell = ({
 
           <div className="text-ink-soft mt-[22px] text-center text-[13px]">
             {footerText}{' '}
-            <Link to={footerTo} className="text-brand-600 no-underline">
-              {footerLinkLabel}
-            </Link>
+            {onFooterClick === undefined ? (
+              <Link to={footerTo} className="text-brand-600 no-underline">
+                {footerLinkLabel}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={onFooterClick}
+                className="text-brand-600 cursor-pointer"
+              >
+                {footerLinkLabel}
+              </button>
+            )}
           </div>
         </div>
 

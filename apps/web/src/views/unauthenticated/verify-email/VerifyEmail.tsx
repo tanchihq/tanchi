@@ -9,7 +9,7 @@ import { useResendVerificationEmail } from './hooks/useResendVerificationEmail';
 type LocationState = Readonly<{ email?: string }> | null;
 
 const VerifyEmail = () => {
-  const { state } = useAuth();
+  const { state, signOut } = useAuth();
   const location = useLocation();
   const { onFetch, isLoading, status } = useResendVerificationEmail();
 
@@ -34,6 +34,7 @@ const VerifyEmail = () => {
       footerText="Wrong account?"
       footerLinkLabel="Sign in"
       footerTo="/sign-in"
+      onFooterClick={signOut}
     >
       <div className="flex flex-col gap-4">
         <p className="text-center text-[13px] leading-[1.5] text-[#A7ACB8]">
