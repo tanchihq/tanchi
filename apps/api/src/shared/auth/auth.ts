@@ -3,7 +3,12 @@ import { openAPI, organization } from "better-auth/plugins";
 import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
 import { db } from "../../db.ts";
-import { env, isBillingEnabled, isDevelopment } from "../../env.ts";
+import {
+  env,
+  isBillingEnabled,
+  isDevelopment,
+  isEmailVerificationRequired,
+} from "../../env.ts";
 import {
   SOLO_ENTITLEMENTS,
   SOLO_PLAN_NAME,
@@ -70,7 +75,7 @@ function buildStripePlugin() {
       stripeWebhookSecret: webhookSecret,
       subscription: {
         enabled: true,
-        requireEmailVerification: true,
+        requireEmailVerification: isEmailVerificationRequired,
         plans: [
           {
             name: SOLO_PLAN_NAME,
@@ -97,13 +102,13 @@ export const auth = betterAuth({
     autoSignIn: false,
     minPasswordLength: MIN_PASSWORD_LENGTH,
     maxPasswordLength: MAX_PASSWORD_LENGTH,
-    requireEmailVerification: env.REQUIRE_EMAIL_VERIFICATION === "true",
+    requireEmailVerification: false,
     sendResetPassword: sendResetPasswordEmail,
   },
   emailVerification: {
     sendVerificationEmail,
     sendOnSignUp: true,
-    sendOnSignIn: true,
+    sendOnSignIn: false,
     autoSignInAfterVerification: true,
   },
   user: {
