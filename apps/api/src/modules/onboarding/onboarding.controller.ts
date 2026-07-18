@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { captureEvent } from "@shared/analytics";
 import { zValidator } from "@hono/zod-validator";
 import { sendError } from "@shared/errors";
 import { requireAuth, type AuthVariables } from "@shared/middleware/requireAuth.ts";
@@ -97,6 +98,11 @@ export function createOnboardingRouter(onboardingService: OnboardingService) {
             return sendError(context, 400, result);
         }
 
+        captureEvent({
+          distinctId: context.get("user").id,
+          event: "onboarding_step_saved",
+          properties: { step: dto.step },
+        });
         return context.json(result);
       }
     )
@@ -126,6 +132,11 @@ export function createOnboardingRouter(onboardingService: OnboardingService) {
             return sendError(context, 500, result);
         }
 
+        captureEvent({
+          distinctId: context.get("user").id,
+          event: "onboarding_completed",
+          properties: { icpCount: dto.icps.length },
+        });
         return context.json(result);
       }
     )

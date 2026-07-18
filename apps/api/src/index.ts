@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { shutdownAnalytics } from "@shared/analytics";
 import { AppError, sendError, type HttpErrorStatus } from "@shared/errors";
 import { auth } from "@shared/auth";
 import { requireAuth } from "@shared/middleware/requireAuth.ts";
@@ -83,7 +84,7 @@ if (env.RUN_WORKERS === "true") {
 
 const shutdown = async (signal: string): Promise<void> => {
   console.log(`[shutdown] ${signal} received, closing queues...`);
-  await Promise.all([closeQueues(), closeRateLimit()]);
+  await Promise.all([closeQueues(), closeRateLimit(), shutdownAnalytics()]);
   process.exit(0);
 };
 process.on("SIGINT", () => {
