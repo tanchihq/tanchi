@@ -1,4 +1,5 @@
 import { APIError } from "better-auth/api";
+import { captureEvent } from "@shared/analytics";
 import { generateCompanyProfile } from "@shared/company-profile";
 import type { auth as authInstance } from "@shared/auth";
 import type { OnboardingRepository } from "./repository/onboarding/onboarding.repository.ts";
@@ -68,6 +69,19 @@ export class OnboardingService {
       await this.safeDeleteUser(userId);
       return SignUpErrors.signUpFailed;
     }
+
+    captureEvent({
+      distinctId: userId,
+      event: "signed_up",
+      properties: { organizationId, company: dto.company },
+      personProperties: {
+        email: dto.email,
+        name,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        company: dto.company,
+      },
+    });
 
     return {
       setCookies,

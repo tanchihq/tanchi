@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { openAPI, organization } from "better-auth/plugins";
 import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
+import { captureEvent } from "@shared/analytics";
 import { db } from "../../db.ts";
 import {
   env,
@@ -43,6 +44,34 @@ async function resolveActiveOrganizationId(
   return rows[0]?.organization_id;
 }
 
+async function getOrganizationOwnerId(
+  organizationId: string
+): Promise<string | null> {
+  const rows = await db<ReadonlyArray<Readonly<{ user_id: string }>>>`
+    SELECT user_id
+    FROM member
+    WHERE organization_id = ${organizationId}
+      AND role IN ('owner', 'admin')
+    ORDER BY created_at ASC
+    LIMIT 1
+  `;
+  return rows[0]?.user_id ?? null;
+}
+
+async function captureSubscriptionEvent(
+  organizationId: string,
+  event: string,
+  properties: Readonly<Record<string, string | number | boolean | null>>
+): Promise<void> {
+  const ownerId = await getOrganizationOwnerId(organizationId);
+  if (ownerId === null) return;
+  captureEvent({
+    distinctId: ownerId,
+    event,
+    properties: { organizationId, ...properties },
+  });
+}
+
 async function isOrganizationOwner(
   userId: string,
   organizationId: string
@@ -80,9 +109,26 @@ function buildStripePlugin() {
           {
             name: SOLO_PLAN_NAME,
             priceId: soloPriceId,
-            freeTrial: { days: TRIAL_DURATION_DAYS },
+            freeTrial: {
+              days: TRIAL_DURATION_DAYS,
+              onTrialStart: async (subscription) => {
+                await captureSubscriptionEvent(
+                  subscription.referenceId,
+                  "trial_started",
+                  { plan: subscription.plan }
+                );
+              },
+            },
           },
         ],
+        onSubscriptionUpdate: async ({ subscription }) => {
+          if (subscription.status !== "active") return;
+          await captureSubscriptionEvent(
+            subscription.referenceId,
+            "subscription_activated",
+            { plan: subscription.plan }
+          );
+        },
         authorizeReference: ({ user, referenceId }) =>
           isOrganizationOwner(user.id, referenceId),
       },

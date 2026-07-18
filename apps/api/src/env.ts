@@ -29,6 +29,9 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   STRIPE_SOLO_PRICE_ID: z.string().optional(),
 
+  POSTHOG_API_KEY: z.string().optional(),
+  POSTHOG_HOST: z.url().default("https://eu.i.posthog.com"),
+
   REQUIRE_EMAIL_VERIFICATION: z.enum(["true", "false"]).default("true"),
   DISABLE_SIGNUP: z.enum(["true", "false"]).default("false"),
   MAIL_FROM_EMAIL: z

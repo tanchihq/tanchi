@@ -22,6 +22,7 @@
     "ioredis": "^5.11.1",
     "nodemailer": "^9.0.3",
     "postgres": "^3.4.9",
+    "posthog-node": "^5.45.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "stripe": "^22.3.1",

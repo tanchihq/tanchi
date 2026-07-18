@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useReducer } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { identifyUser, resetAnalytics } from '@/analytics/posthog';
 import { useAsyncEvent } from '@/hooks/useAsyncEvent';
 import { getSessionAxios, getOnboardingStateAxios } from '@/api/api';
 import { authClient } from '@/api/auth-client';
@@ -19,12 +20,14 @@ const AuthProvider = ({ children }: Readonly<{ children: ReactNode }>) => {
   const [state, dispatch] = useReducer(authReducer, INITIAL_AUTH_STATE);
 
   const { onFetch: resolveSession } = useAsyncEvent<ResolvedSession, void>({
-    onSuccess: ({ returnedData }) =>
+    onSuccess: ({ returnedData }) => {
+      identifyUser(returnedData.user);
       dispatch({
         type: 'AUTHENTICATED',
         user: returnedData.user,
         onboarding: returnedData.onboarding,
-      }),
+      });
+    },
     onError: () => dispatch({ type: 'UNAUTHENTICATED' }),
     promise: async () => {
       const me = await getSessionAxios();
@@ -49,10 +52,12 @@ const AuthProvider = ({ children }: Readonly<{ children: ReactNode }>) => {
 
   const { onFetch: fetchSignOut } = useAsyncEvent<void, void>({
     onSuccess: () => {
+      resetAnalytics();
       dispatch({ type: 'UNAUTHENTICATED' });
       navigate('/sign-in');
     },
     onError: () => {
+      resetAnalytics();
       dispatch({ type: 'UNAUTHENTICATED' });
       navigate('/sign-in');
     },
