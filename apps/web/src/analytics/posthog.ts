@@ -8,6 +8,7 @@ export const initAnalytics = () => {
   if (key === undefined || key === '') return;
   posthog.init(key, {
     api_host: host,
+    ui_host: 'https://eu.posthog.com',
     defaults: '2025-05-24',
   });
 };
