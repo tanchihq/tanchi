@@ -66,7 +66,7 @@ api.route("/messages", messagesRouter);
 api.route("/chat", chatRouter);
 api.route("/billing", billingRouter);
 
-api.get("/me", requireAuth(), (c) =>
+api.get("/me", requireAuth({ requireVerifiedEmail: false }), (c) =>
   c.json({ user: c.get("user"), session: c.get("session") })
 );
 
