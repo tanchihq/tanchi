@@ -18,7 +18,11 @@ RUN bun install --frozen-lockfile --filter '@app/web'
 COPY packages ./packages
 COPY apps/web ./apps/web
 ARG VITE_API_URL
-ENV VITE_API_URL=${VITE_API_URL}
+ARG VITE_POSTHOG_KEY
+ARG VITE_POSTHOG_HOST
+ENV VITE_API_URL=${VITE_API_URL} \
+    VITE_POSTHOG_KEY=${VITE_POSTHOG_KEY} \
+    VITE_POSTHOG_HOST=${VITE_POSTHOG_HOST}
 WORKDIR /repo/apps/web
 RUN bun run build
 
