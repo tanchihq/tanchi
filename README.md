@@ -1,10 +1,22 @@
-# Tanchi
+<p align="center">
+  <img src=".github/assets/banner.jpg" alt="Tanchi — open-source AI prospecting" width="100%" />
+</p>
 
-[![CI](https://github.com/tanchihq/tanchi/actions/workflows/ci.yml/badge.svg)](https://github.com/tanchihq/tanchi/actions/workflows/ci.yml)
-[![Docker image](https://github.com/tanchihq/tanchi/actions/workflows/docker.yml/badge.svg)](https://github.com/tanchihq/tanchi/actions/workflows/docker.yml)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](./LICENSE)
+<h3 align="center">Your prospecting runs at night. You approve in the morning.</h3>
 
-> Autonomous B2B prospecting engine — open source, self-hostable. The AI sources, researches, writes and follows up every night. You stay in control of what gets sent. The system learns from what actually converts, not from what looks nice.
+<p align="center">
+  Autonomous B2B prospecting engine — open source, self-hostable.<br/>
+  The AI sources, researches, writes and follows up every night. You stay in control of what gets sent.
+</p>
+
+<p align="center">
+  <a href="https://github.com/tanchihq/tanchi/actions/workflows/ci.yml"><img src="https://github.com/tanchihq/tanchi/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/tanchihq/tanchi/actions/workflows/docker.yml"><img src="https://github.com/tanchihq/tanchi/actions/workflows/docker.yml/badge.svg" alt="Docker" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg" alt="License: AGPL v3" /></a>
+  <a href="https://tanchi.io"><img src="https://img.shields.io/badge/website-tanchi.io-0501F0" alt="Website" /></a>
+</p>
+
+> The system learns from what actually converts, not from what looks nice.
 
 Tanchi takes the opposite stance to most AI prospecting tools:
 
@@ -13,7 +25,16 @@ Tanchi takes the opposite stance to most AI prospecting tools:
 - **Qualitative learning first.** We distill, in plain language, what converts per ICP before any statistics. Interpretable, correctable, effective from month one.
 - **We measure replies and meetings, never opens.**
 
+> **tanchi** (探知) means "detection" in Japanese — the radar sweeping the dark for signals.
+
 The heart of the project — sourcing, the intelligence pipeline, the agents, the learning loop — is described in **[apps/api/README-moteur.md](./apps/api/README-moteur.md)**.
+
+<!-- TODO: add screenshot-pipeline.png and screenshot-lead.png to .github/assets/ -->
+<!--
+<p align="center">
+  <img src=".github/assets/screenshot-pipeline.png" alt="Tanchi — nightly pipeline" width="100%" />
+</p>
+-->
 
 ---
 
@@ -126,4 +147,4 @@ Contributions are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md). In short
 
 [AGPL-3.0](./LICENSE). You may host and modify Tanchi freely; if you offer a modified version as a network service, you must publish its source.
 
-Status: pre-alpha. Internal use first, public opening in progress.
+Status: early. Built for and battle-tested on our own company's prospecting. Expect rough edges — issues and PRs welcome.
