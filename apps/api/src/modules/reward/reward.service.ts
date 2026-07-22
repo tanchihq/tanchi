@@ -76,8 +76,14 @@ export class RewardService {
     const replies = await this.tryFetch(sender, since);
     let processed = 0;
     for (const reply of replies) {
-      if (await this.processReply(sender.organization_id, reply)) {
-        processed += 1;
+      try {
+        if (await this.processReply(sender.organization_id, reply)) {
+          processed += 1;
+        }
+      } catch (error) {
+        console.error(
+          `[reward] processReply failed senderId=${sender.id} from=${reply.fromEmail}: ${errorMessage(error)}`
+        );
       }
     }
     return processed;
