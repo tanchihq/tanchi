@@ -35,6 +35,14 @@ export function createWorker<T>(
   processor: Processor<T>
 ): Worker<T> {
   const worker = new Worker<T>(name, processor, { connection });
+  worker.on("failed", (job, error) => {
+    console.error(
+      `[queue:${name}] job ${job?.name ?? "?"} failed: ${error.message}`
+    );
+  });
+  worker.on("error", (error) => {
+    console.error(`[queue:${name}] worker error: ${error.message}`);
+  });
   openWorkers.push(worker);
   return worker;
 }

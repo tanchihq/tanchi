@@ -120,7 +120,7 @@ function extractBodyText(source: Buffer): string {
   const raw = source.toString("utf8");
   const separator = raw.indexOf("\r\n\r\n");
   const body = separator === -1 ? raw : raw.slice(separator + 4);
-  return htmlToText(body).slice(0, 5000);
+  return htmlToText(body).replace(/\u0000/g, "").slice(0, 5000);
 }
 
 export async function fetchRecentReplies(
@@ -133,6 +133,9 @@ export async function fetchRecentReplies(
     secure: credentials.imapSecure,
     auth: { user: credentials.username, pass: credentials.secret },
     logger: false,
+  });
+  client.on("error", (error: Error) => {
+    console.error(`[mailbox] imap error: ${error.message}`);
   });
 
   const replies: Array<MailboxReply> = [];
