@@ -1,6 +1,7 @@
 import type { DbClient } from "@shared/db";
 import { ARRAY, throwSanitizeError } from "@shared/utils";
 import type {
+  PgRewardDomainLead,
   PgRewardLead,
   PgRewardSender,
   RecordReplyInput,
@@ -34,6 +35,22 @@ export class RewardPostgres {
         LIMIT 1
       `;
       return result[ARRAY.FIRST_INDEX] ?? null;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async getLeadsByEmailDomain(
+    organizationId: string,
+    domain: string
+  ): Promise<ReadonlyArray<PgRewardDomainLead>> {
+    try {
+      return await this.db<ReadonlyArray<PgRewardDomainLead>>`
+        SELECT id, stage, LOWER(email) AS email FROM leads
+        WHERE organization_id = ${organizationId}
+          AND SPLIT_PART(LOWER(email), '@', 2) = ${domain}
+        ORDER BY created_at DESC
+      `;
     } catch (error) {
       return throwSanitizeError(error);
     }
