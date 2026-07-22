@@ -8,9 +8,19 @@ import { agentModel } from "@shared/llm";
 import { todayLabel } from "@shared/utils";
 import { ENV_KEYS } from "../../env.ts";
 import type { ChatRepository } from "./repository/chat/chat.repository.ts";
-import { buildResearchPrompt, buildRewritePrompt } from "./chat.prompt.ts";
-import { extractJson, optionalString, parseDate } from "./chat.utils.ts";
 import {
+  buildAngleInferencePrompt,
+  buildResearchPrompt,
+  buildRewritePrompt,
+} from "./chat.prompt.ts";
+import {
+  extractJson,
+  lengthBucket,
+  optionalString,
+  parseDate,
+} from "./chat.utils.ts";
+import {
+  ANGLE_INFERENCE_MAX_TOKENS,
   MCP_SERVER_NAME,
   RESEARCH_TIMEOUT_MS,
   REWRITE_MAX_TOKENS,
@@ -379,6 +389,22 @@ async function fetchContext(
   }
 }
 
+async function inferAngleType(
+  deps: ExecutorDeps,
+  body: string
+): Promise<string | null> {
+  try {
+    const raw = await deps.llm.generate({
+      prompt: buildAngleInferencePrompt(body),
+      maxTokens: ANGLE_INFERENCE_MAX_TOKENS,
+      model: agentModel("copywriter"),
+    });
+    return raw.trim().toLowerCase().split(/\s+/)[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function rewriteDraft(
   deps: ExecutorDeps,
   input: Record<string, unknown>
@@ -433,12 +459,15 @@ async function rewriteDraft(
   }
   if (body === null) return "Error: the rewrite produced no message body.";
 
+  const angleTypeInferred = await inferAngleType(deps, body);
   await deps.repository.saveDraftForLead({
     organizationId: deps.organizationId,
     leadId,
     icpId: lead.icp_id,
     subject,
     body,
+    angleTypeInferred,
+    lengthBucket: lengthBucket(body),
   });
   return `Saved a new draft for ${name}. Subject: ${subject ?? "(none)"}. The user can review and send it.\n\n${body}`;
 }

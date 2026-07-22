@@ -69,6 +69,16 @@ export function buildRewritePrompt(context: RewriteContext): string {
     .join("\n");
 }
 
+export function buildAngleInferencePrompt(body: string): string {
+  return [
+    "Classify the dominant angle of this prospecting message.",
+    "Answer with ONE single word among: event, funding, hiring, connection, social_proof, pain, curiosity.",
+    "",
+    "Message:",
+    body,
+  ].join("\n");
+}
+
 function leadName(context: PgLeadContext): string {
   const name = [context.first_name, context.last_name]
     .filter((part) => part !== null && part !== "")

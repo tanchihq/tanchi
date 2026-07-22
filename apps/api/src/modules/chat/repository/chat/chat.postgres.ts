@@ -394,12 +394,12 @@ export class ChatPostgres {
       await this.db`
         INSERT INTO messages (
           id, organization_id, lead_id, icp_id, channel, subject, body,
-          status, origin
+          status, origin, angle_type_inferred, length_bucket
         )
         VALUES (
           ${Bun.randomUUIDv7()}, ${input.organizationId}, ${input.leadId},
           ${input.icpId}, 'email', ${input.subject}, ${input.body},
-          'draft', 'manual'
+          'draft', 'manual', ${input.angleTypeInferred}, ${input.lengthBucket}
         )
       `;
     } catch (error) {

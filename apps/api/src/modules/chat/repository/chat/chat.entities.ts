@@ -94,6 +94,8 @@ type SaveDraftInput = Readonly<{
   icpId: string | null;
   subject: string | null;
   body: string;
+  angleTypeInferred: string | null;
+  lengthBucket: string | null;
 }>;
 
 type RecordSentMessageInput = Readonly<{
