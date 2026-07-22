@@ -59,6 +59,13 @@ export function parseDate(value: string | null): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+export function lengthBucket(body: string): string {
+  const length = body.length;
+  if (length < 400) return "short";
+  if (length < 900) return "medium";
+  return "long";
+}
+
 export function extractJson(raw: string): unknown {
   const fenced = raw.replace(/```json/gi, "```");
   const withoutFences = fenced.replace(/```/g, "");

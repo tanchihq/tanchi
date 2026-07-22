@@ -7,7 +7,7 @@ export const CHASSEUR_TOP_VALUES_PER_DIMENSION = 3;
 export const HUNTER_MIN_CONFIDENCE = 50;
 
 export const COPY_TEMPERATURE = 0.9;
-export const EXPLORATION_RATE = 0.2;
+export const EXPLORATION_RATE = 0.3;
 
 export const PROFILER_FETCH_TIMEOUT_MS = 15000;
 
