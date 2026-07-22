@@ -1,5 +1,6 @@
 import type { RewardPostgres } from "./reward.postgres.ts";
 import type {
+  PgRewardDomainLead,
   PgRewardLead,
   PgRewardSender,
   RecordReplyInput,
@@ -17,6 +18,13 @@ export class RewardRepository {
     email: string
   ): Promise<PgRewardLead | null> {
     return this.rewardPostgres.getLeadByEmail(organizationId, email);
+  }
+
+  getLeadsByEmailDomain(
+    organizationId: string,
+    domain: string
+  ): Promise<ReadonlyArray<PgRewardDomainLead>> {
+    return this.rewardPostgres.getLeadsByEmailDomain(organizationId, domain);
   }
 
   hasRepliedOutcome(leadId: string): Promise<boolean> {

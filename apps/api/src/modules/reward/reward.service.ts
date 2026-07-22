@@ -9,9 +9,14 @@ import {
 import type { LlmProvider } from "@shared/llm";
 import { agentModel } from "@shared/llm";
 import type { RewardRepository } from "./repository/reward/reward.repository.ts";
-import type { PgRewardSender } from "./repository/reward/reward.entities.ts";
+import type {
+  PgRewardLead,
+  PgRewardSender,
+} from "./repository/reward/reward.entities.ts";
 import {
+  AUTOMATED_LOCAL_PARTS,
   CLASSIFY_MAX_TOKENS,
+  PUBLIC_EMAIL_DOMAINS,
   REPLY_POLL_SINCE_MINUTES,
 } from "./reward.constants.ts";
 import { buildClassifyPrompt } from "./reward.prompt.ts";
@@ -19,6 +24,10 @@ import { buildClassifyPrompt } from "./reward.prompt.ts";
 type Classification = "positive" | "negative" | "later" | "neutral";
 
 const MINUTE_MS = 60 * 1000;
+
+const PUBLIC_DOMAIN_SET: ReadonlySet<string> = new Set(PUBLIC_EMAIL_DOMAINS);
+
+const AUTOMATED_LOCAL_SET: ReadonlySet<string> = new Set(AUTOMATED_LOCAL_PARTS);
 
 const STAGE_BY_CLASSIFICATION: Readonly<Record<Classification, string>> = {
   positive: "meeting",
@@ -88,14 +97,37 @@ export class RewardService {
     }
   }
 
+  private async findLead(
+    organizationId: string,
+    fromEmail: string
+  ): Promise<PgRewardLead | null> {
+    const exact = await this.rewardRepository.getLeadByEmail(
+      organizationId,
+      fromEmail
+    );
+    if (exact !== null) return exact;
+
+    const [localPart, domain = ""] = fromEmail.split("@");
+    if (domain === "" || PUBLIC_DOMAIN_SET.has(domain)) return null;
+    if (localPart !== undefined && AUTOMATED_LOCAL_SET.has(localPart)) {
+      return null;
+    }
+
+    const domainLeads = await this.rewardRepository.getLeadsByEmailDomain(
+      organizationId,
+      domain
+    );
+    const distinctEmails = new Set(domainLeads.map((lead) => lead.email));
+    if (distinctEmails.size !== 1) return null;
+    const lead = domainLeads[0];
+    return lead === undefined ? null : { id: lead.id, stage: lead.stage };
+  }
+
   private async processReply(
     organizationId: string,
     reply: MailboxReply
   ): Promise<boolean> {
-    const lead = await this.rewardRepository.getLeadByEmail(
-      organizationId,
-      reply.fromEmail
-    );
+    const lead = await this.findLead(organizationId, reply.fromEmail);
     if (lead === null) return false;
     if (await this.rewardRepository.hasRepliedOutcome(lead.id)) return false;
 

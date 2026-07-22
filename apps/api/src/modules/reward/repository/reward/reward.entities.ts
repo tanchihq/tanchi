@@ -16,6 +16,12 @@ type PgRewardLead = Readonly<{
   stage: string;
 }>;
 
+type PgRewardDomainLead = Readonly<{
+  id: string;
+  stage: string;
+  email: string;
+}>;
+
 type RecordReplyInput = Readonly<{
   organizationId: string;
   leadId: string;
@@ -25,4 +31,9 @@ type RecordReplyInput = Readonly<{
   stage: string;
 }>;
 
-export type { PgRewardLead, PgRewardSender, RecordReplyInput };
+export type {
+  PgRewardDomainLead,
+  PgRewardLead,
+  PgRewardSender,
+  RecordReplyInput,
+};
