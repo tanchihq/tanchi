@@ -35,7 +35,14 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # the non-root `bun` user is provided by the image
 USER bun
 ENV HOME=/home/bun
-RUN curl -fsSL https://claude.ai/install.sh | bash
+# Supply-chain: the installer is pinned by sha256 and never piped straight to
+# a shell. Bump CLAUDE_INSTALLER_SHA256 when Anthropic rotates the script.
+ARG CLAUDE_CODE_VERSION=stable
+ARG CLAUDE_INSTALLER_SHA256=cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125
+RUN curl -fsSL https://claude.ai/install.sh -o /tmp/claude-install.sh \
+  && echo "${CLAUDE_INSTALLER_SHA256}  /tmp/claude-install.sh" | sha256sum -c - \
+  && bash /tmp/claude-install.sh "${CLAUDE_CODE_VERSION}" \
+  && rm -f /tmp/claude-install.sh
 ENV PATH="/home/bun/.local/bin:${PATH}"
 
 EXPOSE 3000

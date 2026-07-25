@@ -29,20 +29,26 @@ export class SendersRepository {
 
   updateOneSender(
     id: string,
-    input: UpdateSenderInput
+    input: UpdateSenderInput,
+    organizationId: string
   ): Promise<PgSender | null> {
     const update = utils.convertUpdateSenderInputToPgSenderUpdate(input);
-    return this.sendersPostgres.updateOneSender(id, update);
+    return this.sendersPostgres.updateOneSender(id, update, organizationId);
   }
 
   updateOneSenderVerification(
     id: string,
-    input: UpdateSenderVerificationInput
+    input: UpdateSenderVerificationInput,
+    organizationId: string
   ): Promise<void> {
-    return this.sendersPostgres.updateOneSenderVerification(id, input);
+    return this.sendersPostgres.updateOneSenderVerification(
+      id,
+      input,
+      organizationId
+    );
   }
 
-  deleteOneSender(id: string): Promise<void> {
-    return this.sendersPostgres.deleteOneSender(id);
+  deleteOneSender(id: string, organizationId: string): Promise<void> {
+    return this.sendersPostgres.deleteOneSender(id, organizationId);
   }
 }

@@ -4,7 +4,10 @@ import {
   GetSuppressionErrors,
   ImportSuppressionErrors,
 } from "./suppression.errors.ts";
-import { EXCLUSION_LIST_LIMIT } from "./suppression.constants.ts";
+import {
+  EXCLUSION_LIST_LIMIT,
+  MAX_IMPORT_EMAILS,
+} from "./suppression.constants.ts";
 import type * as RequestDto from "./dto/request/index.ts";
 import type * as ResponseDto from "./dto/response/index.ts";
 import * as utils from "./suppression.utils.ts";
@@ -24,7 +27,7 @@ export class SuppressionService {
     }
 
     const text = await dto.file.text();
-    const emails = utils.extractEmails(text);
+    const emails = utils.extractEmails(text).slice(0, MAX_IMPORT_EMAILS);
     if (emails.length === 0) {
       return ImportSuppressionErrors.noEmailsFound;
     }

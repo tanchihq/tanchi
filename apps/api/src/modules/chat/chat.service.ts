@@ -180,7 +180,11 @@ export class ChatService {
         content: dto.content,
       });
       if (conversation.title === "") {
-        await this.chatRepository.setConversationTitle(id, title);
+        await this.chatRepository.setConversationTitle(
+          id,
+          title,
+          organizationId
+        );
       }
     } catch (error) {
       console.error(
@@ -252,7 +256,7 @@ export class ChatService {
         role: "assistant",
         content: finalReply,
       });
-      await this.chatRepository.touchConversation(id);
+      await this.chatRepository.touchConversation(id, organizationId);
       yield {
         type: "done",
         message: utils.convertPgChatMessageToDto(assistantMessage),
@@ -289,7 +293,7 @@ export class ChatService {
 
     try {
       await this.chatRepository.attachLead(id, dto.leadId);
-      await this.chatRepository.touchConversation(id);
+      await this.chatRepository.touchConversation(id, organizationId);
     } catch (error) {
       console.error(
         `[chat] attachLead failed conversationId=${id}: ${errorMessage(error)}`

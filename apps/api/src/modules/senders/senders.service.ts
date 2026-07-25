@@ -1,6 +1,11 @@
 import { getBillingAccess } from "@shared/billing";
 import { decryptSecret, encryptSecret } from "@shared/crypto";
-import { verifyMailbox } from "@shared/mailbox";
+import {
+  isAllowedImapPort,
+  isAllowedSmtpPort,
+  verifyMailbox,
+} from "@shared/mailbox";
+import { isPublicHost } from "@shared/web";
 import type { SendersRepository } from "./repository/senders/senders.repository.ts";
 import type { PgSender } from "./repository/senders/senders.entities.ts";
 import {
@@ -24,6 +29,16 @@ export class SendersService {
     const organizationId = resolveActiveOrganization(activeOrganizationId);
     if (organizationId === null) {
       return CreateSenderErrors.noActiveOrganization;
+    }
+
+    if (!isAllowedSmtpPort(dto.smtpPort) || !isAllowedImapPort(dto.imapPort)) {
+      return CreateSenderErrors.invalidPort;
+    }
+    if (
+      !(await isPublicHost(dto.smtpHost)) ||
+      !(await isPublicHost(dto.imapHost))
+    ) {
+      return CreateSenderErrors.invalidHost;
     }
 
     const access = await getBillingAccess(organizationId);
@@ -97,27 +112,44 @@ export class SendersService {
       return UpdateSenderErrors.notInMyOrg;
     }
 
+    if (
+      (dto.smtpPort !== undefined && !isAllowedSmtpPort(dto.smtpPort)) ||
+      (dto.imapPort !== undefined && !isAllowedImapPort(dto.imapPort))
+    ) {
+      return UpdateSenderErrors.invalidPort;
+    }
+    if (
+      (dto.smtpHost !== undefined && !(await isPublicHost(dto.smtpHost))) ||
+      (dto.imapHost !== undefined && !(await isPublicHost(dto.imapHost)))
+    ) {
+      return UpdateSenderErrors.invalidHost;
+    }
+
     const resetVerification = connectionChanged(dto, sender);
     try {
-      const updated = await this.sendersRepository.updateOneSender(senderId, {
-        fromName: dto.fromName ?? sender.from_name,
-        fromEmail: dto.fromEmail ?? sender.from_email,
-        smtpHost: dto.smtpHost ?? sender.smtp_host,
-        smtpPort: dto.smtpPort ?? sender.smtp_port,
-        smtpSecure: dto.smtpSecure ?? sender.smtp_secure,
-        imapHost: dto.imapHost ?? sender.imap_host,
-        imapPort: dto.imapPort ?? sender.imap_port,
-        imapSecure: dto.imapSecure ?? sender.imap_secure,
-        username: dto.username ?? sender.username,
-        secretEncrypted:
-          dto.secret === undefined
-            ? sender.secret_encrypted
-            : encryptSecret(dto.secret),
-        dailyCap: dto.dailyCap ?? sender.daily_cap,
-        signature: dto.signature ?? sender.signature,
-        status: resetVerification ? "unverified" : sender.status,
-        lastVerifiedAt: resetVerification ? null : sender.last_verified_at,
-      });
+      const updated = await this.sendersRepository.updateOneSender(
+        senderId,
+        {
+          fromName: dto.fromName ?? sender.from_name,
+          fromEmail: dto.fromEmail ?? sender.from_email,
+          smtpHost: dto.smtpHost ?? sender.smtp_host,
+          smtpPort: dto.smtpPort ?? sender.smtp_port,
+          smtpSecure: dto.smtpSecure ?? sender.smtp_secure,
+          imapHost: dto.imapHost ?? sender.imap_host,
+          imapPort: dto.imapPort ?? sender.imap_port,
+          imapSecure: dto.imapSecure ?? sender.imap_secure,
+          username: dto.username ?? sender.username,
+          secretEncrypted:
+            dto.secret === undefined
+              ? sender.secret_encrypted
+              : encryptSecret(dto.secret),
+          dailyCap: dto.dailyCap ?? sender.daily_cap,
+          signature: dto.signature ?? sender.signature,
+          status: resetVerification ? "unverified" : sender.status,
+          lastVerifiedAt: resetVerification ? null : sender.last_verified_at,
+        },
+        organizationId
+      );
       if (updated === null) return UpdateSenderErrors.inexistingSender;
       return utils.convertPgSenderToSenderDto(updated);
     } catch (error) {
@@ -146,7 +178,7 @@ export class SendersService {
     }
 
     try {
-      await this.sendersRepository.deleteOneSender(senderId);
+      await this.sendersRepository.deleteOneSender(senderId, organizationId);
     } catch (error) {
       console.error(
         `[senders] deleteSender failed senderId=${senderId}: ${
@@ -175,10 +207,14 @@ export class SendersService {
 
     const result = await verifyMailbox(toMailboxCredentials(sender));
 
-    await this.sendersRepository.updateOneSenderVerification(senderId, {
-      status: result.ok ? "active" : "error",
-      lastVerifiedAt: result.ok ? new Date() : sender.last_verified_at,
-    });
+    await this.sendersRepository.updateOneSenderVerification(
+      senderId,
+      {
+        status: result.ok ? "active" : "error",
+        lastVerifiedAt: result.ok ? new Date() : sender.last_verified_at,
+      },
+      organizationId
+    );
 
     if (!result.ok) {
       console.error(

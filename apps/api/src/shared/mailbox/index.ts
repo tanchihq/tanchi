@@ -1,6 +1,30 @@
 import nodemailer from "nodemailer";
 import { ImapFlow } from "imapflow";
-import { htmlToText } from "@shared/web";
+import { htmlToText, isPublicHost } from "@shared/web";
+
+const ALLOWED_SMTP_PORTS: ReadonlySet<number> = new Set([25, 465, 587, 2525]);
+const ALLOWED_IMAP_PORTS: ReadonlySet<number> = new Set([143, 993]);
+
+export function isAllowedSmtpPort(port: number): boolean {
+  return ALLOWED_SMTP_PORTS.has(port);
+}
+
+export function isAllowedImapPort(port: number): boolean {
+  return ALLOWED_IMAP_PORTS.has(port);
+}
+
+async function assertMailEndpoint(
+  host: string,
+  port: number,
+  allowed: (port: number) => boolean
+): Promise<void> {
+  if (!allowed(port)) throw new Error("mail port not allowed");
+  if (!(await isPublicHost(host))) throw new Error("mail host not allowed");
+}
+
+function assertNoHeaderInjection(value: string): void {
+  if (/[\r\n]/.test(value)) throw new Error("mail header injection detected");
+}
 
 export type MailboxCredentials = Readonly<{
   smtpHost: string;
@@ -39,6 +63,11 @@ async function verifySmtp(
 ): Promise<MailboxVerifyResult> {
   const transporter = createSmtpTransport(credentials);
   try {
+    await assertMailEndpoint(
+      credentials.smtpHost,
+      credentials.smtpPort,
+      isAllowedSmtpPort
+    );
     await transporter.verify();
     return { ok: true };
   } catch (error) {
@@ -65,6 +94,11 @@ async function verifyImap(
     logger: false,
   });
   try {
+    await assertMailEndpoint(
+      credentials.imapHost,
+      credentials.imapPort,
+      isAllowedImapPort
+    );
     await client.connect();
     await client.logout();
     return { ok: true };
@@ -98,6 +132,15 @@ export async function sendEmail(
 ): Promise<void> {
   const transporter = createSmtpTransport(credentials);
   try {
+    await assertMailEndpoint(
+      credentials.smtpHost,
+      credentials.smtpPort,
+      isAllowedSmtpPort
+    );
+    assertNoHeaderInjection(message.to);
+    assertNoHeaderInjection(message.subject);
+    assertNoHeaderInjection(message.fromName);
+    assertNoHeaderInjection(message.fromEmail);
     await transporter.sendMail({
       from: `"${message.fromName}" <${message.fromEmail}>`,
       to: message.to,
@@ -139,6 +182,11 @@ export async function fetchRecentReplies(
   });
 
   const replies: Array<MailboxReply> = [];
+  await assertMailEndpoint(
+    credentials.imapHost,
+    credentials.imapPort,
+    isAllowedImapPort
+  );
   await client.connect();
   const lock = await client.getMailboxLock("INBOX");
   try {

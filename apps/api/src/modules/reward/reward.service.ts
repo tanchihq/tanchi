@@ -1,6 +1,6 @@
 import { recordActivity } from "@shared/activity";
 import { decryptSecret } from "@shared/crypto";
-import { todayLabel } from "@shared/utils";
+import { ARRAY, todayLabel } from "@shared/utils";
 import {
   fetchRecentReplies,
   type MailboxCredentials,
@@ -167,10 +167,11 @@ export class RewardService {
         maxTokens: CLASSIFY_MAX_TOKENS,
         model: agentModel("reward"),
       });
-      const word = raw.trim().toLowerCase();
-      if (word.includes("positive")) return "positive";
-      if (word.includes("negative")) return "negative";
-      if (word.includes("later")) return "later";
+      const word =
+        raw.trim().toLowerCase().match(/[a-z]+/)?.[ARRAY.FIRST_INDEX] ?? "";
+      if (word === "positive") return "positive";
+      if (word === "negative") return "negative";
+      if (word === "later") return "later";
       return "neutral";
     } catch {
       return "neutral";

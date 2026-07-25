@@ -83,9 +83,13 @@ export class ChatPostgres {
     try {
       const result = await this.db<ReadonlyArray<PgChatMessage>>`
         INSERT INTO chat_messages (id, organization_id, conversation_id, role, content)
-        VALUES (
+        SELECT
           ${Bun.randomUUIDv7()}, ${input.organizationId},
           ${input.conversationId}, ${input.role}, ${input.content}
+        WHERE EXISTS (
+          SELECT 1 FROM chat_conversations
+          WHERE id = ${input.conversationId}
+            AND organization_id = ${input.organizationId}
         )
         RETURNING id, role, content, created_at
       `;
@@ -95,21 +99,29 @@ export class ChatPostgres {
     }
   }
 
-  async touchConversation(id: string): Promise<void> {
+  async touchConversation(
+    id: string,
+    organizationId: string
+  ): Promise<void> {
     try {
       await this.db`
-        UPDATE chat_conversations SET updated_at = NOW() WHERE id = ${id}
+        UPDATE chat_conversations SET updated_at = NOW()
+        WHERE id = ${id} AND organization_id = ${organizationId}
       `;
     } catch (error) {
       return throwSanitizeError(error);
     }
   }
 
-  async setConversationTitle(id: string, title: string): Promise<void> {
+  async setConversationTitle(
+    id: string,
+    title: string,
+    organizationId: string
+  ): Promise<void> {
     try {
       await this.db`
         UPDATE chat_conversations SET title = ${title}, updated_at = NOW()
-        WHERE id = ${id}
+        WHERE id = ${id} AND organization_id = ${organizationId}
       `;
     } catch (error) {
       return throwSanitizeError(error);

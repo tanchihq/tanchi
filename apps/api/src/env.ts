@@ -2,6 +2,9 @@ import { z } from "zod";
 
 const AUTH_SECRET_MIN_LENGTH = 32;
 const ENCRYPTION_KEY_MIN_LENGTH = 44;
+const PLACEHOLDER_SECRET = /change-me/i;
+const notPlaceholder = (value: string): boolean =>
+  !PLACEHOLDER_SECRET.test(value);
 
 const envSchema = z.object({
   NODE_ENV: z
@@ -10,9 +13,19 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   DATABASE_URL: z.url(),
   APP_URL: z.url().default("http://localhost:5173"),
-  AUTH_SECRET: z.string().min(AUTH_SECRET_MIN_LENGTH),
+  AUTH_SECRET: z
+    .string()
+    .min(AUTH_SECRET_MIN_LENGTH)
+    .refine(notPlaceholder, {
+      message: "AUTH_SECRET must not be a placeholder value",
+    }),
   AUTH_BASE_URL: z.url().default("http://localhost:3000"),
-  ENCRYPTION_KEY: z.string().min(ENCRYPTION_KEY_MIN_LENGTH),
+  ENCRYPTION_KEY: z
+    .string()
+    .min(ENCRYPTION_KEY_MIN_LENGTH)
+    .refine(notPlaceholder, {
+      message: "ENCRYPTION_KEY must not be a placeholder value",
+    }),
 
   LLM_PROVIDER: z.enum(["cli", "api"]).default("cli"),
   CLAUDE_CLI_BIN: z.string().min(1).default("claude"),
@@ -20,6 +33,7 @@ const envSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
 
   REDIS_URL: z.string().min(1).default("redis://localhost:6379"),
+  TRUSTED_PROXY_COUNT: z.coerce.number().int().min(0).default(0),
   HUNTER_API_KEY: z.string().optional(),
 
   RUN_WORKERS: z.enum(["true", "false"]).default("true"),

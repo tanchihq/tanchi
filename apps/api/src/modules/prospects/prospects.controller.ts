@@ -4,8 +4,13 @@ import { zValidator } from "@hono/zod-validator";
 import { sendError } from "@shared/errors";
 import { requireAuth, type AuthVariables } from "@shared/middleware/requireAuth.ts";
 import { zodValidationHook } from "@shared/middleware/zodValidationHook.ts";
+import { rateLimit } from "@shared/ratelimit";
 import type { ProspectsService } from "./prospects.service.ts";
 import * as RequestDto from "./dto/request/index.ts";
+import {
+  SEND_RATE_LIMIT,
+  SEND_RATE_LIMIT_WINDOW_SECONDS,
+} from "./prospects.constants.ts";
 import {
   ContactProspectErrors,
   DeleteProspectErrors,
@@ -137,6 +142,11 @@ export function createProspectsRouter(prospectsService: ProspectsService) {
     .post(
       "/:id/contact",
       requireAuth(),
+      rateLimit({
+        name: "prospect-send",
+        limit: SEND_RATE_LIMIT,
+        windowSeconds: SEND_RATE_LIMIT_WINDOW_SECONDS,
+      }),
       zValidator(
         "param",
         z.object({
@@ -179,6 +189,11 @@ export function createProspectsRouter(prospectsService: ProspectsService) {
     .post(
       "/:id/validate",
       requireAuth(),
+      rateLimit({
+        name: "prospect-send",
+        limit: SEND_RATE_LIMIT,
+        windowSeconds: SEND_RATE_LIMIT_WINDOW_SECONDS,
+      }),
       zValidator(
         "param",
         z.object({

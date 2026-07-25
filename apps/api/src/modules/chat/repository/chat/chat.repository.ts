@@ -49,12 +49,16 @@ export class ChatRepository {
     return this.chatPostgres.insertMessage(input);
   }
 
-  touchConversation(id: string): Promise<void> {
-    return this.chatPostgres.touchConversation(id);
+  touchConversation(id: string, organizationId: string): Promise<void> {
+    return this.chatPostgres.touchConversation(id, organizationId);
   }
 
-  setConversationTitle(id: string, title: string): Promise<void> {
-    return this.chatPostgres.setConversationTitle(id, title);
+  setConversationTitle(
+    id: string,
+    title: string,
+    organizationId: string
+  ): Promise<void> {
+    return this.chatPostgres.setConversationTitle(id, title, organizationId);
   }
 
   deleteConversation(organizationId: string, id: string): Promise<void> {

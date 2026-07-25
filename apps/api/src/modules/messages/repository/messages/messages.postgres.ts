@@ -57,6 +57,7 @@ export class MessagesPostgres {
           SET body = ${input.body}, subject = ${input.subject},
               status = 'edited', updated_at = NOW()
           WHERE id = ${input.messageId}
+            AND organization_id = ${input.organizationId}
           RETURNING id, organization_id, subject, body, status
         `;
         return updated[ARRAY.FIRST_INDEX] ?? null;
