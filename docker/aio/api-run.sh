@@ -2,6 +2,7 @@
 set -euo pipefail
 
 PGBIN="$(ls -d /usr/lib/postgresql/*/bin | head -1)"
+export PGPASSWORD="${POSTGRES_PASSWORD:-}"
 
 echo "[api] waiting for postgres..."
 until "$PGBIN/pg_isready" -h 127.0.0.1 -U postgres -q; do sleep 1; done

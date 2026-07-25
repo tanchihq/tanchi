@@ -92,7 +92,8 @@ export class ProspectsService {
       await this.prospectsRepository.updateOneLeadStage(
         id,
         dto.stage,
-        dto.origin
+        dto.origin,
+        organizationId
       );
     } catch (error) {
       console.error(
@@ -160,7 +161,12 @@ export class ProspectsService {
     const send = await this.sendDraft(lead, organizationId, senderId);
     if (!send.ok) return contactReason(send.reason);
 
-    await this.prospectsRepository.updateOneLeadStage(id, "contacted", "manual");
+    await this.prospectsRepository.updateOneLeadStage(
+      id,
+      "contacted",
+      "manual",
+      organizationId
+    );
     const refreshed = await this.prospectsRepository.getOneLeadById(id);
     if (refreshed === null) return ContactProspectErrors.inexistingProspect;
     return this.assembleDetail(refreshed);
@@ -188,7 +194,8 @@ export class ProspectsService {
     await this.prospectsRepository.updateOneLeadStage(
       id,
       "following-up",
-      "manual"
+      "manual",
+      organizationId
     );
     const refreshed = await this.prospectsRepository.getOneLeadById(id);
     if (refreshed === null) return ValidateProspectErrors.inexistingProspect;

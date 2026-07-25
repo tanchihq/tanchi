@@ -70,7 +70,8 @@ export class SendersPostgres {
 
   async updateOneSender(
     id: string,
-    update: PgSenderUpdate
+    update: PgSenderUpdate,
+    organizationId: string
   ): Promise<PgSender | null> {
     try {
       const result = await this.db<ReadonlyArray<PgSender>>`
@@ -90,7 +91,7 @@ export class SendersPostgres {
           status = ${update.status},
           last_verified_at = ${update.last_verified_at},
           updated_at = NOW()
-        WHERE id = ${id}
+        WHERE id = ${id} AND organization_id = ${organizationId}
         RETURNING *
       `;
       return result[ARRAY.FIRST_INDEX] ?? null;
@@ -101,7 +102,8 @@ export class SendersPostgres {
 
   async updateOneSenderVerification(
     id: string,
-    input: UpdateSenderVerificationInput
+    input: UpdateSenderVerificationInput,
+    organizationId: string
   ): Promise<void> {
     try {
       await this.db`
@@ -109,16 +111,19 @@ export class SendersPostgres {
         SET status = ${input.status},
             last_verified_at = ${input.lastVerifiedAt},
             updated_at = NOW()
-        WHERE id = ${id}
+        WHERE id = ${id} AND organization_id = ${organizationId}
       `;
     } catch (error) {
       return throwSanitizeError(error);
     }
   }
 
-  async deleteOneSender(id: string): Promise<void> {
+  async deleteOneSender(id: string, organizationId: string): Promise<void> {
     try {
-      await this.db`DELETE FROM senders WHERE id = ${id}`;
+      await this.db`
+        DELETE FROM senders
+        WHERE id = ${id} AND organization_id = ${organizationId}
+      `;
     } catch (error) {
       return throwSanitizeError(error);
     }

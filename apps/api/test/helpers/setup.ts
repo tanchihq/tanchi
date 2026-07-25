@@ -13,6 +13,7 @@ if (!configuredDatabaseUrl.pathname.slice(1).includes("test")) {
 }
 process.env.DATABASE_URL = configuredDatabaseUrl.toString();
 process.env.REDIS_URL ??= "redis://localhost:6379";
+process.env.TRUSTED_PROXY_COUNT = "1";
 process.env.AUTH_SECRET = "test-auth-secret-that-is-at-least-32-characters";
 process.env.ENCRYPTION_KEY = Buffer.alloc(ENCRYPTION_KEY_BYTES).toString(
   "base64"
@@ -52,6 +53,8 @@ mock.module("@shared/mailbox", () => ({
   verifyMailbox: () => Promise.resolve({ ok: true }),
   sendEmail: () => Promise.resolve({ messageId: "mock-message-id" }),
   fetchRecentReplies: () => Promise.resolve([]),
+  isAllowedSmtpPort: () => true,
+  isAllowedImapPort: () => true,
 }));
 
 mock.module("@shared/web", () => ({
@@ -59,6 +62,7 @@ mock.module("@shared/web", () => ({
   htmlToText: (html: string) => html,
   normalizeForMatch: (value: string) => value.trim().toLowerCase(),
   verifyQuote: () => true,
+  isPublicHost: () => Promise.resolve(true),
   hostOf: (url: string) => {
     try {
       return new URL(url).host.replace(/^www\./, "").toLowerCase();

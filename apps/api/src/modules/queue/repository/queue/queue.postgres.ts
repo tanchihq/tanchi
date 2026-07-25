@@ -122,6 +122,7 @@ export class QueuePostgres {
           SET status = 'sent', sent_at = NOW(), sender_id = ${input.senderId},
               updated_at = NOW()
           WHERE id = ${input.messageId}
+            AND organization_id = ${input.organizationId}
         `;
         await tx`
           INSERT INTO outcomes (id, organization_id, message_id, lead_id, stage_signal)
@@ -135,6 +136,7 @@ export class QueuePostgres {
           SET stage = 'contacted', sequence_step = sequence_step + 1,
               next_follow_up_at = NULL, updated_at = NOW()
           WHERE id = ${input.leadId}
+            AND organization_id = ${input.organizationId}
         `;
       });
     } catch (error) {
@@ -161,12 +163,14 @@ export class QueuePostgres {
           UPDATE messages
           SET body = ${input.editedVersion}, status = 'edited', updated_at = NOW()
           WHERE id = ${input.messageId}
+            AND organization_id = ${input.organizationId}
         `;
         if (input.subject !== undefined) {
           await tx`
             UPDATE messages
             SET subject = ${input.subject}, updated_at = NOW()
             WHERE id = ${input.messageId}
+              AND organization_id = ${input.organizationId}
           `;
         }
       });

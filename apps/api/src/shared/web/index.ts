@@ -1,4 +1,6 @@
 import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
+import { ARRAY } from "@shared/utils";
 
 const DEFAULT_FETCH_TIMEOUT_MS = 15000;
 const MAX_REDIRECTS = 5;
@@ -49,27 +51,27 @@ function isPrivateIpv6(ip: string): boolean {
   );
 }
 
-async function isSafePublicUrl(url: string): Promise<boolean> {
-  let parsed: URL;
+function isPublicIp(address: string): boolean {
+  const family = isIP(address);
+  if (family === 4) return !isPrivateIpv4(address);
+  if (family === 6) return !isPrivateIpv6(address);
+  return false;
+}
+
+async function resolvePublicIp(hostname: string): Promise<string | null> {
+  if (isIP(hostname) !== 0) return isPublicIp(hostname) ? hostname : null;
   try {
-    parsed = new URL(url);
+    const records = await lookup(hostname, { all: true });
+    if (records.length === 0) return null;
+    if (!records.every((record) => isPublicIp(record.address))) return null;
+    return records[ARRAY.FIRST_INDEX]?.address ?? null;
   } catch {
-    return false;
+    return null;
   }
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
-  try {
-    const records = await lookup(parsed.hostname, { all: true });
-    return (
-      records.length > 0 &&
-      records.every((record) =>
-        record.family === 4
-          ? !isPrivateIpv4(record.address)
-          : !isPrivateIpv6(record.address)
-      )
-    );
-  } catch {
-    return false;
-  }
+}
+
+export async function isPublicHost(host: string): Promise<boolean> {
+  return (await resolvePublicIp(host)) !== null;
 }
 
 async function fetchGuarded(
@@ -77,17 +79,30 @@ async function fetchGuarded(
   timeoutMs: number,
   remainingRedirects: number
 ): Promise<Response | null> {
-  if (!(await isSafePublicUrl(url))) return null;
-  const response = await fetch(url, {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+  const pinnedIp = await resolvePublicIp(parsed.hostname);
+  if (pinnedIp === null) return null;
+  const target = new URL(parsed.toString());
+  target.hostname = isIP(pinnedIp) === 6 ? `[${pinnedIp}]` : pinnedIp;
+  const response = await fetch(target.toString(), {
     signal: AbortSignal.timeout(timeoutMs),
-    headers: { "user-agent": USER_AGENT },
+    headers: { "user-agent": USER_AGENT, host: parsed.host },
     redirect: "manual",
+    ...(parsed.protocol === "https:" && {
+      tls: { serverName: parsed.hostname },
+    }),
   });
   if (response.status >= 300 && response.status < 400) {
     const location = response.headers.get("location");
     if (location === null || remainingRedirects === 0) return null;
     return fetchGuarded(
-      new URL(location, url).toString(),
+      new URL(location, parsed).toString(),
       timeoutMs,
       remainingRedirects - 1
     );

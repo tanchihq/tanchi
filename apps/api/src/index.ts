@@ -20,10 +20,13 @@ import { messagesRouter } from "./modules/messages/messages.module.ts";
 import { chatRouter } from "./modules/chat/chat.module.ts";
 import { billingRouter } from "./modules/billing/billing.module.ts";
 import { closeQueues } from "@shared/queue";
-import { closeRateLimit } from "@shared/ratelimit";
+import { closeRateLimit, rateLimit } from "@shared/ratelimit";
 import { env } from "./env.ts";
 
 const HTTP_INTERNAL_SERVER_ERROR = 500;
+const AUTH_RATE_WINDOW_SECONDS = 900;
+const AUTH_SIGN_IN_LIMIT = 10;
+const AUTH_RESET_LIMIT = 5;
 
 const app = new Hono();
 
@@ -51,6 +54,37 @@ app.onError((err, c) => {
 app.get("/", (c) => c.json({ name: "tanchi-api", version: "0.1.0" }));
 
 const api = new Hono();
+
+api.use(
+  "/auth/sign-in/email",
+  rateLimit({
+    name: "auth-sign-in",
+    limit: AUTH_SIGN_IN_LIMIT,
+    windowSeconds: AUTH_RATE_WINDOW_SECONDS,
+    keyBy: "ip",
+    failClosed: true,
+  })
+);
+api.use(
+  "/auth/forget-password",
+  rateLimit({
+    name: "auth-forget-password",
+    limit: AUTH_RESET_LIMIT,
+    windowSeconds: AUTH_RATE_WINDOW_SECONDS,
+    keyBy: "ip",
+    failClosed: true,
+  })
+);
+api.use(
+  "/auth/reset-password",
+  rateLimit({
+    name: "auth-reset-password",
+    limit: AUTH_RESET_LIMIT,
+    windowSeconds: AUTH_RATE_WINDOW_SECONDS,
+    keyBy: "ip",
+    failClosed: true,
+  })
+);
 
 api.on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));
 

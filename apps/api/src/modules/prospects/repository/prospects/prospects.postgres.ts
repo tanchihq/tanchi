@@ -70,13 +70,15 @@ export class ProspectsPostgres {
   async updateOneLeadStage(
     id: string,
     stage: PgStage,
-    origin: "auto" | "manual"
+    origin: "auto" | "manual",
+    organizationId: string
   ): Promise<void> {
     try {
       await this.db`
         UPDATE leads
         SET stage = ${stage}, origin = ${origin}, updated_at = NOW()
         WHERE id = ${id}
+          AND organization_id = ${organizationId}
       `;
     } catch (error) {
       return throwSanitizeError(error);
@@ -276,6 +278,7 @@ export class ProspectsPostgres {
           SET status = 'sent', sent_at = NOW(), sender_id = ${input.senderId},
               updated_at = NOW()
           WHERE id = ${input.messageId}
+            AND organization_id = ${input.organizationId}
         `;
         await tx`
           INSERT INTO outcomes (id, organization_id, message_id, lead_id, stage_signal)
@@ -289,6 +292,7 @@ export class ProspectsPostgres {
           SET sequence_step = sequence_step + 1, next_follow_up_at = NULL,
               updated_at = NOW()
           WHERE id = ${input.leadId}
+            AND organization_id = ${input.organizationId}
         `;
       });
     } catch (error) {

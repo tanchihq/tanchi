@@ -33,9 +33,15 @@ export class ProspectsRepository {
   updateOneLeadStage(
     id: string,
     stage: PgStage,
-    origin: "auto" | "manual"
+    origin: "auto" | "manual",
+    organizationId: string
   ): Promise<void> {
-    return this.prospectsPostgres.updateOneLeadStage(id, stage, origin);
+    return this.prospectsPostgres.updateOneLeadStage(
+      id,
+      stage,
+      origin,
+      organizationId
+    );
   }
 
   getDossierByLead(leadId: string): Promise<PgProspectDossier | null> {

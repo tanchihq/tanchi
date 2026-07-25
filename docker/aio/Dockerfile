@@ -36,7 +36,14 @@ RUN apt-get update \
 # `claude` CLI so the wizard's "cli" provider choice works out of the box.
 # Auth: docker exec -it tanchi claude — mount a volume on /root/.claude to
 # persist the session across container recreations.
-RUN curl -fsSL https://claude.ai/install.sh | bash
+# Supply-chain: the installer is pinned by sha256 and never piped straight to
+# a shell. Bump CLAUDE_INSTALLER_SHA256 when Anthropic rotates the script.
+ARG CLAUDE_CODE_VERSION=stable
+ARG CLAUDE_INSTALLER_SHA256=cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125
+RUN curl -fsSL https://claude.ai/install.sh -o /tmp/claude-install.sh \
+  && echo "${CLAUDE_INSTALLER_SHA256}  /tmp/claude-install.sh" | sha256sum -c - \
+  && bash /tmp/claude-install.sh "${CLAUDE_CODE_VERSION}" \
+  && rm -f /tmp/claude-install.sh
 ENV PATH="/root/.local/bin:${PATH}"
 
 WORKDIR /app/api
@@ -63,6 +70,7 @@ ENV NODE_ENV=production \
     LLM_PROVIDER=api \
     RUN_WORKERS=true \
     REQUIRE_EMAIL_VERIFICATION=false \
+    TRUSTED_PROXY_COUNT=1 \
     MAIL_FROM_EMAIL="Tanchi <no-reply@tanchi.io>"
 
 VOLUME /var/lib/postgresql/data
