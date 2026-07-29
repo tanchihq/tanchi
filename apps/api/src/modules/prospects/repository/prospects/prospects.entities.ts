@@ -35,6 +35,8 @@ type PgLeadListRow = Readonly<{
   snooze_until: Date | null;
   company_name: string | null;
   icp_name: string | null;
+  market_id: string | null;
+  market_name: string | null;
 }>;
 
 type PgLeadRow = Readonly<{
@@ -65,6 +67,8 @@ type PgLeadRow = Readonly<{
   company_website: string | null;
   company_domain: string | null;
   icp_name: string | null;
+  market_id: string | null;
+  market_name: string | null;
 }>;
 
 type PgProspectDossier = Readonly<{

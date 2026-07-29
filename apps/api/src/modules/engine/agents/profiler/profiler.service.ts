@@ -6,7 +6,7 @@ import type {
   PgEngineLead,
   ProfileAngleInput,
 } from "../../repository/engine/engine.entities.ts";
-import type { EngineOffer } from "../../engine.types.ts";
+import type { EngineOffer, MarketContext } from "../../engine.types.ts";
 import type { ProfilerOutput } from "./profiler.schemas.ts";
 import { ProfilerOutputSchema } from "./profiler.schemas.ts";
 import { extractJson, normalizeDomain } from "../../engine.utils.ts";
@@ -36,7 +36,11 @@ export class ProfilerService {
   ) {}
 
   async profile(lead: PgEngineLead, offer: EngineOffer): Promise<boolean> {
-    const parsed = await this.runProfiler(lead, offer);
+    const parsed = await this.runProfiler(lead, offer, {
+      country: lead.country,
+      outreachLanguage: lead.outreach_language,
+      companyProfile: lead.company_profile,
+    });
     if (parsed === null) return false;
 
     const companyHost =
@@ -125,9 +129,10 @@ export class ProfilerService {
 
   private async runProfiler(
     lead: PgEngineLead,
-    offer: EngineOffer
+    offer: EngineOffer,
+    market: MarketContext
   ): Promise<ProfilerOutput | null> {
-    const prompt = buildProfilerPrompt(lead, offer, todayLabel());
+    const prompt = buildProfilerPrompt(lead, offer, market, todayLabel());
     const first = await this.tryResearch(prompt);
     if (first !== null) return first;
     return this.tryResearch(

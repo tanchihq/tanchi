@@ -1,6 +1,7 @@
 import type { SettingsPostgres } from "./settings.postgres.ts";
 import type {
   PgIcp,
+  PgMarket,
   PgOrganizationProfile,
   UpdateSettingsInput,
 } from "./settings.entities.ts";
@@ -20,9 +21,13 @@ export class SettingsRepository {
     );
   }
 
-  getIcpsByOrganization(
+  getMarketsByOrganization(
     organizationId: string
-  ): Promise<ReadonlyArray<PgIcp>> {
+  ): Promise<ReadonlyArray<PgMarket>> {
+    return this.settingsPostgres.getMarketsByOrganization(organizationId);
+  }
+
+  getIcpsByOrganization(organizationId: string): Promise<ReadonlyArray<PgIcp>> {
     return this.settingsPostgres.getIcpsByOrganization(organizationId);
   }
 

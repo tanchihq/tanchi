@@ -38,12 +38,25 @@ export class SettingsService {
         website: dto.company.website,
         productPageUrl: dto.resources.productPageUrl ?? "",
         salesDeckUrl: dto.resources.salesDeckUrl ?? "",
-        outreachLanguage: dto.outreachLanguage,
-        companyProfile: dto.companyProfile,
-        followUpIntervals: dto.followUp.intervals,
-        excludedWeekdays: dto.followUp.excludedWeekdays,
-        leadsPerDay: dto.leadsPerDay,
-        icps: dto.icps,
+        markets: dto.markets.map((market) => ({
+          id: market.id,
+          name: market.name,
+          country: market.country,
+          outreachLanguage: market.outreachLanguage,
+          companyProfile: market.companyProfile,
+          followUpIntervals: market.followUp.intervals,
+          excludedWeekdays: market.followUp.excludedWeekdays,
+          leadsPerDay: market.leadsPerDay,
+          icps: market.icps.map((icp) => ({
+            id: icp.id,
+            name: icp.name,
+            archetype: icp.archetype,
+            description: icp.description,
+            perceivedValue: icp.perceivedValue,
+            angle: icp.angle,
+            goldenRule: icp.goldenRule,
+          })),
+        })),
       });
     } catch (error) {
       console.error(
@@ -95,14 +108,20 @@ export class SettingsService {
   private async readSettings(
     organizationId: string
   ): Promise<ResponseDto.SettingsDto> {
-    const [organizationName, profile, icps] = await Promise.all([
+    const [organizationName, profile, markets, icps] = await Promise.all([
       this.settingsRepository.getOrganizationNameById(organizationId),
       this.settingsRepository.getOrganizationProfileByOrganization(
         organizationId
       ),
+      this.settingsRepository.getMarketsByOrganization(organizationId),
       this.settingsRepository.getIcpsByOrganization(organizationId),
     ]);
-    return utils.convertToSettingsDto(organizationName ?? "", profile, icps);
+    return utils.convertToSettingsDto(
+      organizationName ?? "",
+      profile,
+      markets,
+      icps
+    );
   }
 }
 

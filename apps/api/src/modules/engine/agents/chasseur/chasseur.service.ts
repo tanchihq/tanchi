@@ -8,7 +8,7 @@ import { agentModel } from "@shared/llm";
 import type { SourcingProvider } from "@shared/sourcing";
 import type { EngineRepository } from "../../repository/engine/engine.repository.ts";
 import type { PgEngineIcp } from "../../repository/engine/engine.entities.ts";
-import type { EngineOffer } from "../../engine.types.ts";
+import type { EngineOffer, MarketContext } from "../../engine.types.ts";
 import type { DiscoveryOutput } from "./chasseur.schemas.ts";
 import { AiEnrichmentSchema, DiscoveryOutputSchema } from "./chasseur.schemas.ts";
 import { extractJson, normalizeDomain } from "../../engine.utils.ts";
@@ -114,32 +114,42 @@ export class ChasseurService {
       [...leadEmails, ...excludedEmails].map((email) => email.toLowerCase())
     );
 
-    const [leadsPerDay, access] = await Promise.all([
-      this.engineRepository.getLeadsPerDay(organizationId),
-      getBillingAccess(organizationId),
-    ]);
+    const access = await getBillingAccess(organizationId);
     const remainingMonthlyLeads = await getRemainingMonthlyLeads(
       organizationId,
       access.entitlements
     );
-    const budget = Math.min(leadsPerDay, remainingMonthlyLeads);
-    if (budget <= 0) {
+    if (remainingMonthlyLeads <= 0) {
       console.log(
         `[engine:chasseur] monthly lead quota reached orgId=${organizationId}, sourcing skipped`
       );
       return 0;
     }
     let created = 0;
+    const dailyUsedByMarket = new Map<string, number>();
     for (const icp of icps) {
-      if (created >= budget) break;
-      created += await this.sourceForIcp(
+      if (remainingMonthlyLeads - created <= 0) break;
+      const dailyUsed = dailyUsedByMarket.get(icp.market_id) ?? 0;
+      const marketBudget = Math.min(
+        icp.leads_per_day - dailyUsed,
+        remainingMonthlyLeads - created
+      );
+      if (marketBudget <= 0) continue;
+      const sourced = await this.sourceForIcp(
         organizationId,
         icp,
         offer,
+        {
+          country: icp.country,
+          outreachLanguage: icp.outreach_language,
+          companyProfile: icp.company_profile,
+        },
         existingDomains,
         existingEmails,
-        budget - created
+        marketBudget
       );
+      created += sourced;
+      dailyUsedByMarket.set(icp.market_id, dailyUsed + sourced);
     }
     await incrementMonthlyUsage(organizationId, "leads", created);
     return created;
@@ -149,6 +159,7 @@ export class ChasseurService {
     organizationId: string,
     icp: PgEngineIcp,
     offer: EngineOffer,
+    market: MarketContext,
     existingDomains: Set<string>,
     existingEmails: Set<string>,
     budget: number
@@ -160,7 +171,12 @@ export class ChasseurService {
         CHASSEUR_LEARNING_WINDOW_DAYS
       );
     const winningProfile = buildWinningProfileBrief(conversion);
-    const companies = await this.discoverCompanies(icp, offer, winningProfile);
+    const companies = await this.discoverCompanies(
+      icp,
+      offer,
+      market,
+      winningProfile
+    );
     let created = 0;
     for (const company of companies) {
       if (created >= budget) break;
@@ -182,6 +198,7 @@ export class ChasseurService {
   private async discoverCompanies(
     icp: PgEngineIcp,
     offer: EngineOffer,
+    market: MarketContext,
     winningProfile: string
   ): Promise<ReadonlyArray<DiscoveredCompany>> {
     try {
@@ -189,6 +206,7 @@ export class ChasseurService {
         prompt: buildDiscoveryPrompt(
           icp,
           offer,
+          market,
           COMPANIES_PER_ICP,
           todayLabel(),
           winningProfile

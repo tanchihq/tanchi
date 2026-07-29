@@ -376,8 +376,10 @@ export class ChatPostgres {
   async getOutreachLanguage(organizationId: string): Promise<string | null> {
     try {
       const result = await this.db<ReadonlyArray<Readonly<{ outreach_language: string }>>>`
-        SELECT outreach_language FROM organization_profile
+        SELECT outreach_language FROM market
         WHERE organization_id = ${organizationId}
+        ORDER BY position ASC
+        LIMIT 1
       `;
       return result[ARRAY.FIRST_INDEX]?.outreach_language ?? null;
     } catch (error) {

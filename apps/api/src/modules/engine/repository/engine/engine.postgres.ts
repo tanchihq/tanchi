@@ -133,9 +133,17 @@ export class EnginePostgres {
   ): Promise<ReadonlyArray<PgEngineIcp>> {
     try {
       return await this.db<ReadonlyArray<PgEngineIcp>>`
-        SELECT id, name, archetype, description, perceived_value, angle, golden_rule
-        FROM icp WHERE organization_id = ${organizationId}
-        ORDER BY position ASC
+        SELECT
+          i.id, i.market_id, i.name, i.archetype, i.description,
+          i.perceived_value, i.angle, i.golden_rule,
+          COALESCE(m.country, 'US') AS country,
+          COALESCE(m.outreach_language, 'en') AS outreach_language,
+          COALESCE(m.company_profile, '') AS company_profile,
+          COALESCE(m.leads_per_day, 15) AS leads_per_day
+        FROM icp i
+        LEFT JOIN market m ON m.id = i.market_id
+        WHERE i.organization_id = ${organizationId}
+        ORDER BY m.position ASC, i.position ASC
       `;
     } catch (error) {
       return throwSanitizeError(error);
@@ -147,24 +155,10 @@ export class EnginePostgres {
   ): Promise<PgEngineProfile | null> {
     try {
       const result = await this.db<ReadonlyArray<PgEngineProfile>>`
-        SELECT website, product_page_url, sales_deck_url, outreach_language, company_profile
+        SELECT website, product_page_url, sales_deck_url
         FROM organization_profile WHERE organization_id = ${organizationId}
       `;
       return result[ARRAY.FIRST_INDEX] ?? null;
-    } catch (error) {
-      return throwSanitizeError(error);
-    }
-  }
-
-  async getLeadsPerDay(organizationId: string): Promise<number> {
-    try {
-      const result = await this.db<
-        ReadonlyArray<Readonly<{ leads_per_day: number }>>
-      >`
-        SELECT leads_per_day FROM organization_profile
-        WHERE organization_id = ${organizationId}
-      `;
-      return result[ARRAY.FIRST_INDEX]?.leads_per_day ?? 15;
     } catch (error) {
       return throwSanitizeError(error);
     }
@@ -175,12 +169,20 @@ export class EnginePostgres {
   ): Promise<ReadonlyArray<number>> {
     try {
       const result = await this.db<
-        ReadonlyArray<Readonly<{ excluded_weekdays: ReadonlyArray<number> }>>
+        ReadonlyArray<Readonly<{ weekday: number }>>
       >`
-        SELECT excluded_weekdays FROM organization_profile
-        WHERE organization_id = ${organizationId}
+        SELECT d AS weekday
+        FROM generate_series(0, 6) AS d
+        WHERE EXISTS (
+          SELECT 1 FROM market m WHERE m.organization_id = ${organizationId}
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM market m
+          WHERE m.organization_id = ${organizationId}
+            AND NOT (d = ANY(m.excluded_weekdays))
+        )
       `;
-      return result[ARRAY.FIRST_INDEX]?.excluded_weekdays ?? [0, 6];
+      return result.map((row) => row.weekday);
     } catch (error) {
       return throwSanitizeError(error);
     }
@@ -356,10 +358,14 @@ export class EnginePostgres {
           c.sector AS company_sector, c.size AS company_size, c.hq AS company_hq,
           i.name AS icp_name, i.archetype AS icp_archetype, i.description AS icp_description,
           i.perceived_value AS icp_perceived_value, i.angle AS icp_angle,
-          i.golden_rule AS icp_golden_rule
+          i.golden_rule AS icp_golden_rule,
+          COALESCE(m.country, 'US') AS country,
+          COALESCE(m.outreach_language, 'en') AS outreach_language,
+          COALESCE(m.company_profile, '') AS company_profile
         FROM leads l
         LEFT JOIN companies c ON c.id = l.company_id
         LEFT JOIN icp i ON i.id = l.icp_id
+        LEFT JOIN market m ON m.id = i.market_id
         WHERE l.organization_id = ${organizationId}
           AND l.stage = 'identified'
           AND l.excluded_at IS NULL
@@ -383,10 +389,14 @@ export class EnginePostgres {
           c.sector AS company_sector, c.size AS company_size, c.hq AS company_hq,
           i.name AS icp_name, i.archetype AS icp_archetype, i.description AS icp_description,
           i.perceived_value AS icp_perceived_value, i.angle AS icp_angle,
-          i.golden_rule AS icp_golden_rule
+          i.golden_rule AS icp_golden_rule,
+          COALESCE(mk.country, 'US') AS country,
+          COALESCE(mk.outreach_language, 'en') AS outreach_language,
+          COALESCE(mk.company_profile, '') AS company_profile
         FROM leads l
         LEFT JOIN companies c ON c.id = l.company_id
         LEFT JOIN icp i ON i.id = l.icp_id
+        LEFT JOIN market mk ON mk.id = i.market_id
         WHERE l.organization_id = ${organizationId}
           AND l.excluded_at IS NULL
           AND EXISTS (SELECT 1 FROM dossiers d WHERE d.lead_id = l.id)

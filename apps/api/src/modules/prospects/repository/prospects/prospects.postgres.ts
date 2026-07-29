@@ -26,10 +26,13 @@ export class ProspectsPostgres {
           l.id, l.first_name, l.last_name, l.channel, l.hot, l.stage, l.origin,
           l.score, l.qualification, l.created_at, l.next_follow_up_at, l.snooze_until,
           c.name AS company_name,
-          i.name AS icp_name
+          i.name AS icp_name,
+          i.market_id AS market_id,
+          m.name AS market_name
         FROM leads l
         LEFT JOIN companies c ON c.id = l.company_id
         LEFT JOIN icp i ON i.id = l.icp_id
+        LEFT JOIN market m ON m.id = i.market_id
         WHERE l.organization_id = ${organizationId}
           AND l.excluded_at IS NULL
         ORDER BY l.created_at DESC
@@ -55,10 +58,13 @@ export class ProspectsPostgres {
           c.hq AS company_hq,
           c.website AS company_website,
           c.domain AS company_domain,
-          i.name AS icp_name
+          i.name AS icp_name,
+          i.market_id AS market_id,
+          m.name AS market_name
         FROM leads l
         LEFT JOIN companies c ON c.id = l.company_id
         LEFT JOIN icp i ON i.id = l.icp_id
+        LEFT JOIN market m ON m.id = i.market_id
         WHERE l.id = ${id}
       `;
       return result[ARRAY.FIRST_INDEX] ?? null;

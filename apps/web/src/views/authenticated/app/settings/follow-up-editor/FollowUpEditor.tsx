@@ -54,12 +54,15 @@ const IntervalsInput = ({ value, onChange }: IntervalsInputProps) => (
   </div>
 );
 
-type FollowUpEditorProps = Readonly<{ control: Control<SettingsFormValues> }>;
+type FollowUpEditorProps = Readonly<{
+  control: Control<SettingsFormValues>;
+  name: `markets.${number}.followUp.intervals`;
+}>;
 
-const FollowUpEditor = ({ control }: FollowUpEditorProps) => (
+const FollowUpEditor = ({ control, name }: FollowUpEditorProps) => (
   <FormField
     control={control}
-    name="followUp.intervals"
+    name={name}
     render={({ field }) => (
       <FormItem>
         <FormLabel>Cadence — spacing between each follow-up</FormLabel>

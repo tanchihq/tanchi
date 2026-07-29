@@ -10,6 +10,7 @@ export const SOLO_ENTITLEMENTS: Entitlements = {
   seats: 1,
   senders: Number.POSITIVE_INFINITY,
   icps: 3,
+  markets: Number.POSITIVE_INFINITY,
 };
 
 export const TRIAL_ENTITLEMENTS: Entitlements = {
@@ -18,6 +19,7 @@ export const TRIAL_ENTITLEMENTS: Entitlements = {
   seats: 1,
   senders: Number.POSITIVE_INFINITY,
   icps: 3,
+  markets: Number.POSITIVE_INFINITY,
 };
 
 export const UNLIMITED_ENTITLEMENTS: Entitlements = {
@@ -26,6 +28,7 @@ export const UNLIMITED_ENTITLEMENTS: Entitlements = {
   seats: Number.POSITIVE_INFINITY,
   senders: Number.POSITIVE_INFINITY,
   icps: Number.POSITIVE_INFINITY,
+  markets: Number.POSITIVE_INFINITY,
 };
 
 export const ACTIVE_SUBSCRIPTION_STATUSES = ["active", "trialing"] as const;

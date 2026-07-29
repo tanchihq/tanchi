@@ -27,6 +27,8 @@ export type ProspectDto = Readonly<{
   company: string;
   channel: ChannelDto;
   icp: string;
+  marketId: string | null;
+  market: string;
   hot: boolean;
   stage: StageDto;
   origin: OriginDto;

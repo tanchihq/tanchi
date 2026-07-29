@@ -11,6 +11,8 @@ export enum UpdateSettingsErrors {
   invalidCompanyProfile = "invalidCompanyProfile",
   invalidFollowUp = "invalidFollowUp",
   invalidLeadsPerDay = "invalidLeadsPerDay",
+  invalidMarket = "invalidMarket",
+  tooManyMarkets = "tooManyMarkets",
   invalidIcp = "invalidIcp",
   tooManyIcps = "tooManyIcps",
   updateFailed = "updateFailed",

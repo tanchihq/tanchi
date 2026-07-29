@@ -1,5 +1,5 @@
 import type { PgEngineLead } from "../../repository/engine/engine.entities.ts";
-import type { EngineOffer } from "../../engine.types.ts";
+import type { EngineOffer, MarketContext } from "../../engine.types.ts";
 
 function fullName(lead: PgEngineLead): string {
   return [lead.first_name, lead.last_name]
@@ -10,6 +10,7 @@ function fullName(lead: PgEngineLead): string {
 export function buildProfilerPrompt(
   lead: PgEngineLead,
   offer: EngineOffer,
+  market: MarketContext,
   today: string
 ): string {
   return [
@@ -42,7 +43,7 @@ export function buildProfilerPrompt(
     "What our client sells (to connect prospect → offer):",
     `- ${offer.companyName} — ${offer.website}`,
     "",
-    `Write the summary, angle titles and notes in this language: ${offer.outreachLanguage}. Keep each fact quote VERBATIM in its source language.`,
+    `Write the summary, angle titles and notes in this language: ${market.outreachLanguage}. Keep each fact quote VERBATIM in its source language.`,
     "",
     "Research the prospect (real website, team/about page, recent press, funding, hiring), extract verified facts, synthesize, propose 3 to 5 ranked angles (each tied to a fact via factIndex), qualify A/B/C, give a 0-100 score, and choose the best channel.",
     "",

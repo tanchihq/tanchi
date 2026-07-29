@@ -27,16 +27,13 @@ export class AnalysteService {
   ) {}
 
   async distill(organizationId: string): Promise<number> {
-    const [icps, profile] = await Promise.all([
-      this.engineRepository.getIcpsByOrganization(organizationId),
-      this.engineRepository.getOrganizationProfile(organizationId),
-    ]);
+    const icps =
+      await this.engineRepository.getIcpsByOrganization(organizationId);
     if (icps.length === 0) return 0;
 
-    const outreachLanguage = profile?.outreach_language ?? "fr";
     let written = 0;
     for (const icp of icps) {
-      if (await this.distillIcp(organizationId, icp, outreachLanguage)) {
+      if (await this.distillIcp(organizationId, icp, icp.outreach_language)) {
         written += 1;
       }
     }

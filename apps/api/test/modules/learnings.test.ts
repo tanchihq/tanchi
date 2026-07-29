@@ -15,10 +15,15 @@ const seedIcp = async (
   name: string,
   position: number
 ): Promise<string> => {
+  const marketId = Bun.randomUUIDv7();
+  await db`
+    INSERT INTO market (id, organization_id, name, position)
+    VALUES (${marketId}, ${organizationId}, ${`${name} market`}, ${position})
+  `;
   const id = Bun.randomUUIDv7();
   await db`
-    INSERT INTO icp (id, organization_id, name, description, position)
-    VALUES (${id}, ${organizationId}, ${name}, ${"seeded description"}, ${position})
+    INSERT INTO icp (id, organization_id, market_id, name, description, position)
+    VALUES (${id}, ${organizationId}, ${marketId}, ${name}, ${"seeded description"}, ${position})
   `;
   return id;
 };

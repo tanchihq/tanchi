@@ -1,18 +1,15 @@
 import type * as ResponseDto from "./dto/response/index.ts";
 import type {
   PgIcp,
+  PgMarket,
   PgOrganizationProfile,
 } from "./repository/settings/settings.entities.ts";
-import {
-  DEFAULT_EXCLUDED_WEEKDAYS,
-  DEFAULT_FOLLOW_UP_INTERVALS,
-  DEFAULT_LEADS_PER_DAY,
-} from "./settings.constants.ts";
 
 export function convertPgIcpToSettingsIcpDto(
   icp: PgIcp
 ): ResponseDto.SettingsIcpDto {
   return {
+    id: icp.id,
     name: icp.name,
     archetype: icp.archetype ?? "",
     description: icp.description,
@@ -22,11 +19,39 @@ export function convertPgIcpToSettingsIcpDto(
   };
 }
 
+function convertPgMarketToSettingsMarketDto(
+  market: PgMarket,
+  icps: ReadonlyArray<PgIcp>
+): ResponseDto.SettingsMarketDto {
+  return {
+    id: market.id,
+    name: market.name,
+    country: market.country,
+    outreachLanguage: market.outreach_language,
+    companyProfile: market.company_profile,
+    followUp: {
+      intervals: market.follow_up_intervals,
+      excludedWeekdays: market.excluded_weekdays,
+    },
+    leadsPerDay: market.leads_per_day,
+    icps: icps.map(convertPgIcpToSettingsIcpDto),
+  };
+}
+
 export function convertToSettingsDto(
   organizationName: string,
   profile: PgOrganizationProfile | null,
+  markets: ReadonlyArray<PgMarket>,
   icps: ReadonlyArray<PgIcp>
 ): ResponseDto.SettingsDto {
+  const icpsByMarket = icps.reduce<Map<string, ReadonlyArray<PgIcp>>>(
+    (accumulator, icp) => {
+      const current = accumulator.get(icp.market_id) ?? [];
+      return accumulator.set(icp.market_id, [...current, icp]);
+    },
+    new Map()
+  );
+
   return {
     company: {
       name: organizationName,
@@ -36,13 +61,11 @@ export function convertToSettingsDto(
       productPageUrl: profile?.product_page_url ?? "",
       salesDeckUrl: profile?.sales_deck_url ?? "",
     },
-    outreachLanguage: profile?.outreach_language ?? "fr",
-    companyProfile: profile?.company_profile ?? "",
-    followUp: {
-      intervals: profile?.follow_up_intervals ?? DEFAULT_FOLLOW_UP_INTERVALS,
-      excludedWeekdays: profile?.excluded_weekdays ?? DEFAULT_EXCLUDED_WEEKDAYS,
-    },
-    leadsPerDay: profile?.leads_per_day ?? DEFAULT_LEADS_PER_DAY,
-    icps: icps.map(convertPgIcpToSettingsIcpDto),
+    markets: markets.map((market) =>
+      convertPgMarketToSettingsMarketDto(
+        market,
+        icpsByMarket.get(market.id) ?? []
+      )
+    ),
   };
 }

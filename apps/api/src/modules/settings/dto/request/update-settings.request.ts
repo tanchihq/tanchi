@@ -10,9 +10,12 @@ import {
   MAX_ICP_SHORT_FIELD_LENGTH,
   MAX_ICPS,
   MAX_LEADS_PER_DAY,
+  MAX_MARKET_NAME_LENGTH,
+  MAX_MARKETS,
   MAX_URL_LENGTH,
   MIN_LEADS_PER_DAY,
 } from "../../settings.constants.ts";
+
 const websiteSchema = z
   .url({ error: UpdateSettingsErrors.invalidWebsite })
   .max(MAX_URL_LENGTH, { message: UpdateSettingsErrors.invalidWebsite });
@@ -22,6 +25,11 @@ const optionalResourceUrlSchema = z
   .max(MAX_URL_LENGTH, { message: UpdateSettingsErrors.invalidResource })
   .nullish();
 
+const optionalIdSchema = z
+  .uuid({ error: UpdateSettingsErrors.invalidIcp })
+  .nullish()
+  .transform((value) => value ?? null);
+
 const shortIcpField = z
   .string({ error: UpdateSettingsErrors.invalidIcp })
   .trim()
@@ -30,6 +38,7 @@ const shortIcpField = z
   });
 
 const icpSchema = z.object({
+  id: optionalIdSchema,
   name: z
     .string({ error: UpdateSettingsErrors.invalidIcp })
     .trim()
@@ -48,6 +57,73 @@ const icpSchema = z.object({
   goldenRule: shortIcpField,
 });
 
+const followUpSchema = z.object({
+  intervals: z
+    .array(
+      z
+        .number({ error: UpdateSettingsErrors.invalidFollowUp })
+        .int({ message: UpdateSettingsErrors.invalidFollowUp })
+        .min(1, { message: UpdateSettingsErrors.invalidFollowUp })
+        .max(MAX_FOLLOW_UP_INTERVAL_DAYS, {
+          message: UpdateSettingsErrors.invalidFollowUp,
+        }),
+      { error: UpdateSettingsErrors.invalidFollowUp }
+    )
+    .min(1, { message: UpdateSettingsErrors.invalidFollowUp })
+    .max(MAX_FOLLOW_UPS, { message: UpdateSettingsErrors.invalidFollowUp }),
+  excludedWeekdays: z
+    .array(
+      z
+        .number({ error: UpdateSettingsErrors.invalidFollowUp })
+        .int({ message: UpdateSettingsErrors.invalidFollowUp })
+        .min(0, { message: UpdateSettingsErrors.invalidFollowUp })
+        .max(6, { message: UpdateSettingsErrors.invalidFollowUp }),
+      { error: UpdateSettingsErrors.invalidFollowUp }
+    )
+    .max(7, { message: UpdateSettingsErrors.invalidFollowUp }),
+});
+
+const marketSchema = z.object({
+  id: optionalIdSchema,
+  name: z
+    .string({ error: UpdateSettingsErrors.invalidMarket })
+    .trim()
+    .min(1, { message: UpdateSettingsErrors.invalidMarket })
+    .max(MAX_MARKET_NAME_LENGTH, {
+      message: UpdateSettingsErrors.invalidMarket,
+    }),
+  country: z
+    .string({ error: UpdateSettingsErrors.invalidMarket })
+    .trim()
+    .length(2, { message: UpdateSettingsErrors.invalidMarket })
+    .toUpperCase(),
+  outreachLanguage: z
+    .string({ error: UpdateSettingsErrors.invalidLanguage })
+    .trim()
+    .min(2, { message: UpdateSettingsErrors.invalidLanguage })
+    .max(10, { message: UpdateSettingsErrors.invalidLanguage }),
+  companyProfile: z
+    .string({ error: UpdateSettingsErrors.invalidCompanyProfile })
+    .max(MAX_COMPANY_PROFILE_LENGTH, {
+      message: UpdateSettingsErrors.invalidCompanyProfile,
+    })
+    .default(""),
+  followUp: followUpSchema,
+  leadsPerDay: z
+    .number({ error: UpdateSettingsErrors.invalidLeadsPerDay })
+    .int({ message: UpdateSettingsErrors.invalidLeadsPerDay })
+    .min(MIN_LEADS_PER_DAY, {
+      message: UpdateSettingsErrors.invalidLeadsPerDay,
+    })
+    .max(MAX_LEADS_PER_DAY, {
+      message: UpdateSettingsErrors.invalidLeadsPerDay,
+    }),
+  icps: z
+    .array(icpSchema, { error: UpdateSettingsErrors.invalidIcp })
+    .min(1, { message: UpdateSettingsErrors.invalidIcp })
+    .max(MAX_ICPS, { message: UpdateSettingsErrors.tooManyIcps }),
+});
+
 export const UpdateSettingsDto = z.object({
   company: z.object({
     name: z
@@ -63,55 +139,10 @@ export const UpdateSettingsDto = z.object({
     productPageUrl: optionalResourceUrlSchema,
     salesDeckUrl: optionalResourceUrlSchema,
   }),
-  outreachLanguage: z
-    .string({ error: UpdateSettingsErrors.invalidLanguage })
-    .trim()
-    .min(2, { message: UpdateSettingsErrors.invalidLanguage })
-    .max(10, { message: UpdateSettingsErrors.invalidLanguage }),
-  companyProfile: z
-    .string({ error: UpdateSettingsErrors.invalidCompanyProfile })
-    .max(MAX_COMPANY_PROFILE_LENGTH, {
-      message: UpdateSettingsErrors.invalidCompanyProfile,
-    })
-    .default(""),
-  followUp: z.object({
-    intervals: z
-      .array(
-        z
-          .number({ error: UpdateSettingsErrors.invalidFollowUp })
-          .int({ message: UpdateSettingsErrors.invalidFollowUp })
-          .min(1, { message: UpdateSettingsErrors.invalidFollowUp })
-          .max(MAX_FOLLOW_UP_INTERVAL_DAYS, {
-            message: UpdateSettingsErrors.invalidFollowUp,
-          }),
-        { error: UpdateSettingsErrors.invalidFollowUp }
-      )
-      .min(1, { message: UpdateSettingsErrors.invalidFollowUp })
-      .max(MAX_FOLLOW_UPS, { message: UpdateSettingsErrors.invalidFollowUp }),
-    excludedWeekdays: z
-      .array(
-        z
-          .number({ error: UpdateSettingsErrors.invalidFollowUp })
-          .int({ message: UpdateSettingsErrors.invalidFollowUp })
-          .min(0, { message: UpdateSettingsErrors.invalidFollowUp })
-          .max(6, { message: UpdateSettingsErrors.invalidFollowUp }),
-        { error: UpdateSettingsErrors.invalidFollowUp }
-      )
-      .max(7, { message: UpdateSettingsErrors.invalidFollowUp }),
-  }),
-  leadsPerDay: z
-    .number({ error: UpdateSettingsErrors.invalidLeadsPerDay })
-    .int({ message: UpdateSettingsErrors.invalidLeadsPerDay })
-    .min(MIN_LEADS_PER_DAY, {
-      message: UpdateSettingsErrors.invalidLeadsPerDay,
-    })
-    .max(MAX_LEADS_PER_DAY, {
-      message: UpdateSettingsErrors.invalidLeadsPerDay,
-    }),
-  icps: z
-    .array(icpSchema, { error: UpdateSettingsErrors.invalidIcp })
-    .min(1, { message: UpdateSettingsErrors.invalidIcp })
-    .max(MAX_ICPS, { message: UpdateSettingsErrors.tooManyIcps }),
+  markets: z
+    .array(marketSchema, { error: UpdateSettingsErrors.invalidMarket })
+    .min(1, { message: UpdateSettingsErrors.invalidMarket })
+    .max(MAX_MARKETS, { message: UpdateSettingsErrors.tooManyMarkets }),
 });
 
 export type UpdateSettingsDto = z.infer<typeof UpdateSettingsDto>;
