@@ -3,7 +3,6 @@ import { ARRAY, throwSanitizeError } from "@shared/utils";
 import type {
   CreateFollowUpDraftInput,
   PgDueLead,
-  PgSequenceConfig,
   PgSequenceFact,
 } from "./sequences.entities.ts";
 
@@ -21,24 +20,6 @@ export class SequencesPostgres {
     }
   }
 
-  async getSequenceConfig(
-    organizationId: string
-  ): Promise<PgSequenceConfig | null> {
-    try {
-      const result = await this.db<ReadonlyArray<PgSequenceConfig>>`
-        SELECT
-          op.follow_up_intervals, op.excluded_weekdays, op.website,
-          op.company_profile, op.outreach_language, o.name AS company_name
-        FROM organization_profile op
-        JOIN organization o ON o.id = op.organization_id
-        WHERE op.organization_id = ${organizationId}
-      `;
-      return result[ARRAY.FIRST_INDEX] ?? null;
-    } catch (error) {
-      return throwSanitizeError(error);
-    }
-  }
-
   async getDueLeads(
     organizationId: string
   ): Promise<ReadonlyArray<PgDueLead>> {
@@ -48,9 +29,19 @@ export class SequencesPostgres {
           l.id, l.organization_id, l.first_name, l.last_name, l.role,
           l.channel, l.icp_id, l.sequence_step,
           c.name AS company_name,
-          (SELECT MAX(m.sent_at) FROM messages m WHERE m.lead_id = l.id) AS last_sent_at
+          (SELECT MAX(m.sent_at) FROM messages m WHERE m.lead_id = l.id) AS last_sent_at,
+          COALESCE(mk.outreach_language, 'en') AS outreach_language,
+          COALESCE(mk.company_profile, '') AS company_profile,
+          COALESCE(mk.follow_up_intervals, '{3,4}') AS follow_up_intervals,
+          COALESCE(mk.excluded_weekdays, '{0,6}') AS excluded_weekdays,
+          COALESCE(op.website, '') AS website,
+          o.name AS org_name
         FROM leads l
         LEFT JOIN companies c ON c.id = l.company_id
+        LEFT JOIN icp i ON i.id = l.icp_id
+        LEFT JOIN market mk ON mk.id = i.market_id
+        JOIN organization o ON o.id = l.organization_id
+        LEFT JOIN organization_profile op ON op.organization_id = l.organization_id
         WHERE l.organization_id = ${organizationId}
           AND l.stage IN ('contacted', 'following-up')
           AND l.sequence_step >= 1

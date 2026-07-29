@@ -1,19 +1,22 @@
 type PgEngineIcp = Readonly<{
   id: string;
+  market_id: string;
   name: string;
   archetype: string | null;
   description: string;
   perceived_value: string | null;
   angle: string | null;
   golden_rule: string | null;
+  country: string;
+  outreach_language: string;
+  company_profile: string;
+  leads_per_day: number;
 }>;
 
 type PgEngineProfile = Readonly<{
   website: string;
   product_page_url: string | null;
   sales_deck_url: string | null;
-  outreach_language: string;
-  company_profile: string;
 }>;
 
 type PgEngineRun = Readonly<{
@@ -48,6 +51,9 @@ type PgEngineLead = Readonly<{
   icp_perceived_value: string | null;
   icp_angle: string | null;
   icp_golden_rule: string | null;
+  country: string;
+  outreach_language: string;
+  company_profile: string;
 }>;
 
 type CreateCompanyInput = Readonly<{

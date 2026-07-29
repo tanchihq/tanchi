@@ -23,6 +23,7 @@ const Pipeline = () => {
   const { onFetch: move } = useMoveStage({ onMoved: refetch });
 
   const [tonight, setTonight] = useState(false);
+  const [marketFilter, setMarketFilter] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<Stage | null>(null);
 
@@ -57,6 +58,14 @@ const Pipeline = () => {
 
   const inBoard = (prospect: ProspectDto): boolean =>
     tonight ? needsTonight(prospect) : true;
+
+  const marketNames = Array.from(
+    new Set(prospects.map((prospect) => prospect.market).filter((market) => market !== '')),
+  );
+  const visibleProspects =
+    marketFilter === null
+      ? prospects
+      : prospects.filter((prospect) => prospect.market === marketFilter);
 
   const drop = (stage: Stage) => {
     if (draggingId !== null) move({ id: draggingId, stage, origin: 'manual' });
@@ -94,6 +103,37 @@ const Pipeline = () => {
           <span className="text-xs text-[#6F6C85]">
             {tonight ? 'drafts, replies and follow-ups due today' : 'all stages'}
           </span>
+          {marketNames.length > 1 && (
+            <div className="ml-auto flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setMarketFilter(null)}
+                className="flex h-[34px] cursor-pointer items-center rounded-[9px] border px-3 text-[13px] transition-colors"
+                style={{
+                  borderColor: marketFilter === null ? 'rgba(124,121,246,0.5)' : 'rgba(255,255,255,0.1)',
+                  background: marketFilter === null ? 'rgba(5,1,240,0.2)' : 'rgba(255,255,255,0.04)',
+                  color: marketFilter === null ? '#A9A6FF' : '#ABA8C0',
+                }}
+              >
+                All markets
+              </button>
+              {marketNames.map((name) => (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => setMarketFilter(name)}
+                  className="flex h-[34px] cursor-pointer items-center rounded-[9px] border px-3 text-[13px] transition-colors"
+                  style={{
+                    borderColor: marketFilter === name ? 'rgba(124,121,246,0.5)' : 'rgba(255,255,255,0.1)',
+                    background: marketFilter === name ? 'rgba(5,1,240,0.2)' : 'rgba(255,255,255,0.04)',
+                    color: marketFilter === name ? '#A9A6FF' : '#ABA8C0',
+                  }}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex min-h-0 flex-1 gap-3 overflow-x-auto pb-0.5">
@@ -101,12 +141,12 @@ const Pipeline = () => {
             <PipelineColumn
               key={stage}
               stage={stage}
-              cards={prospects.filter(
+              cards={visibleProspects.filter(
                 (prospect) => prospect.stage === stage && inBoard(prospect),
               )}
               due={
                 stage === 'following-up'
-                  ? prospects.filter(
+                  ? visibleProspects.filter(
                       (prospect) =>
                         prospect.stage === 'following-up' &&
                         isDueToday(prospect.nextFollowUpAt),
@@ -135,7 +175,7 @@ const Pipeline = () => {
             <CollapsibleStage
               key={stage}
               stage={stage}
-              prospects={prospects.filter((prospect) => prospect.stage === stage)}
+              prospects={visibleProspects.filter((prospect) => prospect.stage === stage)}
               over={dragOver === stage}
               onDragOver={allowDrop(stage)}
               onDrop={() => drop(stage)}

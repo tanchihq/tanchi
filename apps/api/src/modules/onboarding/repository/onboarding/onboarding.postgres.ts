@@ -108,9 +108,11 @@ export class OnboardingPostgres {
   }
 
   async completeOnboarding(input: CompleteOnboardingInput): Promise<void> {
+    const marketId = Bun.randomUUIDv7();
     const icpRows = input.icps.map((icp, index) => ({
       id: Bun.randomUUIDv7(),
       organization_id: input.organizationId,
+      market_id: marketId,
       name: icp.name,
       archetype: emptyToNull(icp.archetype),
       description: icp.description,
@@ -125,31 +127,44 @@ export class OnboardingPostgres {
         await tx`
           INSERT INTO organization_profile (
             organization_id, website, product_page_url, sales_deck_url,
-            company_profile, onboarded_at
+            onboarded_at
           )
           VALUES (
             ${input.organizationId},
             ${input.profile.website},
             ${emptyToNull(input.profile.productPageUrl)},
             ${emptyToNull(input.profile.salesDeckUrl)},
-            ${input.profile.companyProfile},
             NOW()
           )
           ON CONFLICT (organization_id) DO UPDATE SET
             website = EXCLUDED.website,
             product_page_url = EXCLUDED.product_page_url,
             sales_deck_url = EXCLUDED.sales_deck_url,
-            company_profile = EXCLUDED.company_profile,
             onboarded_at = NOW(),
             updated_at = NOW()
         `;
 
-        await tx`DELETE FROM icp WHERE organization_id = ${input.organizationId}`;
+        await tx`DELETE FROM market WHERE organization_id = ${input.organizationId}`;
+        await tx`
+          INSERT INTO market (
+            id, organization_id, name, country, outreach_language, company_profile, position
+          )
+          VALUES (
+            ${marketId},
+            ${input.organizationId},
+            'United States',
+            'US',
+            'en',
+            ${input.profile.companyProfile},
+            0
+          )
+        `;
         await tx`
           INSERT INTO icp ${tx(
             icpRows,
             "id",
             "organization_id",
+            "market_id",
             "name",
             "archetype",
             "description",

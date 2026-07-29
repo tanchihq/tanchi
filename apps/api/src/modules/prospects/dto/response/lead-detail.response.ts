@@ -41,6 +41,8 @@ export type LeadDetailDto = Readonly<{
   role: string | null;
   hot: boolean;
   icp: string;
+  marketId: string | null;
+  market: string;
   channel: ChannelDto;
   stage: StageDto;
   origin: OriginDto;

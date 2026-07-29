@@ -13,7 +13,7 @@ async function main(): Promise<void> {
       "✓ Operational data cleared (leads, companies, dossiers, messages, edits, outcomes, activity)."
     );
     console.log(
-      "  Config kept: organization, organization_profile, senders, icp, exclusions, playbook, auth."
+      "  Config kept: organization, organization_profile, market, senders, icp, exclusions, playbook, auth."
     );
   } catch (err) {
     console.error("Reset failed:", err);

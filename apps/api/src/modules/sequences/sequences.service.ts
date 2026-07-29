@@ -55,20 +55,22 @@ export class SequencesService {
       return;
     }
 
-    const config =
-      await this.sequencesRepository.getSequenceConfig(organizationId);
-    if (config === null) return;
-
-    const intervals =
-      config.follow_up_intervals.length > 0
-        ? config.follow_up_intervals
-        : DEFAULT_FOLLOW_UP_INTERVALS;
-    const excluded = config.excluded_weekdays;
     const now = new Date();
-
     const dueLeads = await this.sequencesRepository.getDueLeads(organizationId);
     for (const lead of dueLeads) {
-      await this.processLead(lead, config, intervals, excluded, now);
+      const config: PgSequenceConfig = {
+        follow_up_intervals: lead.follow_up_intervals,
+        excluded_weekdays: lead.excluded_weekdays,
+        website: lead.website,
+        company_profile: lead.company_profile,
+        outreach_language: lead.outreach_language,
+        company_name: lead.org_name,
+      };
+      const intervals =
+        config.follow_up_intervals.length > 0
+          ? config.follow_up_intervals
+          : DEFAULT_FOLLOW_UP_INTERVALS;
+      await this.processLead(lead, config, intervals, config.excluded_weekdays, now);
     }
   }
 

@@ -1,12 +1,11 @@
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useRef, useState } from 'react';
+import { useForm, useFieldArray, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Sparkles } from 'lucide-react';
+import { Plus, TriangleAlert } from 'lucide-react';
 import { AppScreen } from '../AppScreen';
 import { AppError, AppLoader } from '@/components/AsyncState';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { SelectNative } from '@/components/ui/select-native';
 import {
   Form,
   FormControl,
@@ -17,15 +16,14 @@ import {
 } from '@/components/ui/form';
 import SettingsSection from './settings-section/SettingsSection';
 import BillingSection from './billing-section/BillingSection';
-import IcpEditor from './icp-editor/IcpEditor';
-import SearchSendDaysEditor from './search-send-days-editor/SearchSendDaysEditor';
-import FollowUpEditor from './follow-up-editor/FollowUpEditor';
+import MarketCard from './market-card/MarketCard';
 import useRetrieveSettings from './hooks/useRetrieveSettings';
 import useUpdateSettings from './hooks/useUpdateSettings';
 import useGenerateProfile from './hooks/useGenerateProfile';
 import {
   DEFAULT_SETTINGS,
-  LANGUAGES,
+  EMPTY_MARKET,
+  learningDilutionWarning,
   settingsSchema,
   toFormValues,
   type SettingsFormValues,
@@ -37,7 +35,12 @@ const Settings = () => {
     mode: 'onChange',
     defaultValues: DEFAULT_SETTINGS,
   });
-  const icps = useFieldArray({ control: form.control, name: 'icps' });
+  const markets = useFieldArray({ control: form.control, name: 'markets' });
+  const watchedMarkets = useWatch({ control: form.control, name: 'markets' });
+  const dilutionWarning = learningDilutionWarning(watchedMarkets ?? []);
+
+  const regenerateTarget = useRef<number | null>(null);
+  const [regeneratingIndex, setRegeneratingIndex] = useState<number | null>(null);
 
   const { status, refetch } = useRetrieveSettings({
     onLoaded: (data) => form.reset(toFormValues(data)),
@@ -46,9 +49,22 @@ const Settings = () => {
     onSaved: (data) => form.reset(toFormValues(data)),
   });
   const { onFetch: generate, isLoading: generating } = useGenerateProfile({
-    onGenerated: (companyProfile) =>
-      form.setValue('companyProfile', companyProfile, { shouldDirty: true, shouldValidate: true }),
+    onGenerated: (companyProfile) => {
+      const target = regenerateTarget.current;
+      if (target === null) return;
+      form.setValue(`markets.${target}.companyProfile`, companyProfile, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      setRegeneratingIndex(null);
+    },
   });
+
+  const handleRegenerate = (index: number) => {
+    regenerateTarget.current = index;
+    setRegeneratingIndex(index);
+    generate();
+  };
 
   if (status === 'loading') {
     return (
@@ -149,103 +165,43 @@ const Settings = () => {
               </div>
             </SettingsSection>
 
-            <SettingsSection title="Outreach language">
-              <FormField
-                control={form.control}
-                name="outreachLanguage"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      The language the agent writes to prospects in (independent of this
-                      interface)
-                    </FormLabel>
-                    <FormControl>
-                      <SelectNative {...field}>
-                        {LANGUAGES.map((language) => (
-                          <option key={language.code} value={language.code}>
-                            {language.label}
-                          </option>
-                        ))}
-                      </SelectNative>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </SettingsSection>
+            <div className="mt-2 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-medium text-white">Markets</h2>
+                <p className="text-xs text-[#6F6C85]">
+                  One market per language / positioning. Each learns on its own.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => markets.append(EMPTY_MARKET)}
+              >
+                <Plus size={14} /> Add a market
+              </Button>
+            </div>
 
-            <SettingsSection title="Company profile">
-              <FormField
-                control={form.control}
-                name="companyProfile"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel>
-                        What the agent should know about your company (AI-generated, editable)
-                      </FormLabel>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        isLoading={generating}
-                        onClick={() => generate()}
-                      >
-                        {!generating && <Sparkles size={13} />}
-                        Regenerate
-                      </Button>
-                    </div>
-                    <FormControl>
-                      <Textarea rows={6} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </SettingsSection>
+            {dilutionWarning !== null && (
+              <div className="text-warn flex items-start gap-2.5 rounded-[14px] border border-[rgba(251,191,119,0.25)] bg-[rgba(251,191,119,0.08)] p-3.5 text-[13px]">
+                <TriangleAlert size={16} className="mt-0.5 shrink-0" />
+                <span>{dilutionWarning}</span>
+              </div>
+            )}
 
-            <SettingsSection title="Search & send days">
-              <SearchSendDaysEditor control={form.control} />
-            </SettingsSection>
-
-            <SettingsSection title="Leads per day">
-              <FormField
-                control={form.control}
-                name="leadsPerDay"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={200}
-                        className="h-[38px] w-28"
-                        value={field.value}
-                        onChange={(event) => field.onChange(event.target.valueAsNumber)}
-                      />
-                    </FormControl>
-                    <p className="text-xs leading-relaxed text-[#6F6C85]">
-                      Max number of new prospects the AI sources on each active day. Lower it if
-                      your review queue gets too crowded.
-                    </p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </SettingsSection>
-
-            <SettingsSection title="Follow-up cadence">
-              <FollowUpEditor control={form.control} />
-            </SettingsSection>
-
-            <SettingsSection title="Ideal clients">
-              <IcpEditor
-                control={form.control}
-                fields={icps.fields}
-                append={icps.append}
-                remove={icps.remove}
-              />
-            </SettingsSection>
+            <div className="flex flex-col gap-3.5">
+              {markets.fields.map((item, index) => (
+                <MarketCard
+                  key={item.id}
+                  control={form.control}
+                  index={index}
+                  canRemove={markets.fields.length > 1}
+                  onRemove={() => markets.remove(index)}
+                  onRegenerate={() => handleRegenerate(index)}
+                  isGenerating={generating && regeneratingIndex === index}
+                />
+              ))}
+            </div>
           </form>
         </Form>
         <div className="mx-auto mt-4 flex max-w-[720px] flex-col gap-4 pb-7">

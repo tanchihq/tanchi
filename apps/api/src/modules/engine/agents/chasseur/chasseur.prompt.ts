@@ -1,8 +1,18 @@
 import type { PgEngineIcp } from "../../repository/engine/engine.entities.ts";
-import type { EngineOffer } from "../../engine.types.ts";
+import type { EngineOffer, MarketContext } from "../../engine.types.ts";
 import type { DiscoveryOutput } from "./chasseur.schemas.ts";
 
 type DiscoveredCompany = DiscoveryOutput["companies"][number];
+
+const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+
+function countryLabel(code: string): string {
+  try {
+    return regionNames.of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
 
 export function buildEnrichmentPrompt(
   company: DiscoveredCompany,
@@ -39,6 +49,7 @@ export function buildEnrichmentPrompt(
 export function buildDiscoveryPrompt(
   icp: PgEngineIcp,
   offer: EngineOffer,
+  market: MarketContext,
   count: number,
   today: string,
   winningProfile: string
@@ -52,9 +63,9 @@ export function buildDiscoveryPrompt(
     `- Company: ${offer.companyName}`,
     `- Website: ${offer.website}`,
     offer.productPageUrl === "" ? "" : `- Product: ${offer.productPageUrl}`,
-    offer.companyProfile === ""
+    market.companyProfile === ""
       ? ""
-      : `- Company profile: ${offer.companyProfile}`,
+      : `- Company profile: ${market.companyProfile}`,
     "",
     "Target profile (ICP) to match:",
     `- Name: ${icp.name}`,
@@ -64,7 +75,7 @@ export function buildDiscoveryPrompt(
       ? ""
       : `- Perceived value: ${icp.perceived_value}`,
     "",
-    `Target market / language: ${offer.outreachLanguage} — find companies from this market.`,
+    `Target country: ${countryLabel(market.country)} — only find companies based in this country. Outreach will be written in ${market.outreachLanguage}.`,
     "",
     winningProfile === "" ? "" : winningProfile,
     `Find ${count} real, verifiable companies (via the web) that match this ICP and would be good prospects for this offer.`,

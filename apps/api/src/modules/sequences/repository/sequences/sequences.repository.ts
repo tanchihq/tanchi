@@ -2,7 +2,6 @@ import type { SequencesPostgres } from "./sequences.postgres.ts";
 import type {
   CreateFollowUpDraftInput,
   PgDueLead,
-  PgSequenceConfig,
   PgSequenceFact,
 } from "./sequences.entities.ts";
 
@@ -11,12 +10,6 @@ export class SequencesRepository {
 
   getAllOrganizationIds(): Promise<ReadonlyArray<string>> {
     return this.sequencesPostgres.getAllOrganizationIds();
-  }
-
-  getSequenceConfig(
-    organizationId: string
-  ): Promise<PgSequenceConfig | null> {
-    return this.sequencesPostgres.getSequenceConfig(organizationId);
   }
 
   getDueLeads(organizationId: string): Promise<ReadonlyArray<PgDueLead>> {

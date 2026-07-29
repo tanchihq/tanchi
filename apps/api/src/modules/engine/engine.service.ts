@@ -168,8 +168,6 @@ export class EngineService {
       website: profile?.website ?? "",
       productPageUrl: profile?.product_page_url ?? "",
       salesDeckUrl: profile?.sales_deck_url ?? "",
-      outreachLanguage: profile?.outreach_language ?? "fr",
-      companyProfile: profile?.company_profile ?? "",
     };
   }
 }

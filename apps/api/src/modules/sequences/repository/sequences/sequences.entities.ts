@@ -18,6 +18,12 @@ type PgDueLead = Readonly<{
   sequence_step: number;
   company_name: string | null;
   last_sent_at: Date | null;
+  outreach_language: string;
+  company_profile: string;
+  follow_up_intervals: ReadonlyArray<number>;
+  excluded_weekdays: ReadonlyArray<number>;
+  website: string;
+  org_name: string;
 }>;
 
 type PgSequenceFact = Readonly<{

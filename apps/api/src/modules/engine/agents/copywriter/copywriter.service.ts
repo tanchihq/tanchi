@@ -43,6 +43,11 @@ export class CopywriterService {
     const parsed = await this.generateCopy({
       lead,
       offer,
+      market: {
+        country: lead.country,
+        outreachLanguage: lead.outreach_language,
+        companyProfile: lead.company_profile,
+      },
       summary,
       facts,
       angle,

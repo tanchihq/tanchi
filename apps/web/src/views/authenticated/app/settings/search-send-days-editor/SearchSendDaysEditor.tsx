@@ -39,12 +39,15 @@ const DaysInput = ({ value, onChange }: DaysInputProps) => (
   </div>
 );
 
-type SearchSendDaysEditorProps = Readonly<{ control: Control<SettingsFormValues> }>;
+type SearchSendDaysEditorProps = Readonly<{
+  control: Control<SettingsFormValues>;
+  name: `markets.${number}.followUp.excludedWeekdays`;
+}>;
 
-const SearchSendDaysEditor = ({ control }: SearchSendDaysEditorProps) => (
+const SearchSendDaysEditor = ({ control, name }: SearchSendDaysEditorProps) => (
   <FormField
     control={control}
-    name="followUp.excludedWeekdays"
+    name={name}
     render={({ field }) => (
       <FormItem>
         <DaysInput value={field.value} onChange={field.onChange} />

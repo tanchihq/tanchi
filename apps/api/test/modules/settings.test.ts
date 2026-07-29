@@ -7,19 +7,18 @@ import {
 } from "../helpers/client.ts";
 import { truncateAll } from "../helpers/db.ts";
 
-const validUpdatePayload = () =>
+const validMarket = () =>
   ({
-    company: { name: "AlphaCorp", website: "https://alpha.test" },
-    resources: {
-      productPageUrl: "https://alpha.test/product",
-      salesDeckUrl: null,
-    },
+    id: null,
+    name: "France",
+    country: "FR",
     outreachLanguage: "en",
     companyProfile: "We help teams ship faster.",
-    followUp: { intervals: [3, 5], excludedWeekdays: [0, 6] },
     leadsPerDay: 42,
+    followUp: { intervals: [3, 5], excludedWeekdays: [0, 6] },
     icps: [
       {
+        id: null,
         name: "CTOs",
         archetype: "technical leader",
         description: "Technical decision makers at mid-market SaaS.",
@@ -28,6 +27,16 @@ const validUpdatePayload = () =>
         goldenRule: "stay concise",
       },
     ],
+  }) as const;
+
+const validUpdatePayload = () =>
+  ({
+    company: { name: "AlphaCorp", website: "https://alpha.test" },
+    resources: {
+      productPageUrl: "https://alpha.test/product",
+      salesDeckUrl: null,
+    },
+    markets: [validMarket()],
   }) as const;
 
 const updateSettings = async (cookie: string, body: unknown) =>
@@ -47,12 +56,7 @@ describe("settings: GET returns the active organization settings (response contr
     expect(body.company.website).toBeString();
     expect(body.resources.productPageUrl).toBeString();
     expect(body.resources.salesDeckUrl).toBeString();
-    expect(body.outreachLanguage).toBeString();
-    expect(body.companyProfile).toBeString();
-    expect(body.followUp.intervals).toBeArray();
-    expect(body.followUp.excludedWeekdays).toBeArray();
-    expect(body.leadsPerDay).toBeNumber();
-    expect(body.icps).toBeArray();
+    expect(body.markets).toBeArray();
   });
 });
 
@@ -67,19 +71,51 @@ describe("settings: update happy path round-trips through the response DTO", () 
     expect(body.company.website).toBe("https://alpha.test");
     expect(body.resources.productPageUrl).toBe("https://alpha.test/product");
     expect(body.resources.salesDeckUrl).toBe("");
-    expect(body.outreachLanguage).toBe("en");
-    expect(body.companyProfile).toBe("We help teams ship faster.");
-    expect(body.followUp.intervals).toEqual([3, 5]);
-    expect(body.followUp.excludedWeekdays).toEqual([0, 6]);
-    expect(body.leadsPerDay).toBe(42);
-    expect(body.icps.length).toBe(1);
-    expect(body.icps[0].name).toBe("CTOs");
-    expect(body.icps[0].description).toBe(
+    expect(body.markets.length).toBe(1);
+
+    const market = body.markets[0];
+    expect(market.id).toBeString();
+    expect(market.name).toBe("France");
+    expect(market.outreachLanguage).toBe("en");
+    expect(market.companyProfile).toBe("We help teams ship faster.");
+    expect(market.followUp.intervals).toEqual([3, 5]);
+    expect(market.followUp.excludedWeekdays).toEqual([0, 6]);
+    expect(market.leadsPerDay).toBe(42);
+    expect(market.icps.length).toBe(1);
+    expect(market.icps[0].name).toBe("CTOs");
+    expect(market.icps[0].description).toBe(
       "Technical decision makers at mid-market SaaS."
     );
 
     const reread = await authedRequest("/api/v1/settings", account.cookie);
     expect((await reread.json())).toEqual(body);
+  });
+
+  it("preserves market and icp ids across a second save (learning is not reset)", async () => {
+    const account = await createAccount();
+    const first = await (
+      await updateSettings(account.cookie, validUpdatePayload())
+    ).json();
+    const marketId = first.markets[0].id;
+    const icpId = first.markets[0].icps[0].id;
+
+    const second = await (
+      await updateSettings(account.cookie, {
+        ...validUpdatePayload(),
+        markets: [
+          {
+            ...validMarket(),
+            id: marketId,
+            name: "France (renamed)",
+            icps: [{ ...validMarket().icps[0], id: icpId }],
+          },
+        ],
+      })
+    ).json();
+
+    expect(second.markets[0].id).toBe(marketId);
+    expect(second.markets[0].name).toBe("France (renamed)");
+    expect(second.markets[0].icps[0].id).toBe(icpId);
   });
 });
 
@@ -88,7 +124,7 @@ describe("settings: update enforces the declared DTO bounds (all zod failures =>
     const account = await createAccount();
     const res = await updateSettings(account.cookie, {
       ...validUpdatePayload(),
-      leadsPerDay: 201,
+      markets: [{ ...validMarket(), leadsPerDay: 201 }],
     });
     expect(res.status).toBe(400);
     expect((await res.json()).message).toBe("invalidLeadsPerDay");
@@ -98,21 +134,31 @@ describe("settings: update enforces the declared DTO bounds (all zod failures =>
     const account = await createAccount();
     const res = await updateSettings(account.cookie, {
       ...validUpdatePayload(),
-      leadsPerDay: 0,
+      markets: [{ ...validMarket(), leadsPerDay: 0 }],
     });
     expect(res.status).toBe(400);
     expect((await res.json()).message).toBe("invalidLeadsPerDay");
   });
 
-  it("rejects more than MAX_ICPS=3 icps (400 tooManyIcps)", async () => {
+  it("rejects more than MAX_ICPS=3 icps per market (400 tooManyIcps)", async () => {
     const account = await createAccount();
-    const oneIcp = validUpdatePayload().icps[0];
+    const oneIcp = validMarket().icps[0];
     const res = await updateSettings(account.cookie, {
       ...validUpdatePayload(),
-      icps: [oneIcp, oneIcp, oneIcp, oneIcp],
+      markets: [{ ...validMarket(), icps: [oneIcp, oneIcp, oneIcp, oneIcp] }],
     });
     expect(res.status).toBe(400);
     expect((await res.json()).message).toBe("tooManyIcps");
+  });
+
+  it("rejects a market with no icps (400 invalidIcp)", async () => {
+    const account = await createAccount();
+    const res = await updateSettings(account.cookie, {
+      ...validUpdatePayload(),
+      markets: [{ ...validMarket(), icps: [] }],
+    });
+    expect(res.status).toBe(400);
+    expect((await res.json()).message).toBe("invalidIcp");
   });
 
   it("rejects a company name longer than MAX_COMPANY_NAME_LENGTH=200 (400 invalidCompanyName)", async () => {
@@ -139,7 +185,12 @@ describe("settings: update enforces the declared DTO bounds (all zod failures =>
     const account = await createAccount();
     const res = await updateSettings(account.cookie, {
       ...validUpdatePayload(),
-      followUp: { intervals: [61], excludedWeekdays: [0, 6] },
+      markets: [
+        {
+          ...validMarket(),
+          followUp: { intervals: [61], excludedWeekdays: [0, 6] },
+        },
+      ],
     });
     expect(res.status).toBe(400);
     expect((await res.json()).message).toBe("invalidFollowUp");
@@ -149,7 +200,7 @@ describe("settings: update enforces the declared DTO bounds (all zod failures =>
     const account = await createAccount();
     const res = await updateSettings(account.cookie, {
       ...validUpdatePayload(),
-      leadsPerDay: 9999,
+      markets: [{ ...validMarket(), leadsPerDay: 9999 }],
     });
     expect(res.status).not.toBe(422);
     expect(res.status).toBe(400);
@@ -185,7 +236,7 @@ describe("settings: multi-tenant isolation (product invariant #1)", () => {
       await authedRequest("/api/v1/settings", alpha.cookie)
     ).json();
     expect(alphaAfter.company.name).toBe("AlphaCorp");
-    expect(alphaAfter.leadsPerDay).toBe(42);
+    expect(alphaAfter.markets[0].leadsPerDay).toBe(42);
 
     const betaAfter = await (
       await authedRequest("/api/v1/settings", beta.cookie)

@@ -11,6 +11,7 @@ export type Entitlements = Readonly<{
   seats: number;
   senders: number;
   icps: number;
+  markets: number;
 }>;
 
 export type BillingState = "unlimited" | "trialing" | "active" | "expired";

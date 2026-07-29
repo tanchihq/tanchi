@@ -54,6 +54,9 @@ export function createSettingsRouter(settingsService: SettingsService) {
           case UpdateSettingsErrors.invalidLanguage:
           case UpdateSettingsErrors.invalidCompanyProfile:
           case UpdateSettingsErrors.invalidFollowUp:
+          case UpdateSettingsErrors.invalidLeadsPerDay:
+          case UpdateSettingsErrors.invalidMarket:
+          case UpdateSettingsErrors.tooManyMarkets:
           case UpdateSettingsErrors.invalidIcp:
           case UpdateSettingsErrors.tooManyIcps:
             return sendError(context, 400, result);

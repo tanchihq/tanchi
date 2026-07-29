@@ -3,11 +3,12 @@ import type {
   PgCopyFact,
   PgEngineLead,
 } from "../../repository/engine/engine.entities.ts";
-import type { EngineOffer } from "../../engine.types.ts";
+import type { EngineOffer, MarketContext } from "../../engine.types.ts";
 
 export type CopywriterContext = Readonly<{
   lead: PgEngineLead;
   offer: EngineOffer;
+  market: MarketContext;
   summary: string | null;
   facts: ReadonlyArray<PgCopyFact>;
   angle: PgCopyAngle | null;
@@ -23,7 +24,7 @@ function fullName(lead: PgEngineLead): string {
 }
 
 export function buildCopywriterPrompt(context: CopywriterContext): string {
-  const { lead, offer, summary, facts, angle, playbook, isExploration } =
+  const { lead, offer, market, summary, facts, angle, playbook, isExploration } =
     context;
   const factLines = facts.map(
     (fact) => `- ${fact.text} (source: ${fact.source_url})`
@@ -44,12 +45,12 @@ export function buildCopywriterPrompt(context: CopywriterContext): string {
       ? "- EXPLORATION MODE: try a new angle or phrasing, different from usual."
       : "",
     "",
-    `Write the email (subject and body) in this language: ${offer.outreachLanguage}.`,
+    `Write the email (subject and body) in this language: ${market.outreachLanguage}.`,
     "",
     `Our offer: ${offer.companyName} — ${offer.website}`,
-    offer.companyProfile === ""
+    market.companyProfile === ""
       ? ""
-      : `About us: ${offer.companyProfile}`,
+      : `About us: ${market.companyProfile}`,
     "",
     "<<<PROSPECT_DATA>>>",
     `Prospect: ${fullName(lead) || "unknown"}${lead.role === null ? "" : `, ${lead.role}`} at ${lead.company_name ?? "?"}`,
