@@ -6,6 +6,7 @@ import {
   type IcpDraft,
 } from '@/api/onboarding/entities/request.entities';
 import { type OnboardingStateDto } from '@/api/onboarding/entities/response.entities';
+import { captureFunnelPageview } from '@/analytics/posthog';
 import { AuthBackground } from '@/components/auth/AuthBackground';
 import { useAuth } from '@/store/context/auth.context';
 import { OnboardingShell } from './OnboardingShell';
@@ -76,6 +77,10 @@ const Onboarding = () => {
   const [stepIndex, setStepIndex] = useState(0);
   const [draft, setDraft] = useState<CompleteOnboardingDto>(INITIAL_DRAFT);
   const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    captureFunnelPageview();
+  }, []);
 
   const { onFetch: completeFetch, isLoading: isCompleting } =
     useCompleteOnboarding();

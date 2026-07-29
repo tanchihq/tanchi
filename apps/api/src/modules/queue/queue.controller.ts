@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import { captureEvent } from "@shared/analytics";
 import { sendError } from "@shared/errors";
 import { requireAuth, type AuthVariables } from "@shared/middleware/requireAuth.ts";
 import { zodValidationHook } from "@shared/middleware/zodValidationHook.ts";
@@ -105,13 +104,6 @@ export function createQueueRouter(queueService: QueueService) {
             return sendError(context, 500, result);
         }
 
-        if (typeof result !== "string") {
-          captureEvent({
-            distinctId: context.get("user").id,
-            event: "outreach_message_sent",
-            properties: { channel: result.channel },
-          });
-        }
         return context.json(result);
       }
     );
