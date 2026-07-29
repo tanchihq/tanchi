@@ -9,7 +9,16 @@ export const initAnalytics = () => {
   posthog.init(key, {
     api_host: host,
     defaults: '2025-05-24',
+    autocapture: false,
+    capture_pageview: false,
+    capture_pageleave: false,
+    disable_session_recording: true,
   });
+};
+
+export const captureFunnelPageview = () => {
+  if (key === undefined || key === '') return;
+  posthog.capture('$pageview');
 };
 
 export const identifyUser = (user: AuthUser) => {

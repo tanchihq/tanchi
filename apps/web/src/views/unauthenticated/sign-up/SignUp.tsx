@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Building2, Eye, EyeOff, Lock, Mail, User, UserPlus } from 'lucide-react';
+import { captureFunnelPageview } from '@/analytics/posthog';
 import { AuthShell } from '@/components/auth/AuthShell';
 import { GlassField } from '@/components/auth/GlassField';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,10 @@ const SignUp = () => {
   const navigate = useNavigate();
   const [showPw, setShowPw] = useState(false);
   const { onFetch, isLoading } = useSignUp();
+
+  useEffect(() => {
+    captureFunnelPageview();
+  }, []);
 
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
