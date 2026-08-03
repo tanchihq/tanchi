@@ -7,7 +7,9 @@ import type {
   PgProspectAngle,
   PgProspectFact,
   PgSenderCred,
+  PgStage,
 } from "./repository/prospects/prospects.entities.ts";
+import { FIRST_TOUCH_SEQUENCE_STEP } from "./prospects.constants.ts";
 import {
   ContactProspectErrors,
   DeleteProspectErrors,
@@ -35,6 +37,19 @@ function toCredentials(sender: PgSenderCred): MailboxCredentials {
     username: sender.username,
     secret: decryptSecret(sender.secret_encrypted),
   };
+}
+
+const KEPT_STAGES_AFTER_SEND: ReadonlyArray<PgStage> = [
+  "replied",
+  "meeting",
+  "won",
+];
+
+function stageAfterSend(lead: PgLeadRow): PgStage {
+  if (KEPT_STAGES_AFTER_SEND.includes(lead.stage)) return lead.stage;
+  return lead.sequence_step === FIRST_TOUCH_SEQUENCE_STEP
+    ? "contacted"
+    : "following-up";
 }
 
 export class ProspectsService {
@@ -193,7 +208,7 @@ export class ProspectsService {
 
     await this.prospectsRepository.updateOneLeadStage(
       id,
-      "following-up",
+      stageAfterSend(lead),
       "manual",
       organizationId
     );

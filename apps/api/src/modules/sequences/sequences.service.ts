@@ -88,10 +88,8 @@ export class SequencesService {
     if (gap === undefined) return;
 
     const dueAt = addBusinessDays(lead.last_sent_at, gap, excluded);
-    if (now < dueAt) {
-      await this.sequencesRepository.setNextFollowUpAt(lead.id, dueAt);
-      return;
-    }
+    await this.sequencesRepository.setNextFollowUpAt(lead.id, dueAt);
+    if (now < dueAt) return;
 
     if (lead.sequence_step > intervals.length) {
       await this.sequencesRepository.markNotInterested(lead.id);
@@ -136,7 +134,10 @@ export class SequencesService {
       body: parsed.body,
       lengthBucket: lengthBucket(parsed.body),
     });
-    await this.sequencesRepository.setNextFollowUpAt(lead.id, null);
+    await this.sequencesRepository.markFollowingUp(
+      lead.id,
+      lead.organization_id
+    );
     await recordActivity({
       organizationId: lead.organization_id,
       type: "follow_up",

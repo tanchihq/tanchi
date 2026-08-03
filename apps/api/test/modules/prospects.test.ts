@@ -14,6 +14,7 @@ type SeedLeadInput = Readonly<{
   channel?: string;
   email?: string | null;
   stage?: string;
+  sequenceStep?: number;
   companyId?: string | null;
   firstName?: string;
   lastName?: string;
@@ -41,13 +42,13 @@ const seedLead = async (
   await db`
     INSERT INTO leads (
       id, organization_id, company_id, first_name, last_name, email,
-      channel, stage
+      channel, stage, sequence_step
     )
     VALUES (
       ${id}, ${organizationId}, ${input.companyId ?? null},
       ${input.firstName ?? "Ada"}, ${input.lastName ?? "Lovelace"},
       ${input.email ?? null}, ${input.channel ?? "email"},
-      ${input.stage ?? "identified"}
+      ${input.stage ?? "identified"}, ${input.sequenceStep ?? 0}
     )
   `;
   return id;
@@ -523,12 +524,33 @@ describe("prospects: contact and validate send the latest draft", () => {
     expect(JSON.stringify(body)).not.toContain("secret_encrypted");
   });
 
-  it("validates a prospect (200) and moves it to stage 'following-up'", async () => {
+  it("validates a first touch (200) and moves it to stage 'contacted'", async () => {
     const account = await createAccount();
     await createActiveSender(account);
     const leadId = await seedLead(account.organizationId, {
       channel: "email",
       email: "target2@acme.test",
+    });
+    await seedDraft(account.organizationId, leadId, "email");
+
+    const res = await authedRequest(
+      `/api/v1/prospects/${leadId}/validate`,
+      account.cookie,
+      { method: "POST" }
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.stage).toBe("contacted");
+  });
+
+  it("validates a follow-up (200) and moves it to stage 'following-up'", async () => {
+    const account = await createAccount();
+    await createActiveSender(account);
+    const leadId = await seedLead(account.organizationId, {
+      channel: "email",
+      email: "target3@acme.test",
+      stage: "contacted",
+      sequenceStep: 1,
     });
     await seedDraft(account.organizationId, leadId, "email");
 

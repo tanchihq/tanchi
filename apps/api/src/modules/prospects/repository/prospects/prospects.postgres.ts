@@ -50,6 +50,7 @@ export class ProspectsPostgres {
           l.id, l.organization_id, l.first_name, l.last_name, l.role, l.channel,
           l.hot, l.stage, l.origin, l.email, l.email_status, l.phone,
           l.linkedin_url, l.instagram_url, l.score, l.qualification,
+          l.sequence_step,
           l.created_at, l.next_follow_up_at, l.snooze_until,
           l.company_id,
           c.name AS company_name,

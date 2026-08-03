@@ -206,14 +206,26 @@
   ::selection {
     background: var(--color-brand-100);
   }
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(167, 172, 184, 0.28) transparent;
+  }
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
   ::-webkit-scrollbar-thumb {
-    background: rgba(120, 116, 100, 0.25);
+    background: rgba(167, 172, 184, 0.28);
     border-radius: 8px;
     border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(167, 172, 184, 0.45);
     background-clip: content-box;
   }
 }

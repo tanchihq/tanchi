@@ -119,6 +119,23 @@ export class SequencesPostgres {
     }
   }
 
+  async markFollowingUp(
+    leadId: string,
+    organizationId: string
+  ): Promise<void> {
+    try {
+      await this.db`
+        UPDATE leads
+        SET stage = 'following-up', origin = 'auto', updated_at = NOW()
+        WHERE id = ${leadId}
+          AND organization_id = ${organizationId}
+          AND stage = 'contacted'
+      `;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
   async markNotInterested(leadId: string): Promise<void> {
     try {
       await this.db`
