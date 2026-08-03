@@ -56,6 +56,7 @@ type PgLeadRow = Readonly<{
   instagram_url: string | null;
   score: number | null;
   qualification: string | null;
+  sequence_step: number;
   created_at: Date;
   next_follow_up_at: Date | null;
   snooze_until: Date | null;

@@ -35,6 +35,10 @@ export class SequencesRepository {
     return this.sequencesPostgres.setNextFollowUpAt(leadId, nextFollowUpAt);
   }
 
+  markFollowingUp(leadId: string, organizationId: string): Promise<void> {
+    return this.sequencesPostgres.markFollowingUp(leadId, organizationId);
+  }
+
   markNotInterested(leadId: string): Promise<void> {
     return this.sequencesPostgres.markNotInterested(leadId);
   }

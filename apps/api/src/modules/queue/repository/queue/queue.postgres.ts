@@ -133,7 +133,12 @@ export class QueuePostgres {
         `;
         await tx`
           UPDATE leads
-          SET stage = 'contacted', sequence_step = sequence_step + 1,
+          SET stage = CASE
+                WHEN stage IN ('replied', 'meeting', 'won') THEN stage
+                WHEN sequence_step = 0 THEN 'contacted'
+                ELSE 'following-up'
+              END,
+              sequence_step = sequence_step + 1,
               next_follow_up_at = NULL, updated_at = NOW()
           WHERE id = ${input.leadId}
             AND organization_id = ${input.organizationId}
