@@ -69,9 +69,8 @@ export class CopywriterService {
       angleType: angle?.angle_type ?? null,
       angleTypeInferred,
       lengthBucket: lengthBucket(parsed.body),
-      ctaType: null,
-      persoDepth: null,
-      slot: null,
+      ctaType: parsed.ctaType,
+      persoDepth: parsed.persoDepth,
       isExploration,
     });
     return true;

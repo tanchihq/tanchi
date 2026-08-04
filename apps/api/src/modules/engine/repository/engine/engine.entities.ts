@@ -134,7 +134,6 @@ type CreateMessageDraftInput = Readonly<{
   lengthBucket: string | null;
   ctaType: string | null;
   persoDepth: string | null;
-  slot: string | null;
   isExploration: boolean;
 }>;
 
