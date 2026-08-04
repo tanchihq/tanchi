@@ -3,13 +3,17 @@ import { decryptSecret } from "@shared/crypto";
 import { sendEmail, type MailboxCredentials } from "@shared/mailbox";
 import type { ProspectsRepository } from "./repository/prospects/prospects.repository.ts";
 import type {
+  PgDraftMessage,
   PgLeadRow,
   PgProspectAngle,
   PgProspectFact,
   PgSenderCred,
   PgStage,
 } from "./repository/prospects/prospects.entities.ts";
-import { FIRST_TOUCH_SEQUENCE_STEP } from "./prospects.constants.ts";
+import {
+  CHANNEL_LABELS,
+  FIRST_TOUCH_SEQUENCE_STEP,
+} from "./prospects.constants.ts";
 import {
   ContactProspectErrors,
   DeleteProspectErrors,
@@ -25,6 +29,10 @@ import * as utils from "./prospects.utils.ts";
 type SendResult =
   | Readonly<{ ok: true }>
   | Readonly<{ ok: false; reason: "noDraft" | "noSender" | "sendFailed" }>;
+
+type DeliveryResult =
+  | Readonly<{ ok: true; senderId: string | null }>
+  | Readonly<{ ok: false; reason: "noSender" | "sendFailed" }>;
 
 function toCredentials(sender: PgSenderCred): MailboxCredentials {
   return {
@@ -227,8 +235,32 @@ export class ProspectsService {
     );
     if (draft === null) return { ok: false, reason: "noDraft" };
 
+    const delivery = await this.deliver(lead, draft, organizationId, senderId);
+    if (!delivery.ok) return { ok: false, reason: delivery.reason };
+
+    await this.prospectsRepository.markMessageSentAndRecord({
+      messageId: draft.id,
+      senderId: delivery.senderId,
+      organizationId,
+      leadId: lead.id,
+    });
+    await recordActivity({
+      organizationId,
+      type: "sent",
+      title: sentActivityTitle(lead),
+      leadId: lead.id,
+    });
+    return { ok: true };
+  }
+
+  private async deliver(
+    lead: PgLeadRow,
+    draft: PgDraftMessage,
+    organizationId: string,
+    senderId: string | undefined
+  ): Promise<DeliveryResult> {
     if (lead.channel !== "email" || lead.email === null) {
-      return { ok: true };
+      return { ok: true, senderId: null };
     }
 
     const sender =
@@ -252,24 +284,12 @@ export class ProspectsService {
       });
     } catch (error) {
       console.error(
-        `[prospects] sendDraft failed leadId=${lead.id}: ${errorMessage(error)}`
+        `[prospects] deliver failed leadId=${lead.id}: ${errorMessage(error)}`
       );
       return { ok: false, reason: "sendFailed" };
     }
 
-    await this.prospectsRepository.markMessageSentAndRecord({
-      messageId: draft.id,
-      senderId: sender.id,
-      organizationId,
-      leadId: lead.id,
-    });
-    await recordActivity({
-      organizationId,
-      type: "sent",
-      title: `Email sent to ${lead.email}`,
-      leadId: lead.id,
-    });
-    return { ok: true };
+    return { ok: true, senderId: sender.id };
   }
 
   private async assembleDetail(
@@ -326,6 +346,14 @@ function validateReason(
     case "sendFailed":
       return ValidateProspectErrors.sendFailed;
   }
+}
+
+function sentActivityTitle(lead: PgLeadRow): string {
+  if (lead.channel === "email" && lead.email !== null) {
+    return `Email sent to ${lead.email}`;
+  }
+  const label = CHANNEL_LABELS[lead.channel] ?? lead.channel;
+  return `${label} message marked as sent`;
 }
 
 function appendSignature(body: string, signature: string): string {

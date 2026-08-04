@@ -564,6 +564,97 @@ describe("prospects: contact and validate send the latest draft", () => {
     expect(body.stage).toBe("following-up");
   });
 
+  it("validates a linkedin draft without any sender and marks the message sent", async () => {
+    const account = await createAccount();
+    const leadId = await seedLead(account.organizationId, {
+      channel: "linkedin",
+      email: null,
+    });
+    const messageId = await seedDraft(
+      account.organizationId,
+      leadId,
+      "linkedin"
+    );
+
+    const res = await authedRequest(
+      `/api/v1/prospects/${leadId}/validate`,
+      account.cookie,
+      { method: "POST" }
+    );
+    expect(res.status).toBe(200);
+    expect((await res.json()).stage).toBe("contacted");
+
+    const [message] = await db`
+      SELECT status, sent_at, sender_id FROM messages WHERE id = ${messageId}
+    `;
+    expect(message?.status).toBe("sent");
+    expect(message?.sent_at).not.toBeNull();
+    expect(message?.sender_id).toBeNull();
+
+    const outcomes = await db`
+      SELECT stage_signal FROM outcomes WHERE message_id = ${messageId}
+    `;
+    expect(outcomes.length).toBe(1);
+    expect(outcomes[0]?.stage_signal).toBe("sent");
+
+    const [lead] = await db`
+      SELECT sequence_step, next_follow_up_at FROM leads WHERE id = ${leadId}
+    `;
+    expect(lead?.sequence_step).toBe(1);
+    expect(lead?.next_follow_up_at).toBeNull();
+  });
+
+  it("moves a linkedin follow-up to stage 'following-up' on validation", async () => {
+    const account = await createAccount();
+    const leadId = await seedLead(account.organizationId, {
+      channel: "linkedin",
+      email: null,
+      stage: "contacted",
+      sequenceStep: 1,
+    });
+    await seedDraft(account.organizationId, leadId, "linkedin");
+
+    const res = await authedRequest(
+      `/api/v1/prospects/${leadId}/validate`,
+      account.cookie,
+      { method: "POST" }
+    );
+    expect(res.status).toBe(200);
+    expect((await res.json()).stage).toBe("following-up");
+
+    const [lead] = await db`
+      SELECT sequence_step FROM leads WHERE id = ${leadId}
+    `;
+    expect(lead?.sequence_step).toBe(2);
+  });
+
+  it("keeps recording the sender on an email send", async () => {
+    const account = await createAccount();
+    const senderId = await createActiveSender(account);
+    const leadId = await seedLead(account.organizationId, {
+      channel: "email",
+      email: "sender-kept@acme.test",
+    });
+    const messageId = await seedDraft(
+      account.organizationId,
+      leadId,
+      "email"
+    );
+
+    const res = await authedRequest(
+      `/api/v1/prospects/${leadId}/validate`,
+      account.cookie,
+      { method: "POST" }
+    );
+    expect(res.status).toBe(200);
+
+    const [message] = await db`
+      SELECT status, sender_id FROM messages WHERE id = ${messageId}
+    `;
+    expect(message?.status).toBe("sent");
+    expect(message?.sender_id).toBe(senderId);
+  });
+
   it("returns 422 noDraft when the prospect has no draft message", async () => {
     const account = await createAccount();
     const leadId = await seedLead(account.organizationId, {

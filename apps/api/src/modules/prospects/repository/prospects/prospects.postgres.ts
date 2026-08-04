@@ -273,7 +273,7 @@ export class ProspectsPostgres {
   async markMessageSentAndRecord(
     input: Readonly<{
       messageId: string;
-      senderId: string;
+      senderId: string | null;
       organizationId: string;
       leadId: string;
     }>

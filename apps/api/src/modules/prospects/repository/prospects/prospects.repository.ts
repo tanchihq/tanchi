@@ -99,7 +99,7 @@ export class ProspectsRepository {
   markMessageSentAndRecord(
     input: Readonly<{
       messageId: string;
-      senderId: string;
+      senderId: string | null;
       organizationId: string;
       leadId: string;
     }>
