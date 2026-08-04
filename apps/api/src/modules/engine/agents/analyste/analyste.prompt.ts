@@ -77,7 +77,9 @@ export function buildPlaybookPrompt(input: PlaybookPromptInput): string {
     "- Ground every claim in the data above. If the sample is small, say so explicitly and stay conservative — do not overfit to one or two messages.",
     "- Prioritize the lesson from the human edits: tell the copywriter concretely what to do differently.",
     "- Keep it short: a handful of bullet points, actionable, no filler, no preamble.",
-    `- Write it in this language: ${outreachLanguage}.`,
+    "- Write the playbook in English, whatever the language of the messages.",
+    `- The messages themselves are written in ${outreachLanguage}. Quote any wording, phrase or example from them verbatim in that language — never translate a quote, the copywriter reuses it as is.`,
+    "- Write plain text. No markdown, no bold, no headings, no leading dashes or bullet characters — one lesson per line.",
     "- Output only the playbook text, nothing else.",
   ]
     .filter((line) => line !== "")
