@@ -41,8 +41,13 @@ export function buildFollowUpPrompt(context: FollowUpContext): string {
     "Previous email that got no reply:",
     context.previousMessage,
     "",
+    "",
+    "Then label what you actually wrote. Describe the message you produced, do not pick the value that sounds best.",
+    '- ctaType: "meeting" (asks for a call or a slot), "question" (asks an open question to trigger a reply), "resource" (offers to send something), "referral" (asks to be pointed to the right person), "soft" (no explicit ask).',
+    '- persoDepth: "deep" (built on a verified fact specific to this prospect), "medium" (company-level detail only), "shallow" (nothing specific beyond role or industry).',
+    "",
     "Respond with ONLY this JSON object, no surrounding text:",
-    '{ "subject": "email subject", "body": "message body" }',
+    '{ "subject": "email subject", "body": "message body", "ctaType": "meeting", "persoDepth": "deep" }',
   ]
     .filter((line) => line !== "")
     .join("\n");

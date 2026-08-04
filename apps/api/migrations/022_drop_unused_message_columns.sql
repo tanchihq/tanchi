@@ -1,0 +1,3 @@
+ALTER TABLE messages
+  DROP COLUMN IF EXISTS slot,
+  DROP COLUMN IF EXISTS seed_rationale;

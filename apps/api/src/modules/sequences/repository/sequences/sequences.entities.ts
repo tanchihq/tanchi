@@ -39,6 +39,8 @@ type CreateFollowUpDraftInput = Readonly<{
   subject: string | null;
   body: string;
   lengthBucket: string;
+  ctaType: string | null;
+  persoDepth: string | null;
 }>;
 
 export type {

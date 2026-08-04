@@ -133,6 +133,8 @@ export class SequencesService {
       subject: lead.channel === "email" ? parsed.subject : null,
       body: parsed.body,
       lengthBucket: lengthBucket(parsed.body),
+      ctaType: parsed.ctaType,
+      persoDepth: parsed.persoDepth,
     });
     await this.sequencesRepository.markFollowingUp(
       lead.id,

@@ -640,14 +640,14 @@ export class EnginePostgres {
         INSERT INTO messages (
           id, organization_id, lead_id, icp_id, channel, subject, body,
           status, origin, is_exploration, angle_type, angle_type_inferred,
-          length_bucket, cta_type, perso_depth, slot
+          length_bucket, cta_type, perso_depth
         )
         VALUES (
           ${Bun.randomUUIDv7()}, ${input.organizationId}, ${input.leadId},
           ${input.icpId}, ${input.channel}, ${input.subject}, ${input.body},
           'draft', 'auto', ${input.isExploration}, ${input.angleType},
           ${input.angleTypeInferred}, ${input.lengthBucket}, ${input.ctaType},
-          ${input.persoDepth}, ${input.slot}
+          ${input.persoDepth}
         )
       `;
     } catch (error) {

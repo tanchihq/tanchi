@@ -92,12 +92,14 @@ export class SequencesPostgres {
       await this.db`
         INSERT INTO messages (
           id, organization_id, lead_id, icp_id, channel, subject, body,
-          status, origin, is_exploration, angle_type, length_bucket
+          status, origin, is_exploration, angle_type, length_bucket,
+          cta_type, perso_depth
         )
         VALUES (
           ${Bun.randomUUIDv7()}, ${input.organizationId}, ${input.leadId},
           ${input.icpId}, ${input.channel}, ${input.subject}, ${input.body},
-          'draft', 'auto', FALSE, 'follow_up', ${input.lengthBucket}
+          'draft', 'auto', FALSE, 'follow_up', ${input.lengthBucket},
+          ${input.ctaType}, ${input.persoDepth}
         )
       `;
     } catch (error) {
