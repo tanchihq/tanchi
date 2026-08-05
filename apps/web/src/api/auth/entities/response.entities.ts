@@ -14,4 +14,5 @@ export type MeSessionDto = Readonly<{
 export type MeDto = Readonly<{
   user: MeUserDto;
   session: MeSessionDto;
+  requireEmailVerification: boolean;
 }>;

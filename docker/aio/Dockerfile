@@ -69,7 +69,6 @@ ENV NODE_ENV=production \
     AUTH_BASE_URL=http://localhost:8080 \
     LLM_PROVIDER=api \
     RUN_WORKERS=true \
-    REQUIRE_EMAIL_VERIFICATION=false \
     TRUSTED_PROXY_COUNT=1 \
     MAIL_FROM_EMAIL="Tanchi <no-reply@tanchi.io>"
 

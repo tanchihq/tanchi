@@ -21,7 +21,7 @@ import { chatRouter } from "./modules/chat/chat.module.ts";
 import { billingRouter } from "./modules/billing/billing.module.ts";
 import { closeQueues } from "@shared/queue";
 import { closeRateLimit, rateLimit } from "@shared/ratelimit";
-import { env } from "./env.ts";
+import { env, isEmailVerificationRequired } from "./env.ts";
 
 const HTTP_INTERNAL_SERVER_ERROR = 500;
 const AUTH_RATE_WINDOW_SECONDS = 900;
@@ -102,7 +102,11 @@ api.route("/chat", chatRouter);
 api.route("/billing", billingRouter);
 
 api.get("/me", requireAuth({ requireVerifiedEmail: false }), (c) =>
-  c.json({ user: c.get("user"), session: c.get("session") })
+  c.json({
+    user: c.get("user"),
+    session: c.get("session"),
+    requireEmailVerification: isEmailVerificationRequired,
+  })
 );
 
 app.route("/api/v1", api);

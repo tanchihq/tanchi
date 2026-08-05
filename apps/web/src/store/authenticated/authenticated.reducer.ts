@@ -7,18 +7,24 @@ export const authReducer = (
 ): AuthState => {
   switch (action.type) {
     case 'SESSION_LOADING':
-      return { status: 'loading', user: null, onboarding: 'unknown' };
+      return { ...state, status: 'loading', user: null, onboarding: 'unknown' };
     case 'AUTHENTICATED':
       return {
         status: 'authenticated',
         user: action.user,
         onboarding: action.onboarding,
+        isEmailVerificationRequired: action.isEmailVerificationRequired,
       };
     case 'UPDATE_USER':
       return { ...state, user: action.user };
     case 'ONBOARDING_COMPLETED':
       return { ...state, onboarding: 'completed' };
     case 'UNAUTHENTICATED':
-      return { status: 'unauthenticated', user: null, onboarding: 'unknown' };
+      return {
+        ...state,
+        status: 'unauthenticated',
+        user: null,
+        onboarding: 'unknown',
+      };
   }
 };
