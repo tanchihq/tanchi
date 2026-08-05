@@ -15,11 +15,8 @@ const useSignIn = () => {
   const navigate = useNavigate();
 
   return useAsyncEvent({
-    onError: ({ error, data }) => {
+    onError: ({ error }) => {
       switch (error.message) {
-        case SignInErrors.emailNotVerified:
-          navigate('/verify-email', { state: { email: data.email } });
-          break;
         case SignInErrors.invalidCredentials:
           toast.error('Incorrect email or password.');
           break;
@@ -39,9 +36,6 @@ const useSignIn = () => {
         callbackURL: appUrl('/'),
       });
       if (error) {
-        if (error.code === 'EMAIL_NOT_VERIFIED') {
-          throw new Error(SignInErrors.emailNotVerified);
-        }
         throw new Error(
           error.code !== undefined &&
           BETTER_AUTH_INVALID_CREDENTIALS_CODES.includes(error.code)

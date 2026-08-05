@@ -1,6 +1,5 @@
 export enum SignInErrors {
   invalidCredentials = 'invalidCredentials',
-  emailNotVerified = 'emailNotVerified',
   signInFailed = 'signInFailed',
 }
 

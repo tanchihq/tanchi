@@ -13,6 +13,7 @@ import { AuthContext } from './auth.context';
 type ResolvedSession = Readonly<{
   user: ReturnType<typeof authUserFromMe>;
   onboarding: OnboardingStatusState;
+  isEmailVerificationRequired: boolean;
 }>;
 
 const AuthProvider = ({ children }: Readonly<{ children: ReactNode }>) => {
@@ -26,6 +27,7 @@ const AuthProvider = ({ children }: Readonly<{ children: ReactNode }>) => {
         type: 'AUTHENTICATED',
         user: returnedData.user,
         onboarding: returnedData.onboarding,
+        isEmailVerificationRequired: returnedData.isEmailVerificationRequired,
       });
     },
     onError: () => dispatch({ type: 'UNAUTHENTICATED' }),
@@ -37,7 +39,11 @@ const AuthProvider = ({ children }: Readonly<{ children: ReactNode }>) => {
       } catch {
         onboarding = 'unknown';
       }
-      return { user: authUserFromMe(me), onboarding };
+      return {
+        user: authUserFromMe(me),
+        onboarding,
+        isEmailVerificationRequired: me.requireEmailVerification,
+      };
     },
   });
 

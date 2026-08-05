@@ -67,6 +67,8 @@ To reconfigure later: `docker exec -it tanchi entrypoint.sh setup`, then restart
 
 Open http://localhost:8080. Database migrations run automatically; session secrets are generated and persisted to the data volume on first boot. Because the web app and API are served same-origin behind one port, cookie auth works out of the box over `http://localhost`.
 
+> **Email verification is off by default.** Signing up logs you straight into the app: no confirmation email is sent and nothing asks you to click a link. Turn it on only if you have a mailer — `-e REQUIRE_EMAIL_VERIFICATION=true` together with `MAIL_SMTP_HOST` (or `RESEND_API_KEY`). With verification on, sign-up still logs you in, but the app shows a "verify your email" screen and the API answers 403 everywhere until the link is clicked. The API refuses to boot with verification on and no mailer, since no account could ever be verified.
+
 ### Full — docker compose (services split, recommended for real deployments)
 
 ```bash

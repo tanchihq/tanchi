@@ -9,6 +9,7 @@ export type AuthAction =
       type: 'AUTHENTICATED';
       user: AuthUser;
       onboarding: OnboardingStatusState;
+      isEmailVerificationRequired: boolean;
     }>
   | Readonly<{ type: 'UPDATE_USER'; user: AuthUser }>
   | Readonly<{ type: 'ONBOARDING_COMPLETED' }>

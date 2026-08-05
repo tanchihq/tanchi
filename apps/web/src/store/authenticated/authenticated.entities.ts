@@ -16,4 +16,5 @@ export type AuthState = Readonly<{
   status: SessionStatus;
   user: AuthUser | null;
   onboarding: OnboardingStatusState;
+  isEmailVerificationRequired: boolean;
 }>;

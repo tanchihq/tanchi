@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { Check, MailCheck } from 'lucide-react';
 import { AuthShell } from '@/components/auth/AuthShell';
 import { Button } from '@/components/ui/button';
@@ -6,21 +6,21 @@ import { FullPageLoader } from '@/components/FullPageLoader';
 import { useAuth } from '@/store/context/auth.context';
 import { useResendVerificationEmail } from './hooks/useResendVerificationEmail';
 
-type LocationState = Readonly<{ email?: string }> | null;
-
 const VerifyEmail = () => {
   const { state, signOut } = useAuth();
-  const location = useLocation();
   const { onFetch, isLoading, status } = useResendVerificationEmail();
 
   if (state.status === 'loading') return <FullPageLoader />;
+
+  if (!state.isEmailVerificationRequired) {
+    return <Navigate replace to="/" />;
+  }
 
   if (state.user !== null && state.user.emailVerified) {
     return <Navigate replace to="/" />;
   }
 
-  const emailFromState = (location.state as LocationState)?.email;
-  const email = state.user?.email ?? emailFromState;
+  const email = state.user?.email;
 
   if (email === undefined) {
     return <Navigate replace to="/sign-in" />;

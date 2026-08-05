@@ -46,7 +46,7 @@ const envSchema = z.object({
   POSTHOG_API_KEY: z.string().optional(),
   POSTHOG_HOST: z.url().default("https://eu.i.posthog.com"),
 
-  REQUIRE_EMAIL_VERIFICATION: z.enum(["true", "false"]).default("true"),
+  REQUIRE_EMAIL_VERIFICATION: z.enum(["true", "false"]).default("false"),
   DISABLE_SIGNUP: z.enum(["true", "false"]).default("false"),
   MAIL_FROM_EMAIL: z
     .string()
@@ -69,8 +69,16 @@ export const env: Env = envSchema.parse(process.env);
 
 export const isDevelopment = env.NODE_ENV === "development";
 export const isBillingEnabled = env.BILLING_ENABLED === "true";
+export const isMailerConfigured =
+  env.MAIL_SMTP_HOST !== undefined || env.RESEND_API_KEY !== undefined;
 export const isEmailVerificationRequired =
   env.REQUIRE_EMAIL_VERIFICATION === "true";
+
+if (isEmailVerificationRequired && !isMailerConfigured) {
+  throw new Error(
+    "REQUIRE_EMAIL_VERIFICATION=true needs a mailer to send the verification link: set MAIL_SMTP_HOST or RESEND_API_KEY, or set REQUIRE_EMAIL_VERIFICATION=false"
+  );
+}
 
 const MISSING_STRIPE_VARS = [
   ["STRIPE_SECRET_KEY", env.STRIPE_SECRET_KEY],
