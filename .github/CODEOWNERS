@@ -1,0 +1,19 @@
+# Every path below requires a review from its owner.
+# The last matching pattern wins, so the specific rules override the catch-all.
+
+* @tanchihq/maintainers
+
+# Supply chain: a PR that edits a workflow can exfiltrate secrets or publish an image.
+/.github/ @tanchihq/maintainers
+/docker/ @tanchihq/maintainers
+/docker-compose.yml @tanchihq/maintainers
+
+# Secret scanning and ignore rules: relaxing these is how a leak gets through.
+/.gitleaks.toml @tanchihq/maintainers
+/.gitignore @tanchihq/maintainers
+
+# Auth, configuration and database schema.
+/apps/api/src/env.ts @tanchihq/maintainers
+/apps/api/src/shared/auth/ @tanchihq/maintainers
+/apps/api/src/shared/middleware/ @tanchihq/maintainers
+/apps/api/migrations/ @tanchihq/maintainers
