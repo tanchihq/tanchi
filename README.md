@@ -11,7 +11,6 @@
 
 <p align="center">
   <a href="https://github.com/tanchihq/tanchi/actions/workflows/ci.yml"><img src="https://github.com/tanchihq/tanchi/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://github.com/tanchihq/tanchi/actions/workflows/docker.yml"><img src="https://github.com/tanchihq/tanchi/actions/workflows/docker.yml/badge.svg" alt="Docker" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg" alt="License: AGPL v3" /></a>
   <a href="https://tanchi.io"><img src="https://img.shields.io/badge/website-tanchi.io-0501F0" alt="Website" /></a>
 </p>
