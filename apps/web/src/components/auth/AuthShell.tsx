@@ -23,7 +23,7 @@ const AuthShell = ({
   onFooterClick,
   children,
 }: AuthShellProps) => (
-  <div className="bg-night-900 relative min-h-screen w-full overflow-hidden">
+  <div className="dark bg-night-900 relative min-h-screen w-full overflow-hidden">
     <AuthBackground />
 
     <div className="relative z-1 flex min-h-screen items-center justify-center px-5 py-10">

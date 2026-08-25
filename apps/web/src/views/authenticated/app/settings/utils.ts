@@ -102,16 +102,6 @@ export const toFormValues = (data: SettingsDto): SettingsFormValues => ({
   })),
 });
 
-export const LANGUAGES: ReadonlyArray<Readonly<{ code: string; label: string }>> = [
-  { code: 'en', label: 'English' },
-  { code: 'fr', label: 'French' },
-  { code: 'es', label: 'Spanish' },
-  { code: 'de', label: 'German' },
-  { code: 'it', label: 'Italian' },
-  { code: 'nl', label: 'Dutch' },
-  { code: 'pt', label: 'Portuguese' },
-];
-
 const MONTHLY_LEADS_REFERENCE = 200;
 const MIN_LEADS_PER_BUCKET = 35;
 
@@ -128,5 +118,4 @@ export const learningDilutionWarning = (
   return `You have ${buckets} profiles across your markets — about ${leadsPerBucket} leads/month each. Below ~${MIN_LEADS_PER_BUCKET}, the AI has too little signal to learn well per profile. Consider fewer profiles or markets.`;
 };
 
-export const languageLabel = (code: string): string =>
-  LANGUAGES.find((language) => language.code === code)?.label ?? code.toUpperCase();
+

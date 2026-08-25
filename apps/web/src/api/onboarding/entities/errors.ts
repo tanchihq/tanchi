@@ -16,6 +16,7 @@ export enum CompleteOnboardingErrors {
   invalidWebsite = 'invalidWebsite',
   invalidResource = 'invalidResource',
   invalidIcp = 'invalidIcp',
+  invalidMarket = 'invalidMarket',
   tooManyIcps = 'tooManyIcps',
   onboardingFailed = 'onboardingFailed',
 }

@@ -20,31 +20,31 @@ const LeadSummary = ({ lead }: LeadSummaryProps) => {
   const isEmail = lead.channel === 'email';
   const badgeAction = channelBadgeAction(lead);
   const badgeBaseClass =
-    'flex h-[30px] items-center gap-1.5 rounded-lg border border-white/8 bg-white/5 px-3';
+    'flex h-[30px] items-center gap-1.5 rounded-lg border border-app-line bg-app-hover px-3';
   const badgeInner = (
     <>
       <ChannelIcon channel={lead.channel} size={14} style={{ color: channel.color }} />
-      <span className="text-[13px] font-medium text-[#F3F2F8]">{channel.label}</span>
+      <span className="text-[13px] font-medium text-app-fg">{channel.label}</span>
     </>
   );
 
   return (
     <div className="flex min-w-0 flex-col gap-4">
-      <div className="rounded-2xl border border-white/[0.07] bg-[#171733] p-[20px_22px]">
+      <div className="rounded-2xl border border-app-line bg-app-surface p-[20px_22px]">
         <div className="flex items-start gap-3.5">
-          <div className="bg-brand-600/20 text-brand-300 flex size-[46px] items-center justify-center rounded-[13px] text-[15px] font-medium">
+          <div className="bg-app-accent-bg text-app-accent-fg flex size-[46px] items-center justify-center rounded-[13px] text-[15px] font-medium">
             {initialsOf(lead.firstName, lead.lastName)}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-[19px] font-medium tracking-tighter text-[#F3F2F8]">
+            <div className="text-[19px] font-medium tracking-tighter text-app-fg">
               {fullName(lead.firstName, lead.lastName)}
             </div>
-            <div className="mt-0.5 text-[13px] text-[#ABA8C0]">
+            <div className="mt-0.5 text-[13px] text-app-soft">
               {lead.role ? `${lead.role} · ` : ''}
               {lead.company.name}
             </div>
             {identityLine(lead) && (
-              <div className="mt-1 text-xs leading-snug text-[#6F6C85]">{identityLine(lead)}</div>
+              <div className="mt-1 text-xs leading-snug text-app-faint">{identityLine(lead)}</div>
             )}
           </div>
         </div>
@@ -58,7 +58,7 @@ const LeadSummary = ({ lead }: LeadSummaryProps) => {
                   rel="noopener noreferrer"
                   className={cn(
                     badgeBaseClass,
-                    'cursor-pointer no-underline transition-colors hover:bg-white/10',
+                    'cursor-pointer no-underline transition-colors hover:bg-app-hover',
                   )}
                 >
                   {badgeInner}
@@ -72,8 +72,8 @@ const LeadSummary = ({ lead }: LeadSummaryProps) => {
           <span
             className="flex h-[30px] items-center rounded-lg px-[11px] text-xs font-medium"
             style={{
-              background: isEmail ? 'rgba(5,1,240,0.18)' : 'rgba(251,191,119,0.14)',
-              color: isEmail ? '#A9A6FF' : '#FBBF77',
+              background: isEmail ? 'var(--app-accent-bg)' : 'var(--app-warn-bg)',
+              color: isEmail ? 'var(--app-accent-fg)' : 'var(--app-warn-fg)',
             }}
           >
             {isEmail ? 'auto send' : 'manual send'}
@@ -90,7 +90,7 @@ const LeadSummary = ({ lead }: LeadSummaryProps) => {
               href={lead.siteUrl}
               target="_blank"
               rel="noopener"
-              className="flex items-center gap-1.5 rounded-md border border-white/8 bg-white/[0.04] px-2 py-1 text-xs text-[#ABA8C0] no-underline"
+              className="flex items-center gap-1.5 rounded-md border border-app-line bg-app-hover px-2 py-1 text-xs text-app-soft no-underline"
             >
               <Globe size={13} /> Website
             </a>
@@ -100,22 +100,22 @@ const LeadSummary = ({ lead }: LeadSummaryProps) => {
               href={lead.linkedinUrl}
               target="_blank"
               rel="noopener"
-              className="flex items-center gap-1.5 rounded-md border border-white/8 bg-white/[0.04] px-2 py-1 text-xs text-[#ABA8C0] no-underline"
+              className="flex items-center gap-1.5 rounded-md border border-app-line bg-app-hover px-2 py-1 text-xs text-app-soft no-underline"
             >
               <LinkedinGlyph size={13} /> LinkedIn
             </a>
           )}
-          <span className="whitespace-nowrap rounded-md border border-white/8 bg-white/[0.04] px-2 py-1 text-xs text-[#6F6C85]">
+          <span className="whitespace-nowrap rounded-md border border-app-line bg-app-hover px-2 py-1 text-xs text-app-faint">
             {lead.icp}
           </span>
-          <span className="ml-auto whitespace-nowrap text-[11.5px] text-[#6F6C85]">
+          <span className="ml-auto whitespace-nowrap text-[11.5px] text-app-faint">
             {STAGE_LABEL[lead.stage]}
           </span>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/[0.07] bg-[#171733] p-[20px_22px]">
-        <div className="mb-3 text-[11px] uppercase tracking-[0.06em] text-[#6F6C85]">
+      <div className="rounded-2xl border border-app-line bg-app-surface p-[20px_22px]">
+        <div className="mb-3 text-[11px] uppercase tracking-[0.06em] text-app-faint">
           Intelligence
         </div>
         {lead.facts.length > 0 ? (
@@ -123,7 +123,7 @@ const LeadSummary = ({ lead }: LeadSummaryProps) => {
             <div className="mb-3.5 flex flex-col gap-2">
               {lead.facts.map((fact) => (
                 <div key={fact.text} className="flex items-start justify-between gap-3">
-                  <span className="text-[13px] text-[#F3F2F8]">{fact.text}</span>
+                  <span className="text-[13px] text-app-fg">{fact.text}</span>
                   {fact.sourceUrl && (
                     <a
                       href={fact.sourceUrl}
@@ -137,18 +137,18 @@ const LeadSummary = ({ lead }: LeadSummaryProps) => {
                 </div>
               ))}
             </div>
-            <div className="text-success flex items-center gap-1.5 text-[13px]">
+            <div className="text-app-success-fg flex items-center gap-1.5 text-[13px]">
               <Check size={15} /> {lead.sourcesCount} verified sources
             </div>
           </>
         ) : (
-          <div className="text-[13px] text-[#6F6C85]">No intelligence gathered yet.</div>
+          <div className="text-[13px] text-app-faint">No intelligence gathered yet.</div>
         )}
       </div>
 
       {lead.angles.length > 0 && (
-        <div className="rounded-2xl border border-white/[0.07] bg-[#171733] p-[20px_22px]">
-          <div className="mb-3 text-[11px] uppercase tracking-[0.06em] text-[#6F6C85]">
+        <div className="rounded-2xl border border-app-line bg-app-surface p-[20px_22px]">
+          <div className="mb-3 text-[11px] uppercase tracking-[0.06em] text-app-faint">
             Candidate angles
           </div>
           <div className="flex flex-col gap-2">
@@ -157,18 +157,18 @@ const LeadSummary = ({ lead }: LeadSummaryProps) => {
                 key={angle.rank}
                 className="flex items-center gap-3 rounded-[10px] border px-[13px] py-[11px]"
                 style={{
-                  background: angle.chosen ? 'rgba(5,1,240,0.16)' : 'rgba(255,255,255,0.03)',
-                  borderColor: angle.chosen ? 'rgba(124,121,246,0.4)' : 'rgba(255,255,255,0.07)',
+                  background: angle.chosen ? 'var(--app-accent-bg)' : 'var(--app-hover)',
+                  borderColor: angle.chosen ? 'var(--app-accent-line)' : 'var(--app-line)',
                 }}
               >
-                <span className="w-3.5 text-xs" style={{ color: angle.chosen ? '#7c79f6' : '#6f6c85' }}>
+                <span className="w-3.5 text-xs" style={{ color: angle.chosen ? 'var(--app-accent-fg)' : 'var(--app-faint)' }}>
                   {angle.rank}
                 </span>
                 <div className="flex-1">
-                  <div className="text-[13.5px]" style={{ color: angle.chosen ? '#F3F2F8' : '#ABA8C0' }}>
+                  <div className="text-[13.5px]" style={{ color: angle.chosen ? 'var(--app-fg)' : 'var(--app-soft)' }}>
                     {angle.title}
                   </div>
-                  <div className="mt-px text-xs text-[#6F6C85]">{angle.note}</div>
+                  <div className="mt-px text-xs text-app-faint">{angle.note}</div>
                 </div>
                 {angle.chosen && <Badge>chosen</Badge>}
               </div>

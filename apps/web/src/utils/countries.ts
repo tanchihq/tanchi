@@ -52,3 +52,18 @@ const COUNTRY_LANGUAGE: Readonly<Record<string, string>> = {
 
 export const defaultLanguageForCountry = (code: string): string =>
   COUNTRY_LANGUAGE[code.toUpperCase()] ?? 'en';
+
+export const LANGUAGES: ReadonlyArray<Readonly<{ code: string; label: string }>> =
+  [
+    { code: 'en', label: 'English' },
+    { code: 'fr', label: 'French' },
+    { code: 'es', label: 'Spanish' },
+    { code: 'de', label: 'German' },
+    { code: 'it', label: 'Italian' },
+    { code: 'nl', label: 'Dutch' },
+    { code: 'pt', label: 'Portuguese' },
+  ];
+
+export const languageLabel = (code: string): string =>
+  LANGUAGES.find((language) => language.code === code)?.label ??
+  code.toUpperCase();

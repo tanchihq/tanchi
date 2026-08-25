@@ -31,21 +31,21 @@ const StageRow = ({
   return (
     <div
       onClick={() => onOpen(prospect.id)}
-      className="flex cursor-pointer items-center gap-2 rounded-[9px] border border-white/[0.05] bg-white/[0.02] px-3 py-2 transition-colors hover:bg-white/[0.05]"
+      className="flex cursor-pointer items-center gap-2 rounded-[9px] border border-app-line bg-app-hover px-3 py-2 transition-colors hover:bg-app-hover"
     >
       <div className="flex min-w-0 flex-1 items-center gap-2">
-        <span className="truncate text-[12.5px] tracking-tight text-[#F3F2F8]">
+        <span className="truncate text-[12.5px] tracking-tight text-app-fg">
           {fullName(prospect.firstName, prospect.lastName)}
         </span>
         {prospect.hot && (
           <span
             className="bg-brand-400 size-1.5 shrink-0 rounded-full"
-            style={{ boxShadow: '0 0 0 3px rgba(124,121,246,0.16)' }}
+            style={{ boxShadow: '0 0 0 3px var(--app-accent-line)' }}
           />
         )}
-        <span className="shrink-0 text-[#3F3D57]">·</span>
-        <span className="truncate text-[11.5px] text-[#ABA8C0]">{prospect.company}</span>
-        <span className="hidden max-w-[130px] shrink-0 truncate rounded-md border border-white/8 bg-white/5 px-[7px] py-[1px] text-[10.5px] text-[#6F6C85] sm:inline">
+        <span className="shrink-0 text-app-faint">·</span>
+        <span className="truncate text-[11.5px] text-app-soft">{prospect.company}</span>
+        <span className="hidden max-w-[130px] shrink-0 truncate rounded-md border border-app-line bg-app-hover px-[7px] py-[1px] text-[10.5px] text-app-faint sm:inline">
           {prospect.icp}
         </span>
       </div>
@@ -54,8 +54,8 @@ const StageRow = ({
         <span
           className={
             expired
-              ? 'text-warn shrink-0 whitespace-nowrap text-[11px] font-medium'
-              : 'shrink-0 whitespace-nowrap text-[11px] text-[#6F6C85]'
+              ? 'text-app-warn-fg shrink-0 whitespace-nowrap text-[11px] font-medium'
+              : 'shrink-0 whitespace-nowrap text-[11px] text-app-faint'
           }
         >
           {expired ? `ready · ${wake}` : wake}
@@ -83,7 +83,7 @@ const StageRow = ({
           title="Exclude"
           aria-label="Exclude prospect"
           onClick={() => setExcludeOpen(true)}
-          className="flex size-7 items-center justify-center rounded-md border border-white/8 bg-white/[0.04] text-[#6F6C85] transition-colors hover:text-[#ff8a80]"
+          className="flex size-7 items-center justify-center rounded-md border border-app-line bg-app-hover text-app-faint transition-colors hover:text-app-danger-fg"
         >
           <Ban size={13} />
         </button>

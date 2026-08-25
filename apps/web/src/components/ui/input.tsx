@@ -5,7 +5,7 @@ const Input = ({ className, ...props }: ComponentProps<'input'>) => (
   <input
     data-slot="input"
     className={cn(
-      'glass-well text-glass-fg placeholder:text-glass-dim h-11 w-full px-4 text-sm outline-none disabled:opacity-60',
+      'glass-well text-app-fg placeholder:text-app-faint h-11 w-full px-4 text-sm outline-none disabled:opacity-60',
       className,
     )}
     {...props}

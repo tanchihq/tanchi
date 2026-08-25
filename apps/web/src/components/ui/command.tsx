@@ -19,12 +19,12 @@ const CommandInput = ({
   className,
   ...props
 }: ComponentProps<typeof CommandPrimitive.Input>) => (
-  <div className="flex items-center gap-2 border-b border-white/10 px-3" data-slot="command-input-wrapper">
-    <Search size={15} className="shrink-0 text-[#6F6C85]" />
+  <div className="flex items-center gap-2 border-b border-app-line px-3" data-slot="command-input-wrapper">
+    <Search size={15} className="shrink-0 text-app-faint" />
     <CommandPrimitive.Input
       data-slot="command-input"
       className={cn(
-        'flex h-10 w-full bg-transparent py-3 text-sm text-[#E7E5F2] outline-none placeholder:text-[#6F6C85] disabled:cursor-not-allowed disabled:opacity-50',
+        'flex h-10 w-full bg-transparent py-3 text-sm text-app-fg outline-none placeholder:text-app-faint disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
       {...props}
@@ -48,7 +48,7 @@ const CommandEmpty = ({
 }: ComponentProps<typeof CommandPrimitive.Empty>) => (
   <CommandPrimitive.Empty
     data-slot="command-empty"
-    className="py-6 text-center text-sm text-[#6F6C85]"
+    className="py-6 text-center text-sm text-app-faint"
     {...props}
   />
 );
@@ -60,7 +60,7 @@ const CommandItem = ({
   <CommandPrimitive.Item
     data-slot="command-item"
     className={cn(
-      "flex cursor-pointer select-none items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none data-[selected=true]:bg-white/[0.06] data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
+      "flex cursor-pointer select-none items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none data-[selected=true]:bg-app-hover data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
       className,
     )}
     {...props}

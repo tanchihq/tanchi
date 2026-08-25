@@ -15,7 +15,14 @@ export type IcpDraft = Readonly<{
   goldenRule: string;
 }>;
 
+export type MarketDraft = Readonly<{
+  name: string;
+  country: string;
+  outreachLanguage: string;
+}>;
+
 export type CompleteOnboardingDto = Readonly<{
+  market: MarketDraft;
   companyName: string;
   website: string;
   productPageUrl: string;
@@ -25,6 +32,7 @@ export type CompleteOnboardingDto = Readonly<{
 }>;
 
 export type GenerateProfileDto = Readonly<{
+  market: MarketDraft;
   companyName: string;
   website: string;
   productPageUrl: string;
@@ -34,4 +42,14 @@ export type GenerateProfileDto = Readonly<{
 export type SaveOnboardingProgressDto = Readonly<{
   step: number;
   draft: CompleteOnboardingDto;
+}>;
+
+export type GenerateIcpsDto = Readonly<{
+  market: MarketDraft;
+  companyName: string;
+  website: string;
+  productPageUrl: string;
+  salesDeckUrl: string;
+  companyProfile: string;
+  count: number;
 }>;

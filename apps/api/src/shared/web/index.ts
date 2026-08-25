@@ -77,7 +77,8 @@ export async function isPublicHost(host: string): Promise<boolean> {
 async function fetchGuarded(
   url: string,
   timeoutMs: number,
-  remainingRedirects: number
+  remainingRedirects: number,
+  acceptLanguage: string | undefined
 ): Promise<Response | null> {
   let parsed: URL;
   try {
@@ -92,7 +93,13 @@ async function fetchGuarded(
   target.hostname = isIP(pinnedIp) === 6 ? `[${pinnedIp}]` : pinnedIp;
   const response = await fetch(target.toString(), {
     signal: AbortSignal.timeout(timeoutMs),
-    headers: { "user-agent": USER_AGENT, host: parsed.host },
+    headers: {
+      "user-agent": USER_AGENT,
+      host: parsed.host,
+      ...(acceptLanguage !== undefined && {
+        "accept-language": acceptLanguage,
+      }),
+    },
     redirect: "manual",
     ...(parsed.protocol === "https:" && {
       tls: { serverName: parsed.hostname },
@@ -104,7 +111,8 @@ async function fetchGuarded(
     return fetchGuarded(
       new URL(location, parsed).toString(),
       timeoutMs,
-      remainingRedirects - 1
+      remainingRedirects - 1,
+      acceptLanguage
     );
   }
   return response;
@@ -133,10 +141,16 @@ export function htmlToText(html: string): string {
 
 export async function fetchPageText(
   url: string,
-  timeoutMs: number = DEFAULT_FETCH_TIMEOUT_MS
+  timeoutMs: number = DEFAULT_FETCH_TIMEOUT_MS,
+  acceptLanguage?: string
 ): Promise<string | null> {
   try {
-    const response = await fetchGuarded(url, timeoutMs, MAX_REDIRECTS);
+    const response = await fetchGuarded(
+      url,
+      timeoutMs,
+      MAX_REDIRECTS,
+      acceptLanguage
+    );
     if (response === null || !response.ok) return null;
     const html = await response.text();
     return htmlToText(html);

@@ -121,6 +121,41 @@
   --sidebar-accent-foreground: var(--color-brand-800);
   --sidebar-border: var(--color-sand-200);
   --sidebar-ring: var(--color-brand-600);
+
+  --app-bg: var(--color-paper);
+  --app-surface: #ffffff;
+  --app-raised: var(--color-paper-2);
+  --app-well: var(--color-paper-2);
+  --app-line: var(--color-sand-200);
+  --app-line-strong: var(--color-sand-300);
+  --app-fg: var(--color-ink);
+  --app-soft: var(--color-ink-soft);
+  --app-faint: var(--color-ink-faint);
+  --app-hover: rgba(30, 28, 23, 0.05);
+  --app-accent-bg: var(--color-brand-50);
+  --app-accent-fg: var(--color-brand-700);
+  --app-accent-line: var(--color-brand-200);
+  --app-success-fg: var(--color-success-deep);
+  --app-success-bg: rgba(28, 138, 82, 0.1);
+  --app-warn-fg: #9a6700;
+  --app-warn-bg: rgba(251, 188, 5, 0.16);
+  --app-danger-fg: var(--color-danger-deep);
+  --app-danger-bg: rgba(234, 67, 53, 0.1);
+  --app-aurora: radial-gradient(
+    120% 100% at 50% 38%,
+    #ffffff 0%,
+    #faf9f5 48%,
+    #f3f2ec 100%
+  );
+  --app-glow-a: rgba(5, 1, 240, 0.08);
+  --app-glow-b: rgba(5, 1, 240, 0.06);
+  --app-well-surface: #ffffff;
+  --app-well-border: var(--color-sand-200);
+  --app-well-shadow: inset 0 1px 2px rgba(30, 28, 23, 0.06);
+  --app-drop: rgba(30, 28, 23, 0.26);
+  --app-card-surface: rgba(255, 255, 255, 0.92);
+  --app-card-border: var(--color-sand-200);
+  --app-card-shadow: var(--shadow-paper-card);
 }
 
 .dark {
@@ -150,6 +185,41 @@
   --sidebar-accent-foreground: var(--color-glass-fg);
   --sidebar-border: rgba(255, 255, 255, 0.12);
   --sidebar-ring: var(--color-brand-400);
+
+  --app-bg: var(--color-night-900);
+  --app-surface: #171733;
+  --app-raised: #1d1c42;
+  --app-well: #0e0e22;
+  --app-line: rgba(255, 255, 255, 0.08);
+  --app-line-strong: rgba(255, 255, 255, 0.14);
+  --app-fg: #f3f2f8;
+  --app-soft: #aba8c0;
+  --app-faint: #6f6c85;
+  --app-hover: rgba(255, 255, 255, 0.05);
+  --app-accent-bg: rgba(5, 1, 240, 0.2);
+  --app-accent-fg: var(--color-brand-300);
+  --app-accent-line: rgba(124, 121, 246, 0.4);
+  --app-success-fg: var(--color-success);
+  --app-success-bg: rgba(74, 222, 128, 0.14);
+  --app-warn-fg: var(--color-warn);
+  --app-warn-bg: rgba(251, 191, 119, 0.14);
+  --app-danger-fg: var(--color-danger);
+  --app-danger-bg: rgba(255, 138, 128, 0.14);
+  --app-aurora: radial-gradient(
+    120% 100% at 50% 38%,
+    #13132d 0%,
+    #0d0d22 48%,
+    #0a0a1f 100%
+  );
+  --app-glow-a: rgba(5, 1, 240, 0.16);
+  --app-glow-b: rgba(5, 1, 240, 0.12);
+  --app-well-surface: rgba(10, 10, 31, 0.42);
+  --app-well-border: rgba(255, 255, 255, 0.12);
+  --app-well-shadow: var(--shadow-well);
+  --app-drop: rgba(0, 0, 0, 0.7);
+  --app-card-surface: rgba(20, 19, 48, 0.46);
+  --app-card-border: rgba(255, 255, 255, 0.16);
+  --app-card-shadow: var(--shadow-glass);
 }
 
 /* Maps the semantic variables to the Tailwind colors (bg-background…). */
@@ -189,6 +259,26 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-app-bg: var(--app-bg);
+  --color-app-surface: var(--app-surface);
+  --color-app-raised: var(--app-raised);
+  --color-app-well: var(--app-well);
+  --color-app-line: var(--app-line);
+  --color-app-line-strong: var(--app-line-strong);
+  --color-app-fg: var(--app-fg);
+  --color-app-soft: var(--app-soft);
+  --color-app-faint: var(--app-faint);
+  --color-app-hover: var(--app-hover);
+  --color-app-accent-bg: var(--app-accent-bg);
+  --color-app-accent-fg: var(--app-accent-fg);
+  --color-app-accent-line: var(--app-accent-line);
+  --color-app-success-fg: var(--app-success-fg);
+  --color-app-success-bg: var(--app-success-bg);
+  --color-app-warn-fg: var(--app-warn-fg);
+  --color-app-warn-bg: var(--app-warn-bg);
+  --color-app-danger-fg: var(--app-danger-fg);
+  --color-app-danger-bg: var(--app-danger-bg);
 }
 
 @layer base {
@@ -237,12 +327,12 @@
 @layer components {
   /* The dark translucent, blurred card. */
   .glass-card {
-    background: rgba(20, 19, 48, 0.46);
+    background: var(--app-card-surface);
     backdrop-filter: blur(36px) saturate(155%);
     -webkit-backdrop-filter: blur(36px) saturate(155%);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid var(--app-card-border);
     border-radius: var(--radius-card);
-    box-shadow: var(--shadow-glass);
+    box-shadow: var(--app-card-shadow);
   }
 
   /* Gradient hairline placed at the bottom of a glass card. */
@@ -265,19 +355,19 @@
 
   /* "well" field: dark translucent inset. */
   .glass-well {
-    background: rgba(10, 10, 31, 0.42);
+    background: var(--app-well-surface);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--app-well-border);
     border-radius: var(--radius-well);
-    box-shadow: var(--shadow-well);
+    box-shadow: var(--app-well-shadow);
     transition: box-shadow 0.15s ease;
   }
   .glass-well:focus-within {
     box-shadow: var(--shadow-well-focus);
   }
   .glass-well input::placeholder {
-    color: var(--color-glass-dim);
+    color: var(--app-faint);
     opacity: 1;
   }
 }

@@ -35,15 +35,15 @@ const Modal = ({ open, onClose, title, children }: ModalProps) => {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="glass-card shadow-glass relative z-10 w-full max-w-[440px] rounded-[18px] border border-white/[0.08] bg-[#171733] p-[22px_24px]"
+        className="glass-card relative z-10 w-full max-w-[440px] rounded-[18px] border border-app-line bg-app-surface p-[22px_24px]"
       >
         <div className="mb-4 flex items-start justify-between gap-3">
-          <h2 className="text-[15px] font-medium tracking-tight text-[#F3F2F8]">{title}</h2>
+          <h2 className="text-[15px] font-medium tracking-tight text-app-fg">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="-mr-1 -mt-0.5 shrink-0 text-[#6F6C85] transition-colors hover:text-white"
+            className="-mr-1 -mt-0.5 shrink-0 text-app-faint transition-colors hover:text-app-fg"
           >
             <X size={18} />
           </button>

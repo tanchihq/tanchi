@@ -27,10 +27,20 @@ const envSchema = z.object({
       message: "ENCRYPTION_KEY must not be a placeholder value",
     }),
 
-  LLM_PROVIDER: z.enum(["cli", "api"]).default("cli"),
+  LLM_PROVIDER: z
+    .enum(["cli", "api", "anthropic", "openai", "gemini", "kimi"])
+    .default("cli"),
+  LLM_RESEARCH_PROVIDER: z
+    .enum(["cli", "api", "anthropic", "openai", "gemini", "kimi"])
+    .optional(),
   CLAUDE_CLI_BIN: z.string().min(1).default("claude"),
   CLAUDE_CLI_TIMEOUT_MS: z.coerce.number().int().positive().default(600_000),
   ANTHROPIC_API_KEY: z.string().optional(),
+  OPENAI_API_KEY: z.string().optional(),
+  OPENAI_BASE_URL: z.url().default("https://api.openai.com/v1"),
+  GEMINI_API_KEY: z.string().optional(),
+  MOONSHOT_API_KEY: z.string().optional(),
+  MOONSHOT_BASE_URL: z.url().default("https://api.moonshot.ai/v1"),
 
   REDIS_URL: z.string().min(1).default("redis://localhost:6379"),
   TRUSTED_PROXY_COUNT: z.coerce.number().int().min(0).default(0),

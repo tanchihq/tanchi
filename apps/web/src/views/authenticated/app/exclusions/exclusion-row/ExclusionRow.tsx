@@ -18,16 +18,16 @@ const ExclusionRow = ({ entry, onReinstated }: ExclusionRowProps) => {
   const isCompany = entry.scope === 'company';
 
   return (
-    <div className="flex items-center gap-3 rounded-[12px] border border-white/[0.06] bg-white/[0.02] px-4 py-3">
-      <div className="text-glass-dim flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.05]">
+    <div className="flex items-center gap-3 rounded-[12px] border border-app-line bg-app-hover px-4 py-3">
+      <div className="text-app-faint flex size-8 shrink-0 items-center justify-center rounded-lg bg-app-hover">
         {isCompany ? <Building2 size={15} /> : <User size={15} />}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-[13px] text-[#F3F2F8]">{entryLabel(entry)}</span>
+          <span className="truncate text-[13px] text-app-fg">{entryLabel(entry)}</span>
           <Badge variant="neutral">{isCompany ? 'Company' : 'Person'}</Badge>
         </div>
-        <div className="truncate text-[11px] text-[#6F6C85]">
+        <div className="truncate text-[11px] text-app-faint">
           {entry.reason ? entry.reason : 'No reason given'} · {dayLabel(entry.createdAt)}
         </div>
       </div>

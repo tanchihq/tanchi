@@ -4,7 +4,7 @@ import { cn } from '@/utils/lib/utils';
 const Label = ({ className, ...props }: ComponentProps<'label'>) => (
   <label
     data-slot="label"
-    className={cn('text-[13px] text-[#A7ACB8]', className)}
+    className={cn('text-app-soft text-[13px]', className)}
     {...props}
   />
 );

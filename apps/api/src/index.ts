@@ -19,6 +19,12 @@ import { suppressionRouter } from "./modules/suppression/suppression.module.ts";
 import { messagesRouter } from "./modules/messages/messages.module.ts";
 import { chatRouter } from "./modules/chat/chat.module.ts";
 import { billingRouter } from "./modules/billing/billing.module.ts";
+import {
+  activeProviderLabel,
+  isResearchAvailable,
+  researchProviderLabel,
+  researchUnavailableReason,
+} from "@shared/llm";
 import { closeQueues } from "@shared/queue";
 import { closeRateLimit, rateLimit } from "@shared/ratelimit";
 import { env, isEmailVerificationRequired } from "./env.ts";
@@ -113,11 +119,27 @@ app.route("/api/v1", api);
 
 export { app };
 
+console.log(
+  `[llm] generation provider '${activeProviderLabel}', research provider '${researchProviderLabel}'`
+);
+
 if (env.RUN_WORKERS === "true") {
-  startEngineWorkers();
-  startRewardWorkers();
-  startSequencesWorkers();
-  console.log("[workers] engine-nightly + reward-poll + sequences started");
+  if (!isResearchAvailable) {
+    console.error(
+      `[llm] research provider '${researchProviderLabel}' exposes no usable web search — ${researchUnavailableReason}.`
+    );
+    console.error(
+      "[llm] the intelligence engine stays off: a dossier without sourced facts is worse than no dossier."
+    );
+    console.error(
+      "[llm] set LLM_RESEARCH_PROVIDER to anthropic, openai or gemini to enable it."
+    );
+  } else {
+    startEngineWorkers();
+    startRewardWorkers();
+    startSequencesWorkers();
+    console.log("[workers] engine-nightly + reward-poll + sequences started");
+  }
 }
 
 const shutdown = async (signal: string): Promise<void> => {

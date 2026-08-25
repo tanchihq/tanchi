@@ -1,12 +1,19 @@
 import { type AxiosInstance } from 'axios';
 import { throwApiError } from '@/api/shared/extract-error';
 import { SettingsErrors } from './entities/errors';
-import { type GeneratedProfileDto } from './entities/settings.entities';
+import {
+  type GeneratedProfileDto,
+  type GenerateProfileMarketDto,
+} from './entities/settings.entities';
 
 const generateProfile =
-  (axios: AxiosInstance) => async (): Promise<GeneratedProfileDto> => {
+  (axios: AxiosInstance) =>
+  async (dto: GenerateProfileMarketDto): Promise<GeneratedProfileDto> => {
     try {
-      const response = await axios.post<GeneratedProfileDto>('/settings/generate-profile');
+      const response = await axios.post<GeneratedProfileDto>(
+        '/settings/generate-profile',
+        dto,
+      );
       return response.data;
     } catch (error: unknown) {
       return throwApiError(error, SettingsErrors.generationFailed);

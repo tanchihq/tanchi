@@ -1,10 +1,14 @@
 import { APIError } from "better-auth/api";
 import { captureEvent } from "@shared/analytics";
-import { generateCompanyProfile } from "@shared/company-profile";
+import {
+  generateCompanyProfile,
+  generateIcpSuggestions,
+} from "@shared/company-profile";
 import type { auth as authInstance } from "@shared/auth";
 import type { OnboardingRepository } from "./repository/onboarding/onboarding.repository.ts";
 import {
   CompleteOnboardingErrors,
+  GenerateIcpsErrors,
   GenerateProfileErrors,
   OnboardingStateErrors,
   SaveOnboardingProgressErrors,
@@ -180,6 +184,7 @@ export class OnboardingService {
           salesDeckUrl: dto.salesDeckUrl ?? "",
           companyProfile: dto.companyProfile,
         },
+        market: dto.market,
         icps: dto.icps,
       });
     } catch (error) {
@@ -203,6 +208,9 @@ export class OnboardingService {
         website: dto.website,
         productPageUrl: dto.productPageUrl ?? "",
         salesDeckUrl: dto.salesDeckUrl ?? "",
+        marketName: dto.market.name,
+        country: dto.market.country,
+        outreachLanguage: dto.market.outreachLanguage,
       });
       return { companyProfile };
     } catch (error) {
@@ -212,6 +220,33 @@ export class OnboardingService {
         }`
       );
       return GenerateProfileErrors.generationFailed;
+    }
+  }
+
+  async generateIcps(
+    dto: RequestDto.GenerateIcpsDto
+  ): Promise<ResponseDto.GeneratedIcpsDto | GenerateIcpsErrors> {
+    try {
+      const icps = await generateIcpSuggestions({
+        companyName: dto.companyName ?? "",
+        website: dto.website,
+        productPageUrl: dto.productPageUrl ?? "",
+        salesDeckUrl: dto.salesDeckUrl ?? "",
+        companyProfile: dto.companyProfile ?? "",
+        marketName: dto.market.name,
+        country: dto.market.country,
+        outreachLanguage: dto.market.outreachLanguage,
+        count: dto.count,
+      });
+      if (icps.length === 0) return GenerateIcpsErrors.generationFailed;
+      return { icps };
+    } catch (error) {
+      console.error(
+        `[onboarding] generateIcps failed: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+      return GenerateIcpsErrors.generationFailed;
     }
   }
 

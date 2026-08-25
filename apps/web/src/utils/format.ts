@@ -44,7 +44,9 @@ export const isDueToday = (iso: string | null): boolean =>
   followUpLabel(iso) === 'today' || followUpLabel(iso) === 'overdue';
 
 export const timelineDotColor = (kind: string): string => {
-  if (kind === 'reply' || kind === 'positive' || kind === 'won') return '#4ade80';
-  if (kind === 'sent' || kind === 'meeting') return '#7c79f6';
-  return '#6f6c85';
+  if (kind === 'reply' || kind === 'positive' || kind === 'won') {
+    return 'var(--app-success-fg)';
+  }
+  if (kind === 'sent' || kind === 'meeting') return 'var(--app-accent-fg)';
+  return 'var(--app-faint)';
 };

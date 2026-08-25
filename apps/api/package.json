@@ -11,6 +11,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",
     "@better-auth/stripe": "^1.6.23",
+    "@google/genai": "^2.18.0",
     "@hono/zod-validator": "^0.7.6",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@react-email/components": "^1.0.12",
@@ -21,6 +22,7 @@
     "imapflow": "^1.4.3",
     "ioredis": "^5.11.1",
     "nodemailer": "^9.0.3",
+    "openai": "^7.5.0",
     "postgres": "^3.4.9",
     "posthog-node": "^5.45.2",
     "react": "^19.2.7",

@@ -30,7 +30,7 @@ const LeadAttachMenu = ({ candidates, attachedLeadIds, onAttach }: LeadAttachMen
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="flex h-6 items-center gap-1 rounded-full border border-dashed border-white/15 px-2 text-[11.5px] text-[#8F8CA6] transition-colors hover:border-white/25 hover:text-white"
+        className="flex h-6 items-center gap-1 rounded-full border border-dashed border-app-line px-2 text-[11.5px] text-app-faint transition-colors hover:border-app-line hover:text-app-fg"
       >
         <AtSign size={12} /> Add a lead
       </button>
@@ -38,11 +38,11 @@ const LeadAttachMenu = ({ candidates, attachedLeadIds, onAttach }: LeadAttachMen
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="glass-card shadow-glass absolute bottom-8 left-0 z-20 w-[300px] rounded-[14px] border border-white/[0.08] bg-[#171733] p-2.5">
+          <div className="glass-card absolute bottom-8 left-0 z-20 w-[300px] rounded-[14px] border border-app-line bg-app-surface p-2.5">
             <div className="relative mb-2">
               <Search
                 size={14}
-                className="text-glass-dim pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
+                className="text-app-faint pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
               />
               <Input
                 autoFocus
@@ -54,7 +54,7 @@ const LeadAttachMenu = ({ candidates, attachedLeadIds, onAttach }: LeadAttachMen
             </div>
             <div className="flex max-h-[260px] flex-col gap-0.5 overflow-y-auto">
               {prospects.length === 0 ? (
-                <div className="px-2 py-4 text-center text-[12px] text-[#6F6C85]">
+                <div className="px-2 py-4 text-center text-[12px] text-app-faint">
                   No prospect to add.
                 </div>
               ) : (
@@ -63,12 +63,12 @@ const LeadAttachMenu = ({ candidates, attachedLeadIds, onAttach }: LeadAttachMen
                     key={prospect.id}
                     type="button"
                     onClick={() => attach(prospect.id)}
-                    className="flex flex-col rounded-[9px] px-2.5 py-1.5 text-left transition-colors hover:bg-white/[0.06]"
+                    className="flex flex-col rounded-[9px] px-2.5 py-1.5 text-left transition-colors hover:bg-app-hover"
                   >
-                    <span className="truncate text-[12.5px] text-[#F3F2F8]">
+                    <span className="truncate text-[12.5px] text-app-fg">
                       {fullName(prospect.firstName, prospect.lastName)}
                     </span>
-                    <span className="truncate text-[11px] text-[#6F6C85]">
+                    <span className="truncate text-[11px] text-app-faint">
                       {prospect.company}
                     </span>
                   </button>

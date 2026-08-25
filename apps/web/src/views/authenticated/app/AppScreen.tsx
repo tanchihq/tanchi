@@ -6,8 +6,8 @@ const AppScreen = ({
   children,
 }: Readonly<{ title: string; children: ReactNode }>) => (
   <>
-    <header className="bg-night-700/55 relative z-30 flex h-[60px] shrink-0 items-center justify-between border-b border-white/8 px-[26px] backdrop-blur-[22px]">
-      <span className="text-[18px] font-medium tracking-tighter text-[#F3F2F8]">
+    <header className="bg-app-raised/55 relative z-30 flex h-[60px] shrink-0 items-center justify-between border-b border-app-line px-[26px] backdrop-blur-[22px]">
+      <span className="text-[18px] font-medium tracking-tighter text-app-fg">
         {title}
       </span>
       <AgentStatus />

@@ -10,7 +10,13 @@ export const ORG_SLUG_BASE_MAX_LENGTH = 40;
 export const ORG_SLUG_RANDOM_SUFFIX_LENGTH = 6;
 
 export const MIN_STEP = 0;
-export const MAX_STEP = 3;
+export const MAX_STEP = 2;
+
+export const MAX_MARKET_NAME_LENGTH = 120;
+export const COUNTRY_CODE_LENGTH = 2;
+export const DEFAULT_COUNTRY = "US";
+export const DEFAULT_MARKET_NAME = "United States";
+export const DEFAULT_OUTREACH_LANGUAGE = "en";
 
 export const MAX_ICPS = 3;
 export const MAX_DRAFT_ICPS = 10;
@@ -28,3 +34,6 @@ export const GENERATE_PROFILE_RATE_LIMIT = 30;
 
 export const SIGN_UP_RATE_LIMIT_WINDOW_SECONDS = 3600;
 export const SIGN_UP_RATE_LIMIT = 10;
+
+export const GENERATE_ICPS_RATE_LIMIT_WINDOW_SECONDS = 3600;
+export const GENERATE_ICPS_RATE_LIMIT = 20;

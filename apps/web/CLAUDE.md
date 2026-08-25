@@ -30,7 +30,12 @@ First-order product requirement. A salesperson opens the app in the evening, val
 - **One screen, one job.** The evening dashboard shows the day's leads, their dossier, the proposed message, the state of follow-ups. Nothing more by default.
 - **The message review queue is the central screen.** Validate, edit or send a draft in a few seconds. This is where the UX must be flawless. Optimize this flow before everything else.
 - **Auto mode is explicit and reversible.** You always see what goes out on its own and what awaits validation. No opaque magic.
-- **Guided onboarding.** Company setup + ICP + resources in a linear flow, not a 40-field form in one block.
+- **Guided onboarding.** Three steps: company, resources, ideal clients. The AI
+  drafts the ideal client profiles from the site and the resources; the user
+  reviews them in collapsed accordions and edits only what matters. Never a wall
+  of fields to fill by hand, and never a step that only asks what the AI can
+  infer. Market and outreach language default to English and are adjusted later
+  in Settings, where several markets can coexist.
 - Visual sobriety, clear hierarchy, controlled density.
 
 ---

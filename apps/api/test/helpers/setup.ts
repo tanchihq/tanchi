@@ -39,10 +39,27 @@ mock.module("@shared/llm", () => ({
   },
   agentModel: () => "mock-model",
   DEFAULT_MODEL: "mock-model",
+  activeProvider: "anthropic",
+  activeProviderLabel: "anthropic",
+  researchProviderLabel: "anthropic",
+  isResearchAvailable: true,
+  researchUnavailableReason: null,
 }));
 
 mock.module("@shared/company-profile", () => ({
+  SUPPORTED_OUTREACH_LANGUAGES: ["en", "fr", "es", "de", "it", "nl", "pt"],
   generateCompanyProfile: () => Promise.resolve("Mock company profile."),
+  generateIcpSuggestions: () =>
+    Promise.resolve([
+      {
+        name: "Mock segment",
+        archetype: "Mock archetype",
+        description: "Mock description.",
+        perceivedValue: "Mock value.",
+        angle: "Mock angle",
+        goldenRule: "Mock rule",
+      },
+    ]),
 }));
 
 mock.module("@shared/mailer", () => ({

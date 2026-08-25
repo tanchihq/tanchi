@@ -21,7 +21,8 @@ import {
 import SearchSendDaysEditor from '../search-send-days-editor/SearchSendDaysEditor';
 import FollowUpEditor from '../follow-up-editor/FollowUpEditor';
 import IcpEditor from '../icp-editor/IcpEditor';
-import { LANGUAGES, type SettingsFormValues } from '../utils';
+import { LANGUAGES } from '@/utils/countries';
+import { type SettingsFormValues } from '../utils';
 
 type MarketCardProps = Readonly<{
   control: Control<SettingsFormValues>;
@@ -33,7 +34,7 @@ type MarketCardProps = Readonly<{
 }>;
 
 const FieldLabel = ({ children }: Readonly<{ children: ReactNode }>) => (
-  <div className="mb-2 text-[11px] uppercase tracking-[0.06em] text-[#6F6C85]">{children}</div>
+  <div className="mb-2 text-[11px] uppercase tracking-[0.06em] text-app-faint">{children}</div>
 );
 
 const MarketCard = ({
@@ -67,12 +68,12 @@ const MarketCard = ({
   };
 
   return (
-    <div className="rounded-[18px] border border-white/[0.07] bg-[#171733]">
+    <div className="rounded-[18px] border border-app-line bg-app-surface">
       <div className="flex items-center gap-2.5 px-5 py-4">
         <button
           type="button"
           onClick={() => setExpanded((previous) => !previous)}
-          className="flex size-7 shrink-0 items-center justify-center rounded-md text-[#ABA8C0] hover:bg-white/5"
+          className="flex size-7 shrink-0 items-center justify-center rounded-md text-app-soft hover:bg-app-hover"
           aria-label={expanded ? 'Collapse market' : 'Expand market'}
         >
           {expanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
@@ -107,7 +108,7 @@ const MarketCard = ({
       </div>
 
       {expanded && (
-        <div className="flex flex-col gap-6 border-t border-white/[0.07] px-5 py-5">
+        <div className="flex flex-col gap-6 border-t border-app-line px-5 py-5">
           <div className="grid grid-cols-2 gap-5">
             <div>
               <FieldLabel>Country</FieldLabel>
@@ -153,7 +154,7 @@ const MarketCard = ({
                       ))}
                     </SelectNative>
                   </FormControl>
-                  <p className="mt-1.5 text-xs text-[#6F6C85]">
+                  <p className="mt-1.5 text-xs text-app-faint">
                     Auto-set from the country. Change it for multilingual markets
                     or when targeting a different language.
                   </p>

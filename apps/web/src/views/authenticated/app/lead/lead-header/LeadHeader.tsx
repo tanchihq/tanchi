@@ -22,7 +22,7 @@ const LeadHeader = ({
   onPrev,
   onNext,
 }: LeadHeaderProps) => (
-  <header className="bg-night-700/55 flex shrink-0 items-center justify-between gap-4 border-b border-white/8 px-6 py-3 backdrop-blur-[22px]">
+  <header className="bg-app-raised/55 flex shrink-0 items-center justify-between gap-4 border-b border-app-line px-6 py-3 backdrop-blur-[22px]">
     <Button variant="outline" size="sm" className="h-[34px]" onClick={onBack}>
       <ArrowLeft size={15} /> Pipeline
     </Button>
@@ -37,9 +37,9 @@ const LeadHeader = ({
               onClick={() => onStage(boardStage)}
               className="h-7 cursor-pointer whitespace-nowrap rounded-md border px-2.5 text-[11.5px] transition-colors"
               style={{
-                borderColor: active ? 'rgba(124,121,246,0.5)' : 'rgba(255,255,255,0.08)',
-                background: active ? 'rgba(5,1,240,0.22)' : 'transparent',
-                color: active ? '#F3F2F8' : '#6f6c85',
+                borderColor: active ? 'var(--app-accent-line)' : 'var(--app-line)',
+                background: active ? 'var(--app-accent-bg)' : 'transparent',
+                color: active ? 'var(--app-fg)' : 'var(--app-faint)',
               }}
             >
               {STAGE_LABEL[boardStage]}
@@ -47,7 +47,7 @@ const LeadHeader = ({
           );
         })}
       </div>
-      <div className="mx-1 h-[22px] w-px bg-white/10" />
+      <div className="mx-1 h-[22px] w-px bg-app-hover" />
       <Button
         variant="outline"
         size="icon"

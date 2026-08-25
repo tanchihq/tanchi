@@ -1,4 +1,8 @@
+import { SUPPORTED_OUTREACH_LANGUAGES } from "@shared/company-profile";
 import {
+  DEFAULT_COUNTRY,
+  DEFAULT_MARKET_NAME,
+  DEFAULT_OUTREACH_LANGUAGE,
   ORG_SLUG_BASE_MAX_LENGTH,
   ORG_SLUG_RANDOM_SUFFIX_LENGTH,
 } from "./onboarding.constants.ts";
@@ -46,10 +50,27 @@ function normalizeDraftIcp(value: unknown): ResponseDto.OnboardingDraftIcpDto {
   };
 }
 
+function normalizeDraftMarket(
+  value: unknown
+): ResponseDto.OnboardingDraftMarketDto {
+  const record = isRecord(value) ? value : {};
+  const name = asString(record.name);
+  const country = asString(record.country).toUpperCase();
+  const outreachLanguage = asString(record.outreachLanguage);
+  return {
+    name: name === "" ? DEFAULT_MARKET_NAME : name,
+    country: country === "" ? DEFAULT_COUNTRY : country,
+    outreachLanguage: SUPPORTED_OUTREACH_LANGUAGES.includes(outreachLanguage)
+      ? outreachLanguage
+      : DEFAULT_OUTREACH_LANGUAGE,
+  };
+}
+
 export function normalizeDraft(value: unknown): ResponseDto.OnboardingDraftDto {
   const record = isRecord(value) ? value : {};
   const icps = record.icps;
   return {
+    market: normalizeDraftMarket(record.market),
     companyName: asString(record.companyName),
     website: asString(record.website),
     productPageUrl: asString(record.productPageUrl),

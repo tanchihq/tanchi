@@ -40,7 +40,7 @@ const Learnings = () => {
     <AppScreen title="Learnings">
       <div className="h-full overflow-y-auto px-[30px] py-7">
         <div className="mx-auto max-w-[780px]">
-          <p className="mb-5 text-sm leading-relaxed text-[#ABA8C0]">
+          <p className="mb-5 text-sm leading-relaxed text-app-soft">
             What the agent observes about your prospects, summarized plainly. Nothing to
             tune — this refines the next messages.
           </p>

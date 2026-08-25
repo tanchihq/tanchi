@@ -32,7 +32,7 @@ const OnboardingShell = ({
   const segments = Array.from({ length: stepCount }, (_, index) => index);
 
   return (
-    <div className="bg-night-900 relative min-h-screen w-full overflow-hidden">
+    <div className="dark bg-night-900 relative min-h-screen w-full overflow-hidden">
       <AuthBackground />
 
       <div className="relative z-1 flex min-h-screen items-center justify-center px-5 py-10">
@@ -45,7 +45,7 @@ const OnboardingShell = ({
               Configure your prospecting
             </div>
             <div className="text-ink-faint mt-1.5 text-sm">
-              Four quick steps, then the agent gets to work.
+              Three quick steps, then the agent gets to work.
             </div>
           </div>
 

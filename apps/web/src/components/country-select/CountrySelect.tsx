@@ -32,13 +32,13 @@ const CountrySelect = ({ value, onChange }: CountrySelectProps) => {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="glass-well text-glass-fg flex h-11 w-full items-center justify-between gap-2 px-4 text-sm outline-none"
+          className="glass-well text-app-fg flex h-11 w-full items-center justify-between gap-2 px-4 text-sm outline-none"
         >
           <span className="flex items-center gap-2 truncate">
             <span className="text-base leading-none">{countryFlag(value)}</span>
             <span className="truncate">{countryName(value)}</span>
           </span>
-          <ChevronsUpDown size={15} className="shrink-0 text-[#6F6C85]" />
+          <ChevronsUpDown size={15} className="text-app-faint shrink-0" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-(--radix-popover-trigger-width) p-0">

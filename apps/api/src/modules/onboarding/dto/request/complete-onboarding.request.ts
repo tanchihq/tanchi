@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { CompleteOnboardingErrors } from "../../onboarding.errors.ts";
+import { SUPPORTED_OUTREACH_LANGUAGES } from "@shared/company-profile";
 import {
+  COUNTRY_CODE_LENGTH,
   MAX_COMPANY_LENGTH,
+  MAX_MARKET_NAME_LENGTH,
   MAX_COMPANY_PROFILE_LENGTH,
   MAX_ICP_DESCRIPTION_LENGTH,
   MAX_ICP_NAME_LENGTH,
@@ -57,7 +60,31 @@ const icpSchema = z.object({
     }),
 });
 
+const marketSchema = z.object({
+  name: z
+    .string({ error: CompleteOnboardingErrors.invalidMarket })
+    .trim()
+    .min(1, { message: CompleteOnboardingErrors.invalidMarket })
+    .max(MAX_MARKET_NAME_LENGTH, {
+      message: CompleteOnboardingErrors.invalidMarket,
+    }),
+  country: z
+    .string({ error: CompleteOnboardingErrors.invalidMarket })
+    .trim()
+    .toUpperCase()
+    .length(COUNTRY_CODE_LENGTH, {
+      message: CompleteOnboardingErrors.invalidMarket,
+    }),
+  outreachLanguage: z
+    .string({ error: CompleteOnboardingErrors.invalidMarket })
+    .trim()
+    .refine((value) => SUPPORTED_OUTREACH_LANGUAGES.includes(value), {
+      message: CompleteOnboardingErrors.invalidMarket,
+    }),
+});
+
 export const CompleteOnboardingDto = z.object({
+  market: marketSchema,
   companyName: z
     .string({ error: CompleteOnboardingErrors.invalidCompanyName })
     .trim()

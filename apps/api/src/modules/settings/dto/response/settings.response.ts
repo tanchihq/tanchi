@@ -37,3 +37,12 @@ export type SettingsDto = Readonly<{
 export type GeneratedCompanyProfileDto = Readonly<{
   companyProfile: string;
 }>;
+
+export type IntelligenceProviderDto = Readonly<{
+  isManaged: boolean;
+  generationProvider: string;
+  researchProvider: string;
+  isResearchAvailable: boolean;
+  researchUnavailableReason: string | null;
+  models: ReadonlyArray<Readonly<{ agent: string; model: string }>>;
+}>;

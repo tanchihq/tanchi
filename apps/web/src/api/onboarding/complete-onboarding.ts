@@ -43,6 +43,8 @@ const completeOnboarding =
             return throwSanitizeError(CompleteOnboardingErrors.invalidResource);
           case CompleteOnboardingErrors.invalidIcp:
             return throwSanitizeError(CompleteOnboardingErrors.invalidIcp);
+          case CompleteOnboardingErrors.invalidMarket:
+            return throwSanitizeError(CompleteOnboardingErrors.invalidMarket);
           case CompleteOnboardingErrors.tooManyIcps:
             return throwSanitizeError(CompleteOnboardingErrors.tooManyIcps);
           default:

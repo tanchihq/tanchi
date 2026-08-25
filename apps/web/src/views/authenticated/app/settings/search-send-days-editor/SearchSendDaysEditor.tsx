@@ -27,9 +27,9 @@ const DaysInput = ({ value, onChange }: DaysInputProps) => (
           }
           className="rounded-lg border px-3 py-1.5 text-[13px] transition-colors disabled:cursor-not-allowed enabled:cursor-pointer"
           style={{
-            borderColor: active ? 'rgba(124,121,246,0.4)' : 'rgba(255,255,255,0.1)',
-            background: active ? 'rgba(5,1,240,0.2)' : 'transparent',
-            color: active ? '#A9A6FF' : '#ABA8C0',
+            borderColor: active ? 'var(--app-accent-line)' : 'var(--app-line)',
+            background: active ? 'var(--app-accent-bg)' : 'transparent',
+            color: active ? 'var(--app-accent-fg)' : 'var(--app-soft)',
           }}
         >
           {day.label}
@@ -51,7 +51,7 @@ const SearchSendDaysEditor = ({ control, name }: SearchSendDaysEditorProps) => (
     render={({ field }) => (
       <FormItem>
         <DaysInput value={field.value} onChange={field.onChange} />
-        <p className="text-xs leading-relaxed text-[#6F6C85]">
+        <p className="text-xs leading-relaxed text-app-faint">
           The agent sources new leads and sends messages (first touch and follow-ups) only on
           the selected days. On the other days it keeps analysing replies and planning
           follow-ups.

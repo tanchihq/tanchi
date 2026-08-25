@@ -52,12 +52,12 @@ const Exclusions = () => {
     <AppScreen title="Exclusions">
       <div className="h-full overflow-y-auto px-[30px] py-7">
         <div className="mx-auto flex max-w-[720px] flex-col gap-4">
-          <p className="text-sm leading-relaxed text-[#ABA8C0]">
+          <p className="text-sm leading-relaxed text-app-soft">
             People and companies here are never sourced or contacted by the agent. Reinstate one
             any time to make it eligible again. You can also bulk-import people from a CSV.
           </p>
 
-          <div className="flex items-center gap-3 rounded-[14px] border border-white/[0.07] bg-[#171733] p-[16px_18px]">
+          <div className="flex items-center gap-3 rounded-[14px] border border-app-line bg-app-surface p-[16px_18px]">
             <input
               ref={inputRef}
               type="file"
@@ -70,7 +70,7 @@ const Exclusions = () => {
               Import CSV
             </Button>
             {result && (
-              <span className="text-[13px] text-[#ABA8C0]">
+              <span className="text-[13px] text-app-soft">
                 {result.imported} imported · {result.totalFound} found
               </span>
             )}
@@ -85,12 +85,12 @@ const Exclusions = () => {
                 className={cn(
                   'flex h-8 items-center gap-1.5 rounded-[9px] border px-3 text-[13px] transition-colors',
                   filter === value
-                    ? 'border-brand-400/50 bg-brand-600/[0.18] text-[#F3F2F8]'
-                    : 'border-white/8 bg-white/[0.03] text-[#ABA8C0] hover:bg-white/[0.06]',
+                    ? 'border-app-accent-line bg-app-accent-bg text-app-fg'
+                    : 'border-app-line bg-app-hover text-app-soft hover:bg-app-hover',
                 )}
               >
                 {label}
-                <span className="text-[11px] text-[#6F6C85]">{countFor(value)}</span>
+                <span className="text-[11px] text-app-faint">{countFor(value)}</span>
               </button>
             ))}
           </div>
@@ -102,7 +102,7 @@ const Exclusions = () => {
               ))}
             </div>
           ) : (
-            <div className="rounded-[14px] border border-dashed border-white/10 px-4 py-8 text-center text-[13px] text-[#6F6C85]">
+            <div className="rounded-[14px] border border-dashed border-app-line px-4 py-8 text-center text-[13px] text-app-faint">
               Nothing excluded here yet.
             </div>
           )}

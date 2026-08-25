@@ -9,7 +9,14 @@ export type OnboardingDraftIcpDto = Readonly<{
   goldenRule: string;
 }>;
 
+export type OnboardingDraftMarketDto = Readonly<{
+  name: string;
+  country: string;
+  outreachLanguage: string;
+}>;
+
 export type OnboardingDraftDto = Readonly<{
+  market: OnboardingDraftMarketDto;
   companyName: string;
   website: string;
   productPageUrl: string;

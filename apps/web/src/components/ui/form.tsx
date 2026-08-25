@@ -73,7 +73,7 @@ const FormLabel = ({ className, ...props }: ComponentProps<typeof Label>) => {
   return (
     <Label
       data-error={Boolean(error)}
-      className={cn('data-[error=true]:text-danger', className)}
+      className={cn('data-[error=true]:text-app-danger-fg', className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -105,7 +105,7 @@ const FormMessage = ({ className, ...props }: ComponentProps<'p'>) => {
     <p
       data-slot="form-message"
       id={formMessageId}
-      className={cn('text-danger px-0.5 text-xs', className)}
+      className={cn('text-app-danger-fg px-0.5 text-xs', className)}
       {...props}
     >
       {body}

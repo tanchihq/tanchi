@@ -19,6 +19,7 @@ export enum UpdateSettingsErrors {
 }
 
 export enum GenerateCompanyProfileErrors {
+  invalidMarket = "invalidMarket",
   noActiveOrganization = "noActiveOrganization",
   generationFailed = "generationFailed",
 }

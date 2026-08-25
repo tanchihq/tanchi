@@ -16,7 +16,7 @@ const IntervalsInput = ({ value, onChange }: IntervalsInputProps) => (
   <div className="flex flex-col gap-2">
     {value.map((days, index) => (
       <div key={index} className="flex items-center gap-2.5">
-        <span className="w-[92px] text-[13px] text-[#ABA8C0]">Follow-up {index + 1}</span>
+        <span className="w-[92px] text-[13px] text-app-soft">Follow-up {index + 1}</span>
         <Input
           type="number"
           className="h-[38px] w-20"
@@ -25,7 +25,7 @@ const IntervalsInput = ({ value, onChange }: IntervalsInputProps) => (
             onChange(value.map((day, position) => (position === index ? event.target.valueAsNumber : day)))
           }
         />
-        <span className="text-[13px] text-[#6F6C85]">
+        <span className="text-[13px] text-app-faint">
           business days after {index === 0 ? 'the first message' : 'the previous one'}
         </span>
         {value.length > 1 && (

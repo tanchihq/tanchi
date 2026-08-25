@@ -71,6 +71,7 @@ export class SettingsService {
   }
 
   async generateProfile(
+    dto: RequestDto.GenerateCompanyProfileDto,
     activeOrganizationId: string | null | undefined
   ): Promise<
     ResponseDto.GeneratedCompanyProfileDto | GenerateCompanyProfileErrors
@@ -93,6 +94,9 @@ export class SettingsService {
         website: profile?.website ?? "",
         productPageUrl: profile?.product_page_url ?? "",
         salesDeckUrl: profile?.sales_deck_url ?? "",
+        marketName: dto.market.name,
+        country: dto.market.country,
+        outreachLanguage: dto.market.outreachLanguage,
       });
       return { companyProfile };
     } catch (error) {

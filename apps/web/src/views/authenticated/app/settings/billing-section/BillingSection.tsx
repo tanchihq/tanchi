@@ -20,17 +20,17 @@ const UsageRow = ({ label, used, limit }: UsageRowProps) => {
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between text-[13px]">
-        <span className="text-[#ABA8C0]">{label}</span>
-        <span className="text-[#EDECF5]">
+        <span className="text-app-soft">{label}</span>
+        <span className="text-app-fg">
           {limit === null ? `${used}` : `${used} / ${limit}`}
         </span>
       </div>
       {limit !== null && (
-        <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
+        <div className="h-1.5 overflow-hidden rounded-full bg-app-hover">
           <div
             className={
               ratio >= 1
-                ? 'h-full rounded-full bg-danger'
+                ? 'h-full rounded-full bg-app-danger-fg'
                 : 'h-full rounded-full bg-brand'
             }
             style={{ width: `${Math.round(ratio * 100)}%` }}
@@ -112,13 +112,13 @@ const BillingSection = () => {
             <p
               className={
                 billing.state === 'expired'
-                  ? 'text-sm font-medium text-danger'
-                  : 'text-sm font-medium text-[#EDECF5]'
+                  ? 'text-sm font-medium text-app-danger-fg'
+                  : 'text-sm font-medium text-app-fg'
               }
             >
               {statusHeadline(billing)}
             </p>
-            <p className="text-xs leading-relaxed text-[#6F6C85]">
+            <p className="text-xs leading-relaxed text-app-faint">
               {billing.state === 'expired'
                 ? 'Sourcing, research and drafting are paused. Your data and pending drafts stay available.'
                 : 'Monthly usage resets on the 1st.'}

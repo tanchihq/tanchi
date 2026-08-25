@@ -174,15 +174,15 @@ const SenderFields = ({ form, mode }: SenderFieldsProps) => {
               />
             </FormControl>
             <div className="flex items-start justify-between gap-3">
-              <p className="text-xs leading-relaxed text-[#6F6C85]">
+              <p className="text-xs leading-relaxed text-app-faint">
                 Added automatically at the bottom of every email you send from this mailbox.
                 The AI no longer writes a signature in drafts, so this is the only one that
                 appears.
               </p>
               <span
                 className={cn(
-                  'shrink-0 pt-0.5 text-xs tabular-nums text-[#6F6C85]',
-                  signatureLength > SIGNATURE_MAX_LENGTH && 'text-danger',
+                  'shrink-0 pt-0.5 text-xs tabular-nums text-app-faint',
+                  signatureLength > SIGNATURE_MAX_LENGTH && 'text-app-danger-fg',
                 )}
               >
                 {signatureLength}/{SIGNATURE_MAX_LENGTH}
@@ -198,7 +198,7 @@ const SenderFields = ({ form, mode }: SenderFieldsProps) => {
           control={form.control}
           name="smtpSecure"
           render={({ field }) => (
-            <label className="flex items-center gap-2 text-[13px] text-[#ABA8C0]">
+            <label className="flex items-center gap-2 text-[13px] text-app-soft">
               <input
                 type="checkbox"
                 checked={field.value}
@@ -212,7 +212,7 @@ const SenderFields = ({ form, mode }: SenderFieldsProps) => {
           control={form.control}
           name="imapSecure"
           render={({ field }) => (
-            <label className="flex items-center gap-2 text-[13px] text-[#ABA8C0]">
+            <label className="flex items-center gap-2 text-[13px] text-app-soft">
               <input
                 type="checkbox"
                 checked={field.value}
