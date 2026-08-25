@@ -38,7 +38,7 @@ ENV HOME=/home/bun
 # Supply-chain: the installer is pinned by sha256 and never piped straight to
 # a shell. Bump CLAUDE_INSTALLER_SHA256 when Anthropic rotates the script.
 ARG CLAUDE_CODE_VERSION=stable
-ARG CLAUDE_INSTALLER_SHA256=cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125
+ARG CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944
 RUN curl -fsSL https://claude.ai/install.sh -o /tmp/claude-install.sh \
   && echo "${CLAUDE_INSTALLER_SHA256}  /tmp/claude-install.sh" | sha256sum -c - \
   && bash /tmp/claude-install.sh "${CLAUDE_CODE_VERSION}" \
