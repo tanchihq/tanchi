@@ -32,18 +32,36 @@ COPY apps/api/migrations ./migrations
 COPY apps/api/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+# `claude` CLI for the "cli" provider. Nothing here goes stale: we follow the
+# `stable` channel and verify the binary against the checksum Anthropic
+# publishes for that release, so the build keeps working without repo updates.
+# Pass --build-arg CLAUDE_CODE_VERSION=2.1.231 to pin an exact release instead.
+ARG CLAUDE_CODE_VERSION=stable
+ARG TARGETARCH
+RUN set -eu; \
+  base="https://downloads.claude.ai/claude-code-releases"; \
+  case "${TARGETARCH:-$(dpkg --print-architecture)}" in \
+    amd64) platform="linux-x64" ;; \
+    arm64) platform="linux-arm64" ;; \
+    *) echo "unsupported architecture: ${TARGETARCH:-unknown}" >&2; exit 1 ;; \
+  esac; \
+  version="${CLAUDE_CODE_VERSION}"; \
+  case "$version" in \
+    stable|latest) version="$(curl -fsSL "${base}/${CLAUDE_CODE_VERSION}")" ;; \
+  esac; \
+  case "$version" in \
+    [0-9]*.[0-9]*.[0-9]*) ;; \
+    *) echo "unexpected version from ${base}/${CLAUDE_CODE_VERSION}: ${version}" >&2; exit 1 ;; \
+  esac; \
+  checksum="$(curl -fsSL "${base}/${version}/manifest.json" \
+    | PLATFORM="$platform" bun -e 'const manifest = await Bun.stdin.json(); const target = manifest.platforms[Bun.env.PLATFORM]; if (!target?.checksum) { throw new Error(`no checksum published for ${Bun.env.PLATFORM}`); } console.write(target.checksum);')"; \
+  curl -fsSL "${base}/${version}/${platform}/claude" -o /usr/local/bin/claude; \
+  echo "${checksum}  /usr/local/bin/claude" | sha256sum -c -; \
+  chmod 755 /usr/local/bin/claude
+
 # the non-root `bun` user is provided by the image
 USER bun
 ENV HOME=/home/bun
-# Supply-chain: the installer is pinned by sha256 and never piped straight to
-# a shell. Bump CLAUDE_INSTALLER_SHA256 when Anthropic rotates the script.
-ARG CLAUDE_CODE_VERSION=stable
-ARG CLAUDE_INSTALLER_SHA256=cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125
-RUN curl -fsSL https://claude.ai/install.sh -o /tmp/claude-install.sh \
-  && echo "${CLAUDE_INSTALLER_SHA256}  /tmp/claude-install.sh" | sha256sum -c - \
-  && bash /tmp/claude-install.sh "${CLAUDE_CODE_VERSION}" \
-  && rm -f /tmp/claude-install.sh
-ENV PATH="/home/bun/.local/bin:${PATH}"
 
 EXPOSE 3000
 
