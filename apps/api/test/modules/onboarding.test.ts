@@ -21,7 +21,7 @@ const GENERATE_PROFILE_PATH = "/api/v1/onboarding/generate-profile";
 const VALID_PASSWORD = "TestPassword12345";
 const MAX_DRAFT_ICPS = 10;
 const MAX_ICPS = 3;
-const MAX_STEP = 3;
+const MAX_STEP = 2;
 const SIGN_UP_RATE_LIMIT = 10;
 
 type SignUpBody = Readonly<{
@@ -65,7 +65,14 @@ const validIcp = () => ({
   goldenRule: "Never fabricate a fact",
 });
 
+const validMarket = () => ({
+  name: "United States",
+  country: "US",
+  outreachLanguage: "en",
+});
+
 const validCompletePayload = () => ({
+  market: validMarket(),
   companyName: "Acme Corp",
   website: "https://acme.test",
   companyProfile: "We help teams sell better.",
@@ -310,7 +317,7 @@ describe("onboarding save-progress: persistence and validation", () => {
     expect((await res.json()).message).toBe("invalidDraft");
   });
 
-  it("clamps an out-of-range step to MAX_STEP=3 (no declared upper bound, service clamps)", async () => {
+  it("clamps an out-of-range step to MAX_STEP=2 (no declared upper bound, service clamps)", async () => {
     const account = await createAccount();
     const res = await jsonRequest(PROGRESS_PATH, account.cookie, "PUT", {
       step: 99,
@@ -330,7 +337,7 @@ describe("onboarding generate-profile", () => {
       GENERATE_PROFILE_PATH,
       account.cookie,
       "POST",
-      { website: "https://acme.test", companyName: "Acme" }
+      { market: validMarket(), website: "https://acme.test", companyName: "Acme" }
     );
     expect(res.status).toBe(200);
     expect((await res.json()).companyProfile).toBeString();
@@ -342,7 +349,7 @@ describe("onboarding generate-profile", () => {
       GENERATE_PROFILE_PATH,
       account.cookie,
       "POST",
-      { website: "not-a-url" }
+      { market: validMarket(), website: "not-a-url" }
     );
     expect(res.status).toBe(400);
     expect((await res.json()).message).toBe("invalidWebsite");
