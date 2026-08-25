@@ -119,8 +119,8 @@ const ConversationBoard = ({
 
   return (
     <div className="flex h-full min-w-0 flex-col">
-      <header className="flex shrink-0 items-center border-b border-white/8 px-6 py-3">
-        <span className="truncate text-sm font-medium tracking-tight text-[#F3F2F8]">
+      <header className="flex shrink-0 items-center border-b border-app-line px-6 py-3">
+        <span className="truncate text-sm font-medium tracking-tight text-app-fg">
           {conversationTitle(title)}
         </span>
       </header>
@@ -128,7 +128,7 @@ const ConversationBoard = ({
       <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
         <div className="mx-auto flex max-w-[760px] flex-col gap-3.5">
           {messages.length === 0 && draftUser === null && !streaming && (
-            <div className="mt-10 text-center text-[13.5px] leading-relaxed text-[#6F6C85]">
+            <div className="mt-10 text-center text-[13.5px] leading-relaxed text-app-faint">
               Ask anything about your prospects. Add leads to the chat bar below to give the
               assistant context.
             </div>
@@ -148,7 +148,7 @@ const ConversationBoard = ({
 
       <footer className="shrink-0 px-6 pb-4 pt-1">
         <div className="mx-auto max-w-[760px]">
-          <div className="rounded-2xl border border-white/10 bg-[#0E0E22] transition-colors focus-within:border-brand-600/60">
+          <div className="rounded-2xl border border-app-line bg-app-well transition-colors focus-within:border-app-accent-line">
             <div className="flex flex-wrap items-center gap-1.5 px-2.5 pt-2.5">
               {leads.map((lead) => (
                 <LeadChip
@@ -177,7 +177,7 @@ const ConversationBoard = ({
                 rows={1}
                 maxLength={MESSAGE_MAX_LENGTH}
                 placeholder="Message the copilot…"
-                className="text-glass-fg placeholder:text-glass-dim max-h-[160px] min-h-[40px] flex-1 resize-none overflow-y-auto bg-transparent px-1.5 py-2 text-sm leading-relaxed outline-none"
+                className="text-app-fg placeholder:text-app-faint max-h-[160px] min-h-[40px] flex-1 resize-none overflow-y-auto bg-transparent px-1.5 py-2 text-sm leading-relaxed outline-none"
               />
               <Button
                 size="icon"
@@ -190,7 +190,7 @@ const ConversationBoard = ({
               </Button>
             </div>
           </div>
-          <div className="mt-1.5 px-1 text-[11px] text-[#6F6C85]">
+          <div className="mt-1.5 px-1 text-[11px] text-app-faint">
             Enter to send · Shift+Enter for a new line · attached leads give the assistant
             context
           </div>

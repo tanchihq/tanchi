@@ -5,7 +5,7 @@ const glow = (style: CSSProperties, color: string, animation: string): CSSProper
   zIndex: 0,
   pointerEvents: 'none',
   borderRadius: '50%',
-  background: `radial-gradient(circle, ${color}, rgba(5,1,240,0) 68%)`,
+  background: `radial-gradient(circle, ${color}, rgba(5, 1, 240, 0) 68%)`,
   ...style,
   animation,
 });
@@ -18,21 +18,20 @@ const AppBackground = () => (
         inset: 0,
         zIndex: 0,
         pointerEvents: 'none',
-        background:
-          'radial-gradient(120% 100% at 50% 38%, #13132D 0%, #0D0D22 48%, #0A0A1F 100%)',
+        background: 'var(--app-aurora)',
       }}
     />
     <div
       style={glow(
         { top: '-18%', left: '-12%', width: '55vw', height: '55vw', filter: 'blur(60px)' },
-        'rgba(5,1,240,0.16)',
+        'var(--app-glow-a)',
         'sl-drift-a 26s ease-in-out infinite',
       )}
     />
     <div
       style={glow(
         { bottom: '-22%', right: '-10%', width: '60vw', height: '60vw', filter: 'blur(70px)' },
-        'rgba(5,1,240,0.12)',
+        'var(--app-glow-b)',
         'sl-drift-b 32s ease-in-out infinite',
       )}
     />

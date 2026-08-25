@@ -12,6 +12,7 @@ const generateOnboardingProfile =
       const response = await axios.post<GeneratedProfileDto>(
         '/onboarding/generate-profile',
         {
+          market: dto.market,
           companyName: dto.companyName,
           website: normalizeUrl(dto.website),
           productPageUrl: normalizeOptionalUrl(dto.productPageUrl),

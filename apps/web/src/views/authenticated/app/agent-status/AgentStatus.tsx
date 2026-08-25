@@ -23,27 +23,27 @@ const AgentStatus = () => {
 
   return (
     <div className="relative flex items-center gap-2">
-      <div className="flex items-center gap-2 whitespace-nowrap rounded-[20px] border border-white/8 bg-white/[0.04] px-3 py-1.5 text-xs text-[#ABA8C0]">
+      <div className="flex items-center gap-2 whitespace-nowrap rounded-[20px] border border-app-line bg-app-hover px-3 py-1.5 text-xs text-app-soft">
         <span
           className="size-[7px] rounded-full"
           style={{
-            background: running ? '#4ade80' : '#6f6c85',
-            boxShadow: running ? '0 0 0 3px rgba(74,222,128,0.14)' : 'none',
+            background: running ? 'var(--app-success-fg)' : 'var(--app-faint)',
+            boxShadow: running ? '0 0 0 3px var(--app-success-bg)' : 'none',
           }}
         />
         {running ? 'Agent working' : 'Agent idle'}
-        {status && <span className="text-[#6F6C85]">· {status.today.sent} sent today</span>}
+        {status && <span className="text-app-faint">· {status.today.sent} sent today</span>}
       </div>
 
       <button
         type="button"
         onClick={toggle}
-        className="relative flex size-8 items-center justify-center rounded-lg border border-white/8 bg-white/[0.04] text-[#ABA8C0] transition-colors hover:bg-white/[0.08]"
+        className="relative flex size-8 items-center justify-center rounded-lg border border-app-line bg-app-hover text-app-soft transition-colors hover:bg-app-hover"
         aria-label="Activity"
       >
         <Bell size={15} />
         {hasUnread && !open && (
-          <span className="bg-brand-500 absolute right-1.5 top-1.5 size-2 rounded-full ring-2 ring-[#141330]" />
+          <span className="bg-brand-500 absolute right-1.5 top-1.5 size-2 rounded-full ring-2 ring-app-raised" />
         )}
       </button>
 

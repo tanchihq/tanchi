@@ -26,22 +26,22 @@ const MessageRow = ({ message, onOpen }: MessageRowProps) => (
   <button
     type="button"
     onClick={() => onOpen(message.leadId)}
-    className="flex w-full cursor-pointer items-center gap-3 rounded-[14px] border border-white/[0.07] bg-[#171733] p-[14px_18px] text-left transition-colors hover:border-brand-400/40"
+    className="flex w-full cursor-pointer items-center gap-3 rounded-[14px] border border-app-line bg-app-surface p-[14px_18px] text-left transition-colors hover:border-app-accent-line"
   >
-    <ChannelIcon channel={message.channel} size={16} className="text-glass-dim shrink-0" />
+    <ChannelIcon channel={message.channel} size={16} className="text-app-faint shrink-0" />
     <div className="min-w-0 flex-1">
       <div className="flex items-center gap-2">
-        <span className="truncate text-sm font-medium text-[#F3F2F8]">
+        <span className="truncate text-sm font-medium text-app-fg">
           {message.prospectName}
         </span>
-        <span className="truncate text-xs text-[#6F6C85]">{message.company}</span>
+        <span className="truncate text-xs text-app-faint">{message.company}</span>
       </div>
-      <div className="truncate text-xs text-[#8E8AA5]">
+      <div className="truncate text-xs text-app-faint">
         {message.subject ?? message.body}
       </div>
     </div>
     <Badge variant={STATUS_VARIANT[message.status]}>{message.status}</Badge>
-    <span className="w-12 shrink-0 text-right text-[11px] text-[#6F6C85]">
+    <span className="w-12 shrink-0 text-right text-[11px] text-app-faint">
       {dayLabel(message.sentAt ?? message.createdAt)}
     </span>
   </button>

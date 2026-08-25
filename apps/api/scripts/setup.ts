@@ -84,11 +84,27 @@ const run = async (): Promise<void> => {
     put("REQUIRE_EMAIL_VERIFICATION", "false");
   }
 
-  section("Claude");
-  const provider = await ask("Provider — api or cli", "api");
+  section("AI provider");
+  console.log(
+    "  api = Claude via the Anthropic API, cli = the local claude binary."
+  );
+  const provider = await ask(
+    "Provider — api, openai, gemini, kimi or cli",
+    "api"
+  );
   put("LLM_PROVIDER", provider);
-  if (provider === "api") {
-    put("ANTHROPIC_API_KEY", await ask("Anthropic API key", ""));
+
+  const keyForProvider: Readonly<Record<string, readonly [string, string]>> = {
+    api: ["ANTHROPIC_API_KEY", "Anthropic API key"],
+    anthropic: ["ANTHROPIC_API_KEY", "Anthropic API key"],
+    openai: ["OPENAI_API_KEY", "OpenAI API key"],
+    gemini: ["GEMINI_API_KEY", "Google Gemini API key"],
+    kimi: ["MOONSHOT_API_KEY", "Moonshot (Kimi) API key"],
+  };
+
+  const providerKey = keyForProvider[provider];
+  if (providerKey !== undefined) {
+    put(providerKey[0], await ask(providerKey[1], ""));
   } else if (aioMode) {
     console.log(
       "  cli mode: after startup, run `docker exec -it tanchi claude` once to authenticate."
@@ -97,6 +113,26 @@ const run = async (): Promise<void> => {
     console.log(
       "  cli mode uses the local `claude` binary; authenticate it before use."
     );
+  }
+
+  if (provider === "kimi") {
+    console.log(
+      "  Moonshot documents its web search as being reworked, so prospect research"
+    );
+    console.log(
+      "  is weaker on Kimi. You can delegate research to another provider."
+    );
+    if (await askYesNo("Delegate web research to another provider?", true)) {
+      const researchProvider = await ask(
+        "Research provider — anthropic, openai or gemini",
+        "gemini"
+      );
+      put("LLM_RESEARCH_PROVIDER", researchProvider);
+      const researchKey = keyForProvider[researchProvider];
+      if (researchKey !== undefined) {
+        put(researchKey[0], await ask(researchKey[1], ""));
+      }
+    }
   }
 
   section("Sourcing");
@@ -123,11 +159,12 @@ const run = async (): Promise<void> => {
   await Bun.write(outPath, body);
   console.log(`\n  Saved to ${outPath}. Starting Tanchi...\n`);
 
-  if (provider === "api") {
-    const anthropic = lines.find((line) => line.key === "ANTHROPIC_API_KEY");
-    if (anthropic !== undefined && anthropic.value === "") {
+  const expectedKey = keyForProvider[provider];
+  if (expectedKey !== undefined) {
+    const stored = lines.find((line) => line.key === expectedKey[0]);
+    if (stored === undefined || stored.value === "") {
       console.log(
-        "  Warning: no Anthropic API key — the engine and chat stay disabled until you set one.\n"
+        `  Warning: no ${expectedKey[0]} — the engine and chat stay disabled until you set one.\n`
       );
     }
   }

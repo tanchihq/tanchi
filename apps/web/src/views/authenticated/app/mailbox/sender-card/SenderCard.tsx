@@ -29,10 +29,10 @@ const SenderCard = ({ sender, onChanged }: SenderCardProps) => {
 
   if (isEditing) {
     return (
-      <div className="rounded-[14px] border border-white/[0.07] bg-[#171733] p-[18px_20px]">
+      <div className="rounded-[14px] border border-app-line bg-app-surface p-[18px_20px]">
         <div className="mb-4 flex items-center gap-2">
-          <Pencil size={15} className="text-glass-dim shrink-0" />
-          <span className="truncate text-sm font-medium text-[#F3F2F8]">
+          <Pencil size={15} className="text-app-faint shrink-0" />
+          <span className="truncate text-sm font-medium text-app-fg">
             Edit {sender.fromName}
           </span>
         </div>
@@ -56,16 +56,16 @@ const SenderCard = ({ sender, onChanged }: SenderCardProps) => {
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-[14px] border border-white/[0.07] bg-[#171733] p-[16px_18px]">
-      <Server size={18} className="text-glass-dim shrink-0" />
+    <div className="flex items-center gap-3 rounded-[14px] border border-app-line bg-app-surface p-[16px_18px]">
+      <Server size={18} className="text-app-faint shrink-0" />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium text-[#F3F2F8]">
+          <span className="truncate text-sm font-medium text-app-fg">
             {sender.fromName}
           </span>
           <Badge variant={STATUS_VARIANT[sender.status]}>{sender.status}</Badge>
         </div>
-        <div className="truncate text-xs text-[#6F6C85]">
+        <div className="truncate text-xs text-app-faint">
           {sender.fromEmail} · {sender.smtpHost} · cap {sender.dailyCap}/day
         </div>
       </div>
@@ -84,7 +84,7 @@ const SenderCard = ({ sender, onChanged }: SenderCardProps) => {
       <Button
         variant="outline"
         size="icon"
-        className="size-8 hover:text-[#ff8a80]"
+        className="size-8 hover:text-app-danger-fg"
         isLoading={removing}
         onClick={() => remove(sender.id)}
         aria-label="Delete mailbox"

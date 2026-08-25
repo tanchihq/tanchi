@@ -13,11 +13,11 @@ const EnginePreparationCard = () => {
   };
 
   return (
-    <div className="rounded-xl border border-white/8 bg-white/[0.03] p-3">
-      <div className="mb-2 text-[11px] uppercase tracking-[0.06em] text-[#6F6C85]">
+    <div className="rounded-xl border border-app-line bg-app-hover p-3">
+      <div className="mb-2 text-[11px] uppercase tracking-[0.06em] text-app-faint">
         Next preparation
       </div>
-      <div className="text-[13px] leading-snug text-[#ABA8C0]">
+      <div className="text-[13px] leading-snug text-app-soft">
         Tonight the agent sources new prospects and drafts messages.
       </div>
       <Button

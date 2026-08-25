@@ -22,6 +22,7 @@ const getOnboardingStateAxios = onboarding.getOnboardingState(axiosInstance);
 const saveOnboardingProgressAxios = onboarding.saveOnboardingProgress(axiosInstance);
 const completeOnboardingAxios = onboarding.completeOnboarding(axiosInstance);
 const generateOnboardingProfileAxios = onboarding.generateOnboardingProfile(axiosInstance);
+const generateOnboardingIcpsAxios = onboarding.generateOnboardingIcps(axiosInstance);
 
 const getManyProspectAxios = prospects.getManyProspect(axiosInstance);
 const getOneProspectAxios = prospects.getOneProspect(axiosInstance);
@@ -41,6 +42,7 @@ const testOneSenderAxios = senders.testOneSender(axiosInstance);
 const getSettingsAxios = settings.getSettings(axiosInstance);
 const updateSettingsAxios = settings.updateSettings(axiosInstance);
 const generateSettingsProfileAxios = settings.generateProfile(axiosInstance);
+const getIntelligenceAxios = settings.getIntelligence(axiosInstance);
 
 const getLearningsAxios = learnings.getLearnings(axiosInstance);
 
@@ -86,9 +88,11 @@ export {
   getSettingsAxios,
   updateSettingsAxios,
   generateSettingsProfileAxios,
+  getIntelligenceAxios,
   getLearningsAxios,
   runEngineAxios,
   generateOnboardingProfileAxios,
+  generateOnboardingIcpsAxios,
   getActivityStatusAxios,
   getActivityAxios,
   getMessagesAxios,

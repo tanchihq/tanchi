@@ -60,6 +60,14 @@ export type ProspectMessageDto = Readonly<{
   sentAt: string | null;
 }>;
 
+export type LeadHistoryEntryDto = Readonly<{
+  kind: 'sent' | 'reply';
+  at: string;
+  channel: Channel | null;
+  subject: string | null;
+  body: string;
+}>;
+
 export type LeadDetailDto = Readonly<{
   id: string;
   firstName: string;
@@ -82,6 +90,7 @@ export type LeadDetailDto = Readonly<{
   angles: ReadonlyArray<ProspectAngleDto>;
   timeline: ReadonlyArray<TimelineEventDto>;
   message: ProspectMessageDto | null;
+  history: ReadonlyArray<LeadHistoryEntryDto>;
   reply: string | null;
   createdAt: string;
   nextFollowUpAt: string | null;

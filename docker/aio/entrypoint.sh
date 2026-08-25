@@ -64,8 +64,29 @@ if [ -f "$CONFIG_FILE" ]; then
   done < "$CONFIG_FILE"
 fi
 
-if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-  echo "[entrypoint] WARNING: ANTHROPIC_API_KEY is not set — the engine and chat will not work."
+case "${LLM_PROVIDER:-api}" in
+  api|anthropic) required_llm_key="ANTHROPIC_API_KEY" ;;
+  openai)        required_llm_key="OPENAI_API_KEY" ;;
+  gemini)        required_llm_key="GEMINI_API_KEY" ;;
+  kimi)          required_llm_key="MOONSHOT_API_KEY" ;;
+  *)             required_llm_key="" ;;
+esac
+
+if [ -n "$required_llm_key" ] && [ -z "$(printenv "$required_llm_key" 2>/dev/null || true)" ]; then
+  echo "[entrypoint] WARNING: LLM_PROVIDER=${LLM_PROVIDER:-api} but $required_llm_key is not set — the engine and chat will not work."
+fi
+
+if [ -n "${LLM_RESEARCH_PROVIDER:-}" ]; then
+  case "$LLM_RESEARCH_PROVIDER" in
+    api|anthropic) research_key="ANTHROPIC_API_KEY" ;;
+    openai)        research_key="OPENAI_API_KEY" ;;
+    gemini)        research_key="GEMINI_API_KEY" ;;
+    kimi)          research_key="MOONSHOT_API_KEY" ;;
+    *)             research_key="" ;;
+  esac
+  if [ -n "$research_key" ] && [ -z "$(printenv "$research_key" 2>/dev/null || true)" ]; then
+    echo "[entrypoint] WARNING: LLM_RESEARCH_PROVIDER=$LLM_RESEARCH_PROVIDER but $research_key is not set — prospect research will fail."
+  fi
 fi
 
 echo "[entrypoint] starting services (postgres, redis, api, nginx) on :8080 ..."

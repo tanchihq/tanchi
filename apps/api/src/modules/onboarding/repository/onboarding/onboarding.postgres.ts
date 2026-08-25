@@ -152,9 +152,9 @@ export class OnboardingPostgres {
           VALUES (
             ${marketId},
             ${input.organizationId},
-            'United States',
-            'US',
-            'en',
+            ${input.market.name},
+            ${input.market.country},
+            ${input.market.outreachLanguage},
             ${input.profile.companyProfile},
             0
           )

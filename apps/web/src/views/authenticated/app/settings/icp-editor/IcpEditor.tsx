@@ -29,10 +29,10 @@ const IcpEditor = ({ control, marketIndex }: IcpEditorProps) => {
       {fields.map((item, index) => (
         <div
           key={item.id}
-          className="rounded-xl border border-white/10 bg-[rgba(10,10,31,0.5)] p-[15px]"
+          className="rounded-xl border border-app-line bg-[var(--app-well)] p-[15px]"
         >
           <div className="mb-3 flex items-center gap-2.5">
-            <span className="bg-brand-600/[0.22] text-brand-300 flex size-[22px] shrink-0 items-center justify-center rounded-md text-[11px] font-medium">
+            <span className="bg-app-accent-bg text-app-accent-fg flex size-[22px] shrink-0 items-center justify-center rounded-md text-[11px] font-medium">
               {index + 1}
             </span>
             <FormField

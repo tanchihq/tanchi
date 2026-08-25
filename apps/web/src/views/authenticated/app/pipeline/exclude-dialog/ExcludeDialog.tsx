@@ -79,18 +79,18 @@ const ExcludeDialog = ({
               className={cn(
                 'flex items-center gap-3 rounded-[12px] border px-3.5 py-3 text-left transition-colors',
                 scope === value
-                  ? 'border-brand-400/60 bg-brand-600/[0.16]'
-                  : 'border-white/8 bg-white/[0.03] hover:bg-white/[0.06]',
+                  ? 'border-app-accent-line bg-app-accent-bg'
+                  : 'border-app-line bg-app-hover hover:bg-app-hover',
               )}
             >
               <Icon
                 size={17}
-                className={scope === value ? 'text-brand-300' : 'text-glass-dim'}
+                className={scope === value ? 'text-app-accent-fg' : 'text-app-faint'}
               />
               <span
                 className={cn(
                   'text-[13px] font-medium',
-                  scope === value ? 'text-[#F3F2F8]' : 'text-[#ABA8C0]',
+                  scope === value ? 'text-app-fg' : 'text-app-soft',
                 )}
               >
                 {label}
@@ -99,7 +99,7 @@ const ExcludeDialog = ({
           ))}
         </div>
 
-        <p className="text-xs leading-relaxed text-[#6F6C85]">{optionHint}</p>
+        <p className="text-xs leading-relaxed text-app-faint">{optionHint}</p>
 
         <div className="flex flex-col gap-1.5">
           <Textarea
@@ -108,13 +108,13 @@ const ExcludeDialog = ({
             {...form.register('reason')}
           />
           <div className="flex items-center justify-between gap-3 px-0.5">
-            <span className="text-xs text-danger">
+            <span className="text-xs text-app-danger-fg">
               {form.formState.errors.reason?.message}
             </span>
             <span
               className={cn(
-                'shrink-0 text-xs tabular-nums text-[#6F6C85]',
-                reasonLength > REASON_MAX_LENGTH && 'text-danger',
+                'shrink-0 text-xs tabular-nums text-app-faint',
+                reasonLength > REASON_MAX_LENGTH && 'text-app-danger-fg',
               )}
             >
               {reasonLength}/{REASON_MAX_LENGTH}
@@ -122,7 +122,7 @@ const ExcludeDialog = ({
           </div>
         </div>
 
-        <p className="text-xs leading-relaxed text-[#6F6C85]">
+        <p className="text-xs leading-relaxed text-app-faint">
           They'll never be proposed by the AI again. Reversible any time from the Exclusions
           page.
         </p>

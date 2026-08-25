@@ -25,11 +25,17 @@ export enum CompleteOnboardingErrors {
   invalidWebsite = "invalidWebsite",
   invalidResource = "invalidResource",
   invalidIcp = "invalidIcp",
+  invalidMarket = "invalidMarket",
   tooManyIcps = "tooManyIcps",
   onboardingFailed = "onboardingFailed",
 }
 
 export enum GenerateProfileErrors {
+  invalidWebsite = "invalidWebsite",
+  generationFailed = "generationFailed",
+}
+
+export enum GenerateIcpsErrors {
   invalidWebsite = "invalidWebsite",
   generationFailed = "generationFailed",
 }

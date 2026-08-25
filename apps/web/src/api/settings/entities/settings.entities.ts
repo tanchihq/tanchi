@@ -31,3 +31,22 @@ export type SettingsDto = Readonly<{
 }>;
 
 export type GeneratedProfileDto = Readonly<{ companyProfile: string }>;
+
+export type IntelligenceModelDto = Readonly<{ agent: string; model: string }>;
+
+export type IntelligenceProviderDto = Readonly<{
+  isManaged: boolean;
+  generationProvider: string;
+  researchProvider: string;
+  isResearchAvailable: boolean;
+  researchUnavailableReason: string | null;
+  models: ReadonlyArray<IntelligenceModelDto>;
+}>;
+
+export type GenerateProfileMarketDto = Readonly<{
+  market: Readonly<{
+    name: string;
+    country: string;
+    outreachLanguage: string;
+  }>;
+}>;

@@ -6,12 +6,15 @@ import {
   History,
   LogOut,
   MessageSquare,
+  Moon,
   Server,
   Settings,
+  Sun,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/utils/lib/utils';
 import { useAuth } from '@/store/context/auth.context';
+import { useTheme } from '@/store/context/theme.context';
 import EnginePreparationCard from './engine-preparation-card/EnginePreparationCard';
 
 type NavEntry = Readonly<{ to: string; label: string; icon: LucideIcon; end?: boolean }>;
@@ -36,10 +39,12 @@ const initialsFromName = (name: string): string =>
 
 const AppSidebar = () => {
   const { state, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const name = state.user?.name ?? 'You';
+  const isDark = theme === 'dark';
 
   return (
-    <aside className="bg-night-800/60 flex w-[236px] shrink-0 flex-col gap-1 border-r border-white/8 px-4 py-5 backdrop-blur-md">
+    <aside className="bg-app-surface/60 border-app-line flex w-[236px] shrink-0 flex-col gap-1 border-r px-4 py-5 backdrop-blur-md">
       <div className="mb-5 flex items-center gap-2.5 px-3">
         <svg
           width="24"
@@ -48,7 +53,7 @@ const AppSidebar = () => {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"
-          className="text-glass-fg"
+          className="text-app-fg"
         >
           <circle cx="60" cy="60" r="46" stroke="currentColor" strokeWidth="6" />
           <circle
@@ -61,7 +66,7 @@ const AppSidebar = () => {
           />
           <circle cx="60" cy="60" r="10" fill="currentColor" />
         </svg>
-        <span className="text-glass-fg text-[15px] font-semibold tracking-[-0.04em]">
+        <span className="text-app-fg text-[15px] font-semibold tracking-[-0.04em]">
           tanchi
         </span>
       </div>
@@ -76,8 +81,8 @@ const AppSidebar = () => {
               cn(
                 'relative flex h-10 items-center gap-3 rounded-[9px] px-3 text-sm tracking-tight transition-colors',
                 isActive
-                  ? 'bg-brand-600/[0.16] text-[#F3F2F8] font-medium'
-                  : 'text-[#ABA8C0] hover:bg-white/5',
+                  ? 'bg-app-accent-bg text-app-fg font-medium'
+                  : 'text-app-soft hover:bg-app-hover',
               )
             }
           >
@@ -89,7 +94,7 @@ const AppSidebar = () => {
                     isActive ? 'bg-brand-400' : 'bg-transparent',
                   )}
                 />
-                <Icon size={17} className={isActive ? 'text-brand-400' : 'text-glass-dim'} />
+                <Icon size={17} className={isActive ? 'text-brand-400' : 'text-app-faint'} />
                 {label}
               </>
             )}
@@ -102,18 +107,27 @@ const AppSidebar = () => {
       </div>
 
       <div className="mt-3.5 flex items-center gap-2.5 px-1 py-1.5">
-        <div className="bg-brand-600/[0.22] text-brand-300 flex size-[30px] items-center justify-center rounded-full text-xs font-medium">
+        <div className="bg-app-accent-bg text-app-accent-fg flex size-[30px] items-center justify-center rounded-full text-xs font-medium">
           {initialsFromName(name)}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-glass-fg truncate text-[13px] tracking-tight">{name}</div>
-          <div className="truncate text-[11px] text-[#6F6C85]">{state.user?.email}</div>
+          <div className="text-app-fg truncate text-[13px] tracking-tight">{name}</div>
+          <div className="text-app-faint truncate text-[11px]">{state.user?.email}</div>
         </div>
+        <button
+          type="button"
+          onClick={toggleTheme}
+          title={isDark ? 'Switch to light' : 'Switch to dark'}
+          aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+          className="text-app-faint hover:text-app-fg flex p-1 transition-colors"
+        >
+          {isDark ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
         <button
           type="button"
           onClick={signOut}
           title="Sign out"
-          className="flex p-1 text-[#6F6C85] transition-colors hover:text-white"
+          className="text-app-faint hover:text-app-fg flex p-1 transition-colors"
         >
           <LogOut size={16} />
         </button>

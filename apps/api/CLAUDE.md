@@ -16,8 +16,8 @@ This file says HOW we code here and what we never violate. The WHAT and the WHY 
 - Auth: Better Auth (multi-tenant).
 - DB: PostgreSQL.
 - File / batch: Redis.
-- AI: Anthropic API, or CLI depending on user config.
-- Search: `web_fetch` takes priority over `web_search`.
+- AI: Claude by default (Anthropic API, or CLI depending on user config). Self-hosted may set `LLM_PROVIDER` to `openai`, `gemini` or `kimi`; providers live in `src/shared/llm/`.
+- Search: `web_fetch` takes priority over `web_search`. A provider without usable web search cannot run the engine — the boot guard refuses rather than produce unsourced dossiers.
 
 Project default choices (change them here and nowhere else if needed):
 - DB access: **raw SQL via `postgres.js`, no ORM.** We write the SQL by hand in the `*.postgres.ts` classes. No Drizzle, no Prisma, no query builder.

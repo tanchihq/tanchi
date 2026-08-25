@@ -23,8 +23,8 @@ const SenderForm = ({ onCreated }: SenderFormProps) => {
   });
 
   return (
-    <div className="rounded-[18px] border border-white/[0.07] bg-[#171733] p-[22px_24px]">
-      <div className="mb-4 text-[11px] uppercase tracking-[0.06em] text-[#6F6C85]">
+    <div className="rounded-[18px] border border-app-line bg-app-surface p-[22px_24px]">
+      <div className="mb-4 text-[11px] uppercase tracking-[0.06em] text-app-faint">
         Connect a mailbox
       </div>
       <Form {...form}>

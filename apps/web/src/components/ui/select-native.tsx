@@ -5,7 +5,7 @@ const SelectNative = ({ className, children, ...props }: ComponentProps<'select'
   <select
     data-slot="select-native"
     className={cn(
-      'glass-well text-glass-fg h-11 w-full px-4 text-sm outline-none disabled:opacity-60',
+      'glass-well text-app-fg h-11 w-full px-4 text-sm outline-none disabled:opacity-60',
       className,
     )}
     {...props}

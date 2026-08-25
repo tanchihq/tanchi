@@ -9,6 +9,7 @@ import { type SenderDto } from '@/api/senders/entities/response.entities';
 import { CHANNEL_META } from '@/utils/prospect-display';
 import { timelineDotColor } from '@/utils/format';
 import useEditMessage from '../hooks/useEditMessage';
+import LeadHistory from './lead-history/LeadHistory';
 import {
   BODY_MAX_LENGTH,
   CLOSED_COPY,
@@ -97,8 +98,8 @@ const LeadConversation = ({
 
   return (
     <div className="flex min-w-0 flex-col gap-4">
-      <div className="rounded-2xl border border-white/[0.07] bg-[#171733] p-[20px_22px]">
-        <div className="mb-3.5 text-[11px] uppercase tracking-[0.06em] text-[#6F6C85]">
+      <div className="border-app-line bg-app-surface rounded-2xl border p-[20px_22px]">
+        <div className="text-app-faint mb-3.5 text-[11px] tracking-[0.06em] uppercase">
           Conversation
         </div>
 
@@ -111,13 +112,13 @@ const LeadConversation = ({
                     className="size-2 rounded-full"
                     style={{ background: timelineDotColor(event.kind) }}
                   />
-                  <span className="mt-[3px] w-px flex-1 bg-white/8" />
+                  <span className="bg-app-line mt-[3px] w-px flex-1" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[13.5px] text-[#F3F2F8]">{event.title}</div>
-                  <div className="mt-px text-xs text-[#6F6C85]">{timeAgo(event.at)}</div>
+                  <div className="text-app-fg text-[13.5px]">{event.title}</div>
+                  <div className="text-app-faint mt-px text-xs">{timeAgo(event.at)}</div>
                 </div>
-                <span className="h-fit rounded-md border border-white/8 px-[7px] py-0.5 text-[10.5px] text-[#6F6C85]">
+                <span className="border-app-line text-app-faint h-fit rounded-md border px-[7px] py-0.5 text-[10.5px]">
                   {event.origin === 'auto' ? 'auto' : 'you'}
                 </span>
               </div>
@@ -125,12 +126,18 @@ const LeadConversation = ({
           </div>
         )}
 
+        <LeadHistory
+          entries={lead.history}
+          contactName={lead.firstName === '' ? 'They' : lead.firstName}
+          hideLastReply={lead.stage === 'replied' && lead.reply !== null}
+        />
+
         {isPendingDraft(lead) && message && (
           <>
-            <div className="my-[6px] mb-2.5 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.06em] text-[#6F6C85]">
+            <div className="text-app-faint my-[6px] mb-2.5 flex items-center gap-1.5 text-[11px] tracking-[0.06em] uppercase">
               <ChannelIcon channel={lead.channel} size={13} /> Proposed message
               {message.status === 'edited' && (
-                <span className="text-brand-300 bg-brand-600/[0.18] ml-1 rounded-md px-1.5 py-px text-[10px] font-medium normal-case tracking-normal">
+                <span className="text-app-accent-fg bg-app-accent-bg ml-1 rounded-md px-1.5 py-px text-[10px] font-medium tracking-normal normal-case">
                   edited
                 </span>
               )}
@@ -144,8 +151,8 @@ const LeadConversation = ({
                     onChange={(event) => setSubject(event.target.value)}
                     placeholder="Subject"
                     maxLength={SUBJECT_MAX_LENGTH}
-                    className="border-brand-600 mb-2 w-full rounded-xl border bg-[#0E0E22] p-[12px_16px] text-sm text-[#E7E6F0] outline-none"
-                    style={{ boxShadow: '0 0 0 3px rgba(5,1,240,0.16)' }}
+                    className="border-brand-600 bg-app-well text-app-fg mb-2 w-full rounded-xl border p-[12px_16px] text-sm outline-none"
+                    style={{ boxShadow: '0 0 0 3px var(--app-accent-bg)' }}
                   />
                 )}
                 <textarea
@@ -154,10 +161,10 @@ const LeadConversation = ({
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                   maxLength={BODY_MAX_LENGTH}
-                  className="border-brand-600 min-h-[168px] w-full resize-none overflow-hidden rounded-xl border bg-[#0E0E22] p-[15px_16px] text-sm leading-relaxed text-[#E7E6F0] outline-none"
-                  style={{ boxShadow: '0 0 0 3px rgba(5,1,240,0.16)' }}
+                  className="border-brand-600 bg-app-well text-app-fg min-h-[168px] w-full resize-none overflow-hidden rounded-xl border p-[15px_16px] text-sm leading-relaxed outline-none"
+                  style={{ boxShadow: '0 0 0 3px var(--app-accent-bg)' }}
                 />
-                <div className="mt-2 flex items-center gap-1.5 text-xs text-[#6F6C85]">
+                <div className="text-app-faint mt-2 flex items-center gap-1.5 text-xs">
                   <Sparkles size={12} className="text-brand-400 shrink-0" />
                   Your edits teach the AI what works — each one sharpens future drafts.
                 </div>
@@ -180,15 +187,15 @@ const LeadConversation = ({
                 {isEmail && subject !== '' && (
                   <div
                     onClick={() => setEditing(true)}
-                    className="mb-2 cursor-text truncate rounded-xl border border-white/8 bg-[#0E0E22] px-4 py-2.5 text-[13px] text-[#ABA8C0]"
+                    className="border-app-line bg-app-well text-app-soft mb-2 cursor-text truncate rounded-xl border px-4 py-2.5 text-[13px]"
                   >
-                    <span className="text-[#6F6C85]">Subject: </span>
+                    <span className="text-app-faint">Subject: </span>
                     {subject}
                   </div>
                 )}
                 <div
                   onClick={() => setEditing(true)}
-                  className="cursor-text whitespace-pre-wrap rounded-xl border border-white/8 bg-[#0E0E22] p-[15px_16px] text-sm leading-relaxed text-[#E7E6F0]"
+                  className="border-app-line bg-app-well text-app-fg cursor-text rounded-xl border p-[15px_16px] text-sm leading-relaxed whitespace-pre-wrap"
                 >
                   {draft}
                 </div>
@@ -219,7 +226,7 @@ const LeadConversation = ({
                     Edit
                   </Button>
                 </div>
-                <div className="mt-2.5 text-xs text-[#6F6C85]">
+                <div className="text-app-faint mt-2.5 text-xs">
                   {isEmail
                     ? 'Sent automatically on validation'
                     : `to send manually from ${channel.label}`}
@@ -230,13 +237,13 @@ const LeadConversation = ({
         )}
 
         {lead.stage === 'identified' && lead.message === null && (
-          <div className="text-[13.5px] leading-relaxed text-[#ABA8C0]">
+          <div className="text-app-soft text-[13.5px] leading-relaxed">
             Dossier ready. The agent is preparing a message.
           </div>
         )}
 
         {isWaiting(lead) && (
-          <div className="text-[13.5px] leading-relaxed text-[#ABA8C0]">
+          <div className="text-app-soft text-[13.5px] leading-relaxed">
             Message sent. Waiting for a reply — the agent will draft a follow-up
             if none comes.
           </div>
@@ -245,7 +252,7 @@ const LeadConversation = ({
         {lead.stage === 'replied' && (
           <>
             {lead.reply && (
-              <div className="border-success mb-4 rounded-[10px] border border-white/8 border-l-2 bg-white/[0.03] p-[13px_15px] text-[13.5px] leading-relaxed text-[#D9D7E4]">
+              <div className="border-app-success-fg border-app-line bg-app-hover text-app-soft mb-4 rounded-[10px] border border-l-2 p-[13px_15px] text-[13.5px] leading-relaxed">
                 {lead.reply}
               </div>
             )}
@@ -253,21 +260,21 @@ const LeadConversation = ({
               <button
                 type="button"
                 onClick={() => onQualify('meeting')}
-                className="text-brand-300 border-brand-400/40 bg-brand-600/20 h-10 flex-1 cursor-pointer rounded-[9px] border text-[13px] font-medium"
+                className="text-app-accent-fg border-app-accent-line bg-app-accent-bg h-10 flex-1 cursor-pointer rounded-[9px] border text-[13px] font-medium"
               >
                 positive
               </button>
               <button
                 type="button"
                 onClick={() => onQualify('not-interested')}
-                className="h-10 flex-1 cursor-pointer rounded-[9px] border border-white/8 bg-white/[0.04] text-[13px] text-[#ABA8C0]"
+                className="border-app-line bg-app-hover text-app-soft h-10 flex-1 cursor-pointer rounded-[9px] border text-[13px]"
               >
                 negative
               </button>
               <button
                 type="button"
                 onClick={() => onQualify('snoozed')}
-                className="h-10 flex-1 cursor-pointer rounded-[9px] border border-white/8 bg-white/[0.04] text-[13px] text-[#ABA8C0]"
+                className="border-app-line bg-app-hover text-app-soft h-10 flex-1 cursor-pointer rounded-[9px] border text-[13px]"
               >
                 later
               </button>
@@ -277,10 +284,10 @@ const LeadConversation = ({
 
         {isClosedStage(lead) && closed && (
           <>
-            <div className="mb-1.5 text-[15px] font-medium text-[#F3F2F8]">
+            <div className="text-app-fg mb-1.5 text-[15px] font-medium">
               {closed.title}
             </div>
-            <div className="text-[13.5px] leading-relaxed text-[#ABA8C0]">
+            <div className="text-app-soft text-[13.5px] leading-relaxed">
               {closed.note}
             </div>
           </>

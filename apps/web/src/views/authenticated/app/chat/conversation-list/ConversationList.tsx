@@ -23,7 +23,7 @@ const ConversationList = ({
   onSelect,
   onDelete,
 }: ConversationListProps) => (
-  <aside className="flex w-[262px] shrink-0 flex-col border-r border-white/8 bg-[#13132B]/60">
+  <aside className="flex w-[262px] shrink-0 flex-col border-r border-app-line bg-app-raised/60">
     <div className="p-3">
       <Button className="w-full" isLoading={creating} onClick={onNew}>
         {!creating && <Plus size={16} />}
@@ -33,7 +33,7 @@ const ConversationList = ({
 
     <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
       {conversations.length === 0 ? (
-        <div className="px-3 py-6 text-center text-[12.5px] leading-relaxed text-[#6F6C85]">
+        <div className="px-3 py-6 text-center text-[12.5px] leading-relaxed text-app-faint">
           No conversation yet. Start one to chat with the copilot about your prospects.
         </div>
       ) : (
@@ -45,20 +45,20 @@ const ConversationList = ({
               className={cn(
                 'group flex cursor-pointer items-center gap-2 rounded-[9px] px-3 py-2 transition-colors',
                 conversation.id === activeId
-                  ? 'bg-brand-600/[0.16]'
-                  : 'hover:bg-white/[0.05]',
+                  ? 'bg-app-accent-bg'
+                  : 'hover:bg-app-hover',
               )}
             >
               <div className="min-w-0 flex-1">
                 <div
                   className={cn(
                     'truncate text-[13px] tracking-tight',
-                    conversation.id === activeId ? 'text-[#F3F2F8]' : 'text-[#ABA8C0]',
+                    conversation.id === activeId ? 'text-app-fg' : 'text-app-soft',
                   )}
                 >
                   {conversationTitle(conversation.title)}
                 </div>
-                <div className="text-[11px] text-[#6F6C85]">
+                <div className="text-[11px] text-app-faint">
                   {conversationTime(conversation.updatedAt)}
                 </div>
               </div>
@@ -70,7 +70,7 @@ const ConversationList = ({
                 }}
                 aria-label="Delete conversation"
                 className={cn(
-                  'flex size-7 shrink-0 items-center justify-center rounded-md text-[#6F6C85] transition-all hover:bg-white/[0.07] hover:text-[#ff8a80]',
+                  'flex size-7 shrink-0 items-center justify-center rounded-md text-app-faint transition-all hover:bg-app-hover hover:text-app-danger-fg',
                   deletingId === conversation.id
                     ? 'opacity-100'
                     : 'opacity-0 focus-visible:opacity-100 group-hover:opacity-100',

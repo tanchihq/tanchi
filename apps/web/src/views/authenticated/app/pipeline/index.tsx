@@ -89,18 +89,18 @@ const Pipeline = () => {
             onClick={() => setTonight((value) => !value)}
             className="flex h-[34px] cursor-pointer items-center gap-2 rounded-[9px] border px-3.5 text-[13px] transition-colors"
             style={{
-              borderColor: tonight ? 'rgba(124,121,246,0.5)' : 'rgba(255,255,255,0.1)',
-              background: tonight ? 'rgba(5,1,240,0.2)' : 'rgba(255,255,255,0.04)',
-              color: tonight ? '#A9A6FF' : '#ABA8C0',
+              borderColor: tonight ? 'var(--app-accent-line)' : 'var(--app-line)',
+              background: tonight ? 'var(--app-accent-bg)' : 'var(--app-hover)',
+              color: tonight ? 'var(--app-accent-fg)' : 'var(--app-soft)',
             }}
           >
             <span
               className="size-[7px] rounded-full"
-              style={{ background: tonight ? '#7c79f6' : '#6f6c85' }}
+              style={{ background: tonight ? 'var(--app-accent-fg)' : 'var(--app-faint)' }}
             />
             To handle tonight
           </button>
-          <span className="text-xs text-[#6F6C85]">
+          <span className="text-xs text-app-faint">
             {tonight ? 'drafts, replies and follow-ups due today' : 'all stages'}
           </span>
           {marketNames.length > 1 && (
@@ -110,9 +110,9 @@ const Pipeline = () => {
                 onClick={() => setMarketFilter(null)}
                 className="flex h-[34px] cursor-pointer items-center rounded-[9px] border px-3 text-[13px] transition-colors"
                 style={{
-                  borderColor: marketFilter === null ? 'rgba(124,121,246,0.5)' : 'rgba(255,255,255,0.1)',
-                  background: marketFilter === null ? 'rgba(5,1,240,0.2)' : 'rgba(255,255,255,0.04)',
-                  color: marketFilter === null ? '#A9A6FF' : '#ABA8C0',
+                  borderColor: marketFilter === null ? 'var(--app-accent-line)' : 'var(--app-line)',
+                  background: marketFilter === null ? 'var(--app-accent-bg)' : 'var(--app-hover)',
+                  color: marketFilter === null ? 'var(--app-accent-fg)' : 'var(--app-soft)',
                 }}
               >
                 All markets
@@ -124,9 +124,9 @@ const Pipeline = () => {
                   onClick={() => setMarketFilter(name)}
                   className="flex h-[34px] cursor-pointer items-center rounded-[9px] border px-3 text-[13px] transition-colors"
                   style={{
-                    borderColor: marketFilter === name ? 'rgba(124,121,246,0.5)' : 'rgba(255,255,255,0.1)',
-                    background: marketFilter === name ? 'rgba(5,1,240,0.2)' : 'rgba(255,255,255,0.04)',
-                    color: marketFilter === name ? '#A9A6FF' : '#ABA8C0',
+                    borderColor: marketFilter === name ? 'var(--app-accent-line)' : 'var(--app-line)',
+                    background: marketFilter === name ? 'var(--app-accent-bg)' : 'var(--app-hover)',
+                    color: marketFilter === name ? 'var(--app-accent-fg)' : 'var(--app-soft)',
                   }}
                 >
                   {name}

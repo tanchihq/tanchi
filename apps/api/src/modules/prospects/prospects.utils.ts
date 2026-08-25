@@ -95,6 +95,38 @@ function convertMessage(
   };
 }
 
+function buildHistory(
+  messages: ReadonlyArray<PgProspectMessage>,
+  outcomes: ReadonlyArray<PgProspectOutcome>
+): ReadonlyArray<ResponseDto.LeadDetailHistoryEntryDto> {
+  const sent: ReadonlyArray<ResponseDto.LeadDetailHistoryEntryDto> = messages
+    .filter((message) => message.status === "sent")
+    .map((message) => ({
+      kind: "sent" as const,
+      at: (message.sent_at ?? message.created_at).toISOString(),
+      channel: message.channel,
+      subject: message.subject,
+      body: message.body,
+    }));
+
+  const replies: ReadonlyArray<ResponseDto.LeadDetailHistoryEntryDto> = outcomes
+    .filter(
+      (outcome): outcome is PgProspectOutcome & { reply_text: string } =>
+        outcome.reply_text !== null && outcome.reply_text.trim() !== ""
+    )
+    .map((outcome) => ({
+      kind: "reply" as const,
+      at: outcome.created_at.toISOString(),
+      channel: null,
+      subject: null,
+      body: outcome.reply_text,
+    }));
+
+  return [...sent, ...replies].sort((a, b) =>
+    a.at < b.at ? -1 : a.at > b.at ? 1 : 0
+  );
+}
+
 function buildTimeline(
   outcomes: ReadonlyArray<PgProspectOutcome>,
   origin: ResponseDto.OriginDto
@@ -152,6 +184,7 @@ export function convertToLeadDetailDto(
     angles: angles.map(convertAngle),
     timeline: buildTimeline(outcomes, lead.origin),
     message: latestMessage === undefined ? null : convertMessage(latestMessage),
+    history: buildHistory(messages, outcomes),
     reply: reply ?? null,
     createdAt: lead.created_at.toISOString(),
     nextFollowUpAt: lead.next_follow_up_at?.toISOString() ?? null,

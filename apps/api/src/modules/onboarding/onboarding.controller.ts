@@ -6,6 +6,8 @@ import { requireAuth, type AuthVariables } from "@shared/middleware/requireAuth.
 import { rateLimit } from "@shared/ratelimit";
 import { zodValidationHook } from "@shared/middleware/zodValidationHook.ts";
 import {
+  GENERATE_ICPS_RATE_LIMIT,
+  GENERATE_ICPS_RATE_LIMIT_WINDOW_SECONDS,
   GENERATE_PROFILE_RATE_LIMIT,
   GENERATE_PROFILE_RATE_LIMIT_WINDOW_SECONDS,
   SIGN_UP_RATE_LIMIT,
@@ -15,6 +17,7 @@ import type { OnboardingService } from "./onboarding.service.ts";
 import * as RequestDto from "./dto/request/index.ts";
 import {
   CompleteOnboardingErrors,
+  GenerateIcpsErrors,
   GenerateProfileErrors,
   OnboardingStateErrors,
   SaveOnboardingProgressErrors,
@@ -160,6 +163,34 @@ export function createOnboardingRouter(onboardingService: OnboardingService) {
             return sendError(context, 500, result);
         }
 
+        return context.json(result);
+      }
+    )
+    .post(
+      "/generate-icps",
+      requireAuth(),
+      rateLimit({
+        name: "onboarding-generate-icps",
+        limit: GENERATE_ICPS_RATE_LIMIT,
+        windowSeconds: GENERATE_ICPS_RATE_LIMIT_WINDOW_SECONDS,
+      }),
+      zValidator("json", RequestDto.GenerateIcpsDto, zodValidationHook),
+      async (context) => {
+        const dto = context.req.valid("json");
+        const result = await onboardingService.generateIcps(dto);
+
+        switch (result) {
+          case GenerateIcpsErrors.invalidWebsite:
+            return sendError(context, 400, result);
+          case GenerateIcpsErrors.generationFailed:
+            return sendError(context, 500, result);
+        }
+
+        captureEvent({
+          distinctId: context.get("user").id,
+          event: "onboarding_icps_generated",
+          properties: { icpCount: result.icps.length },
+        });
         return context.json(result);
       }
     );

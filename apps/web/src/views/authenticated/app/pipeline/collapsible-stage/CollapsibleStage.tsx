@@ -79,8 +79,8 @@ const CollapsibleStage = ({
       onDrop={onDrop}
       className="rounded-[13px] border border-dashed transition-colors"
       style={{
-        background: over ? 'rgba(5,1,240,0.12)' : 'rgba(255,255,255,0.02)',
-        borderColor: over ? 'rgba(124,121,246,0.5)' : 'rgba(255,255,255,0.08)',
+        background: over ? 'var(--app-accent-bg)' : 'var(--app-hover)',
+        borderColor: over ? 'var(--app-accent-line)' : 'var(--app-line)',
       }}
     >
       <button
@@ -91,18 +91,18 @@ const CollapsibleStage = ({
         <ChevronRight
           size={15}
           className={cn(
-            'text-glass-dim shrink-0 transition-transform',
+            'text-app-faint shrink-0 transition-transform',
             expanded && 'rotate-90',
           )}
         />
-        <span className="text-[13px] font-medium tracking-tight text-[#F3F2F8]">
+        <span className="text-[13px] font-medium tracking-tight text-app-fg">
           {STAGE_LABEL[stage]}
         </span>
-        <span className="min-w-5 rounded-[9px] border border-white/8 bg-white/[0.06] px-[7px] text-center text-[11px] text-[#ABA8C0]">
+        <span className="min-w-5 rounded-[9px] border border-app-line bg-app-hover px-[7px] text-center text-[11px] text-app-soft">
           {prospects.length}
         </span>
         {toWakeCount > 0 && (
-          <span className="text-warn rounded-[9px] bg-[rgba(251,191,119,0.14)] px-2 py-[1px] text-[11px] font-medium">
+          <span className="text-app-warn-fg rounded-[9px] bg-[var(--app-warn-bg)] px-2 py-[1px] text-[11px] font-medium">
             {toWakeCount} to wake
           </span>
         )}
@@ -114,7 +114,7 @@ const CollapsibleStage = ({
             <div className="relative">
               <Search
                 size={14}
-                className="text-glass-dim pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
+                className="text-app-faint pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
               />
               <Input
                 value={query}
@@ -126,19 +126,19 @@ const CollapsibleStage = ({
           )}
 
           {sorted.length === 0 ? (
-            <div className="rounded-[9px] border border-dashed border-white/10 px-3 py-5 text-center text-[12px] text-[#6F6C85]">
+            <div className="rounded-[9px] border border-dashed border-app-line px-3 py-5 text-center text-[12px] text-app-faint">
               {query.trim().length > 0 ? 'No match.' : `Nobody in ${STAGE_LABEL[stage]}.`}
             </div>
           ) : (
             <div className="flex max-h-[280px] flex-col gap-1.5 overflow-y-auto pr-0.5">
               {isSnoozed && toWake.length > 0 && (
                 <>
-                  <div className="text-warn px-1 pt-0.5 text-[10.5px] font-medium uppercase tracking-[0.06em]">
+                  <div className="text-app-warn-fg px-1 pt-0.5 text-[10.5px] font-medium uppercase tracking-[0.06em]">
                     To wake
                   </div>
                   {toWake.map((prospect) => renderRow(prospect, true))}
                   {rest.length > 0 && (
-                    <div className="px-1 pt-1.5 text-[10.5px] font-medium uppercase tracking-[0.06em] text-[#6F6C85]">
+                    <div className="px-1 pt-1.5 text-[10.5px] font-medium uppercase tracking-[0.06em] text-app-faint">
                       Later
                     </div>
                   )}

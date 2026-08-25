@@ -1,8 +1,17 @@
 import { Hono } from "hono";
+import { isBillingEnabled } from "../../env.ts";
 import { zValidator } from "@hono/zod-validator";
 import { sendError } from "@shared/errors";
 import { requireAuth, type AuthVariables } from "@shared/middleware/requireAuth.ts";
 import { rateLimit } from "@shared/ratelimit";
+import {
+  activeProviderLabel,
+  agentModel,
+  isResearchAvailable,
+  researchProviderLabel,
+  researchUnavailableReason,
+  type AgentKey,
+} from "@shared/llm";
 import { zodValidationHook } from "@shared/middleware/zodValidationHook.ts";
 import {
   GENERATE_PROFILE_RATE_LIMIT,
@@ -20,8 +29,31 @@ type SessionOrganization = Readonly<{
   activeOrganizationId?: string | null;
 }>;
 
+const EXPOSED_AGENTS: ReadonlyArray<AgentKey> = [
+  "chasseur",
+  "profiler",
+  "copywriter",
+  "analyste",
+  "chat",
+];
+
 export function createSettingsRouter(settingsService: SettingsService) {
   return new Hono<{ Variables: AuthVariables }>()
+    .get("/intelligence", requireAuth(), (context) =>
+      context.json({
+        isManaged: isBillingEnabled,
+        generationProvider: activeProviderLabel,
+        researchProvider: researchProviderLabel,
+        isResearchAvailable,
+        researchUnavailableReason,
+        models: isBillingEnabled
+          ? []
+          : EXPOSED_AGENTS.map((agent) => ({
+              agent,
+              model: agentModel(agent),
+            })),
+      })
+    )
     .get("/", requireAuth(), async (context) => {
       const session = context.get("session") as SessionOrganization;
       const result = await settingsService.getSettings(
@@ -77,13 +109,22 @@ export function createSettingsRouter(settingsService: SettingsService) {
         limit: GENERATE_PROFILE_RATE_LIMIT,
         windowSeconds: GENERATE_PROFILE_RATE_LIMIT_WINDOW_SECONDS,
       }),
+      zValidator(
+        "json",
+        RequestDto.GenerateCompanyProfileDto,
+        zodValidationHook
+      ),
       async (context) => {
+      const dto = context.req.valid("json");
       const session = context.get("session") as SessionOrganization;
       const result = await settingsService.generateProfile(
+        dto,
         session.activeOrganizationId
       );
 
       switch (result) {
+        case GenerateCompanyProfileErrors.invalidMarket:
+          return sendError(context, 400, result);
         case GenerateCompanyProfileErrors.noActiveOrganization:
           return sendError(context, 409, result);
         case GenerateCompanyProfileErrors.generationFailed:

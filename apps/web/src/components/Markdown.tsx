@@ -17,7 +17,7 @@ const components: Components = {
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="text-brand-300 underline underline-offset-2"
+      className="text-app-accent-fg underline underline-offset-2"
     >
       {children}
     </a>
@@ -32,14 +32,14 @@ const components: Components = {
     <h3 className="text-[13.5px] font-semibold text-white">{children}</h3>
   ),
   blockquote: ({ children }) => (
-    <blockquote className="border-l-2 border-white/15 pl-3 text-[#ABA8C0]">
+    <blockquote className="border-l-2 border-app-line pl-3 text-app-soft">
       {children}
     </blockquote>
   ),
   code: ({ children, className }) => (
     <code
       className={cn(
-        'rounded bg-white/10 px-1 py-0.5 font-mono text-[12px]',
+        'rounded bg-app-hover px-1 py-0.5 font-mono text-[12px]',
         className,
       )}
     >
@@ -47,23 +47,23 @@ const components: Components = {
     </code>
   ),
   pre: ({ children }) => (
-    <pre className="overflow-x-auto rounded-lg bg-black/30 p-3 text-[12px] [&_code]:bg-transparent [&_code]:p-0">
+    <pre className="overflow-x-auto rounded-lg bg-app-well p-3 text-[12px] [&_code]:bg-transparent [&_code]:p-0">
       {children}
     </pre>
   ),
-  hr: () => <hr className="border-white/10" />,
+  hr: () => <hr className="border-app-line" />,
   table: ({ children }) => (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-[12.5px]">{children}</table>
     </div>
   ),
   th: ({ children }) => (
-    <th className="border border-white/10 px-2 py-1 text-left font-semibold">
+    <th className="border border-app-line px-2 py-1 text-left font-semibold">
       {children}
     </th>
   ),
   td: ({ children }) => (
-    <td className="border border-white/10 px-2 py-1">{children}</td>
+    <td className="border border-app-line px-2 py-1">{children}</td>
   ),
 };
 

@@ -213,7 +213,17 @@ describe("settings: generate-profile returns the (mocked) profile", () => {
     const res = await authedRequest(
       "/api/v1/settings/generate-profile",
       account.cookie,
-      { method: "POST" }
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          market: {
+            name: "United States",
+            country: "US",
+            outreachLanguage: "en",
+          },
+        }),
+      }
     );
     expect(res.status).toBe(200);
     expect((await res.json()).companyProfile).toBe("Mock company profile.");

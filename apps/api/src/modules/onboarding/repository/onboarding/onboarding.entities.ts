@@ -32,6 +32,11 @@ type CompleteOnboardingInput = Readonly<{
     salesDeckUrl: string;
     companyProfile: string;
   }>;
+  market: Readonly<{
+    name: string;
+    country: string;
+    outreachLanguage: string;
+  }>;
   icps: ReadonlyArray<
     Readonly<{
       name: string;

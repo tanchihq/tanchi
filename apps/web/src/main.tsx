@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { initAnalytics } from '@/analytics/posthog';
 import { Toaster } from '@/components/ui/sonner';
 import AuthProvider from '@/store/context/auth.provider';
+import ThemeProvider from '@/store/context/theme.provider';
 import App from './App.tsx';
 import './index.css';
 
@@ -12,10 +13,12 @@ initAnalytics();
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <App />
-        <Toaster />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <App />
+          <Toaster />
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </StrictMode>,
 );

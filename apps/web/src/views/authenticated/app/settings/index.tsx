@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/form';
 import SettingsSection from './settings-section/SettingsSection';
 import BillingSection from './billing-section/BillingSection';
+import IntelligenceSection from './intelligence-section/IntelligenceSection';
 import MarketCard from './market-card/MarketCard';
 import useRetrieveSettings from './hooks/useRetrieveSettings';
 import useUpdateSettings from './hooks/useUpdateSettings';
@@ -61,9 +62,16 @@ const Settings = () => {
   });
 
   const handleRegenerate = (index: number) => {
+    const market = form.getValues(`markets.${index}`);
     regenerateTarget.current = index;
     setRegeneratingIndex(index);
-    generate();
+    generate({
+      market: {
+        name: market.name,
+        country: market.country,
+        outreachLanguage: market.outreachLanguage,
+      },
+    });
   };
 
   if (status === 'loading') {
@@ -90,7 +98,7 @@ const Settings = () => {
             className="mx-auto flex max-w-[720px] flex-col gap-4"
           >
             <div className="flex items-center justify-between">
-              <p className="text-sm text-[#ABA8C0]">
+              <p className="text-sm text-app-soft">
                 What the agent knows about you and who it writes to.
               </p>
               <Button
@@ -167,8 +175,8 @@ const Settings = () => {
 
             <div className="mt-2 flex items-center justify-between">
               <div>
-                <h2 className="text-sm font-medium text-white">Markets</h2>
-                <p className="text-xs text-[#6F6C85]">
+                <h2 className="text-app-fg text-sm font-medium">Markets</h2>
+                <p className="text-xs text-app-faint">
                   One market per language / positioning. Each learns on its own.
                 </p>
               </div>
@@ -183,7 +191,7 @@ const Settings = () => {
             </div>
 
             {dilutionWarning !== null && (
-              <div className="text-warn flex items-start gap-2.5 rounded-[14px] border border-[rgba(251,191,119,0.25)] bg-[rgba(251,191,119,0.08)] p-3.5 text-[13px]">
+              <div className="text-app-warn-fg flex items-start gap-2.5 rounded-[14px] border border-[var(--app-accent-line)] bg-[var(--app-warn-bg)] p-3.5 text-[13px]">
                 <TriangleAlert size={16} className="mt-0.5 shrink-0" />
                 <span>{dilutionWarning}</span>
               </div>
@@ -205,6 +213,7 @@ const Settings = () => {
           </form>
         </Form>
         <div className="mx-auto mt-4 flex max-w-[720px] flex-col gap-4 pb-7">
+          <IntelligenceSection />
           <BillingSection />
         </div>
       </div>

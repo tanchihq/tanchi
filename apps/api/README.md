@@ -103,7 +103,8 @@ The sending address is `MAIL_FROM_EMAIL` (generic). `RESEND_FROM_EMAIL` is still
 - Redis (queues and evening batches)
 
 **AI**
-- Anthropic API, or CLI depending on config (see below)
+- Claude by default (Anthropic API, or the CLI in local dev)
+- Self-hosted can swap in GPT (OpenAI), Gemini (Google) or Kimi (Moonshot) — see below
 
 **Search**
 - `web_fetch` prioritized over `web_search` for dossier verification
@@ -113,7 +114,7 @@ The sending address is `MAIL_FROM_EMAIL` (generic). `RESEND_FROM_EMAIL` is still
 
 ---
 
-## AI configuration: CLI or API key
+## AI configuration: provider and key
 
 When creating the account, you choose:
 
@@ -122,18 +123,75 @@ When creating the account, you choose:
 
 Note: a Max-type subscription via interactive CLI is not meant for nightly server batches. Self-hosted = API key.
 
+### Choosing the provider (self-hosted)
+
+`LLM_PROVIDER` accepts `cli`, `api`, `anthropic`, `openai`, `gemini` or `kimi`.
+`api` is an alias of `anthropic` and stays the default for the hosted product.
+
+| Provider | Auth | Web research |
+|---|---|---|
+| `anthropic` / `api` | `ANTHROPIC_API_KEY` | native (`web_search`) |
+| `cli` | local Claude CLI | native (`WebSearch` / `WebFetch`) |
+| `openai` | `OPENAI_API_KEY` | native (Responses API `web_search`) |
+| `gemini` | `GEMINI_API_KEY` | native (`google_search` grounding) |
+| `kimi` | `MOONSHOT_API_KEY` | native (`$web_search` builtin) — see caveat |
+
+`OPENAI_BASE_URL` and `MOONSHOT_BASE_URL` let you point at a compatible gateway.
+
+**One provider, one key.** Exactly one provider is instantiated at boot, and it
+reads only its own variable — bring your Gemini key and nothing else is needed.
+Moonshot publishes an OpenAI-compatible endpoint, so Kimi and OpenAI share the
+same HTTP transport in `openai-compatible.ts`; that is a wire format they both
+speak, not a dependency. A Kimi deployment never touches an OpenAI account.
+
+### API key or CLI?
+
+**The non-Anthropic providers are API-key only.** `cli` is Claude-specific: it
+spawns the `claude` binary and speaks its stream format. There is no
+`LLM_PROVIDER=codex` or `gemini-cli` — wiring a vendor CLI means writing a full
+`LlmProvider` for it (its own tool model, its own streamed output), not just
+swapping a binary name.
+
+That is deliberate for a server deployment: a vendor CLI is backed by an
+interactive subscription with periodic OAuth re-auth, which does not suit a
+nightly batch running with nobody at the keyboard. Self-hosted on a server =
+API key.
+
+### Web research is not optional
+
+The Hunter and the Profiler source every fact in a dossier through `research()`,
+so every provider here ships a native web search. If a future provider does not,
+the API still serves HTTP but **the intelligence engine refuses to start** and
+says so in the logs — a dossier carrying facts we cannot trace to a source is
+worse than no dossier, and that is invariant #1.
+
+#### Caveat on Kimi
+
+Kimi's search works and is wired in, but Moonshot itself flags the feature as
+being reworked and not recommended for production. Expect it to be **less
+reliable than Anthropic, OpenAI or Gemini** on sourcing quality and coverage.
+If a Kimi deployment produces thin dossiers, point research elsewhere while
+keeping Kimi for writing:
+
+```
+LLM_PROVIDER=kimi
+MOONSHOT_API_KEY=...
+LLM_RESEARCH_PROVIDER=gemini
+GEMINI_API_KEY=...
+```
+
 ### Model per agent (self-hosted)
 
-Each agent has a default model, chosen for its cost/quality ratio:
+Each agent has a default model per provider, chosen for its cost/quality ratio:
 
-| Agent | Default |
-|---|---|
-| Hunter (sourcing) | `claude-sonnet-5` |
-| Profiler (intelligence) | `claude-opus-4-8` |
-| Copywriter (writing) | `claude-sonnet-5` |
-| Analyst (learning) | `claude-sonnet-5` |
-| Reward (response classif) | `claude-haiku-4-5` |
-| Chat (copilot) | `claude-sonnet-5` |
+| Agent | `anthropic` | `openai` | `gemini` | `kimi` |
+|---|---|---|---|---|
+| Hunter (sourcing) | `claude-sonnet-5` | `gpt-5.6-terra` | `gemini-3.7-flash` | `kimi-k3` |
+| Profiler (intelligence) | `claude-opus-4-8` | `gpt-5.6-sol` | `gemini-3.1-pro-preview` | `kimi-k3` |
+| Copywriter (writing) | `claude-sonnet-5` | `gpt-5.6-terra` | `gemini-3.7-flash` | `kimi-k3` |
+| Analyst (learning) | `claude-sonnet-5` | `gpt-5.6-terra` | `gemini-3.7-flash` | `kimi-k3` |
+| Reward (response classif) | `claude-haiku-4-5` | `gpt-5.6-luna` | `gemini-3.5-flash-lite` | `kimi-k3` |
+| Chat (copilot) | `claude-sonnet-5` | `gpt-5.6-terra` | `gemini-3.7-flash` | `kimi-k3` |
 
 In self-hosted, you override any agent via environment variable (otherwise the default applies):
 
@@ -146,7 +204,11 @@ LLM_MODEL_REWARD=claude-haiku-4-5
 LLM_MODEL_CHAT=claude-sonnet-5
 ```
 
-An unknown ID is ignored (fallback to the default). Allowed models: `claude-opus-4-8`, `claude-opus-4-7`, `claude-sonnet-5`, `claude-sonnet-4-6`, `claude-haiku-4-5`.
+An ID that does not belong to the active provider's list is ignored (fallback
+to that provider's default). The lists live in `src/shared/llm/models.ts`.
+
+Settings → Intelligence shows the active provider and the model per job,
+read-only: the choice belongs to whoever runs the instance.
 
 ---
 

@@ -28,7 +28,7 @@ const Mailbox = () => {
     <AppScreen title="Mailbox">
       <div className="h-full overflow-y-auto px-[30px] py-7">
         <div className="mx-auto flex max-w-[720px] flex-col gap-4">
-          <p className="text-sm leading-relaxed text-[#ABA8C0]">
+          <p className="text-sm leading-relaxed text-app-soft">
             Connect your own mailbox. Emails go out from your address (SMTP) and replies are
             read back (IMAP). Edit a mailbox any time — changing connection settings requires
             testing it again before it can send.
