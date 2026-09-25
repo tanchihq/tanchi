@@ -9,6 +9,7 @@ import * as RequestDto from "./dto/request/index.ts";
 import {
   EditQueueErrors,
   GetQueueErrors,
+  SkipQueueErrors,
   ValidateQueueErrors,
 } from "./queue.errors.ts";
 
@@ -101,6 +102,41 @@ export function createQueueRouter(queueService: QueueService) {
           case ValidateQueueErrors.noSender:
             return sendError(context, 422, result);
           case ValidateQueueErrors.sendFailed:
+            return sendError(context, 500, result);
+        }
+
+        return context.json(result);
+      }
+    )
+    .post(
+      "/:id/skip",
+      requireAuth(),
+      zValidator(
+        "param",
+        z.object({
+          id: z.uuid({ message: SkipQueueErrors.invalidProspectId }),
+        }),
+        zodValidationHook
+      ),
+      zValidator("json", RequestDto.SkipQueueDto, zodValidationHook),
+      async (context) => {
+        const { id } = context.req.valid("param");
+        const dto = context.req.valid("json");
+        const session = context.get("session") as SessionOrganization;
+        const result = await queueService.skipQueueItem(
+          id,
+          dto,
+          session.activeOrganizationId
+        );
+
+        switch (result) {
+          case SkipQueueErrors.inexistingDraft:
+            return sendError(context, 404, result);
+          case SkipQueueErrors.notInMyOrg:
+            return sendError(context, 403, result);
+          case SkipQueueErrors.noActiveOrganization:
+            return sendError(context, 409, result);
+          case SkipQueueErrors.skipFailed:
             return sendError(context, 500, result);
         }
 

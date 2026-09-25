@@ -33,7 +33,15 @@ export class ActivityPostgres {
           COUNT(*) FILTER (WHERE type = 'profiled' AND created_at >= CURRENT_DATE)::int AS researched_today,
           COUNT(*) FILTER (WHERE type = 'drafted' AND created_at >= CURRENT_DATE)::int AS drafted_today,
           COUNT(*) FILTER (WHERE type = 'sent' AND created_at >= CURRENT_DATE)::int AS sent_today,
-          COUNT(*) FILTER (WHERE type = 'reply' AND created_at >= CURRENT_DATE)::int AS replies_today
+          COUNT(*) FILTER (WHERE type = 'reply' AND created_at >= CURRENT_DATE)::int AS replies_today,
+          (
+            SELECT COUNT(*)::int FROM messages m
+            JOIN leads l ON l.id = m.lead_id
+            WHERE m.organization_id = ${organizationId}
+              AND m.status IN ('draft', 'edited')
+              AND l.excluded_at IS NULL
+              AND l.stage IN ('identified', 'contacted', 'following-up')
+          ) AS pending_review
         FROM activity
         WHERE organization_id = ${organizationId}
       `;

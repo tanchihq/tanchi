@@ -11,6 +11,7 @@ import type {
   PgIcpEdit,
   PgMessageOutcomeRow,
   PgProfileConversionRow,
+  PgRejectedDraft,
   PgEngineProfile,
   PgEngineRun,
 } from "./engine.entities.ts";
@@ -188,6 +189,24 @@ export class EngineRepository {
 
   getChosenAngleForLead(leadId: string): Promise<PgCopyAngle | null> {
     return this.enginePostgres.getChosenAngleForLead(leadId);
+  }
+
+  getRejectedDraftsForLead(
+    leadId: string
+  ): Promise<ReadonlyArray<PgRejectedDraft>> {
+    return this.enginePostgres.getRejectedDraftsForLead(leadId);
+  }
+
+  getRecentRejectionsForIcp(
+    organizationId: string,
+    icpId: string,
+    limit: number
+  ): Promise<ReadonlyArray<PgRejectedDraft>> {
+    return this.enginePostgres.getRecentRejectionsForIcp(
+      organizationId,
+      icpId,
+      limit
+    );
   }
 
   createOneMessageDraft(input: CreateMessageDraftInput): Promise<void> {

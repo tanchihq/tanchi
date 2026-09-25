@@ -12,6 +12,7 @@ export const UpdateStageDto = z.object({
       "won",
       "not-interested",
       "snoozed",
+      "bounced",
     ],
     { error: UpdateStageErrors.invalidStage }
   ),

@@ -18,4 +18,5 @@ export type ActivityStatusDto = Readonly<{
     sent: number;
     replies: number;
   }>;
+  pendingReview: number;
 }>;

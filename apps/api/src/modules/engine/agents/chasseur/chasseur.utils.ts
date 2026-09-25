@@ -1,5 +1,54 @@
 import type { PgProfileConversionRow } from "../../repository/engine/engine.entities.ts";
-import { CHASSEUR_TOP_VALUES_PER_DIMENSION } from "../../engine.constants.ts";
+import {
+  CHASSEUR_TOP_VALUES_PER_DIMENSION,
+  IRRELEVANT_MAILBOX_LOCAL_PARTS,
+  SHARED_MAILBOX_LOCAL_PARTS,
+} from "../../engine.constants.ts";
+
+const IRRELEVANT_MAILBOX_SET: ReadonlySet<string> = new Set(
+  IRRELEVANT_MAILBOX_LOCAL_PARTS
+);
+
+const SHARED_MAILBOX_SET: ReadonlySet<string> = new Set(
+  SHARED_MAILBOX_LOCAL_PARTS
+);
+
+type RankableContact = Readonly<{
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+}>;
+
+function normalizedLocalPart(email: string): string {
+  const at = email.indexOf("@");
+  return (at === -1 ? email : email.slice(0, at))
+    .toLowerCase()
+    .replace(/[._+-]/g, "");
+}
+
+export function isIrrelevantMailbox(email: string): boolean {
+  return IRRELEVANT_MAILBOX_SET.has(normalizedLocalPart(email));
+}
+
+export function isSharedMailbox(email: string): boolean {
+  return SHARED_MAILBOX_SET.has(normalizedLocalPart(email));
+}
+
+function contactRank(contact: RankableContact): number {
+  const isNamed = contact.firstName !== null || contact.lastName !== null;
+  if (contact.email === null) return isNamed ? 2 : 3;
+  if (isSharedMailbox(contact.email)) return isNamed ? 1 : 2;
+  return isNamed ? 0 : 1;
+}
+
+export function rankContacts<T extends RankableContact>(
+  contacts: ReadonlyArray<T>
+): ReadonlyArray<T> {
+  return contacts
+    .map((contact, index) => ({ contact, index, rank: contactRank(contact) }))
+    .sort((a, b) => a.rank - b.rank || a.index - b.index)
+    .map(({ contact }) => contact);
+}
 
 type AttrStat = Readonly<{
   value: string;

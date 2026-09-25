@@ -20,7 +20,8 @@ export const isClosedStage = (lead: LeadDetailDto): boolean =>
   lead.stage === 'meeting' ||
   lead.stage === 'won' ||
   lead.stage === 'not-interested' ||
-  lead.stage === 'snoozed';
+  lead.stage === 'snoozed' ||
+  lead.stage === 'bounced';
 
 export const CLOSED_COPY: Readonly<Record<string, Readonly<{ title: string; note: string }>>> = {
   meeting: { title: 'Meeting upcoming', note: 'Next step: prepare the meeting.' },
@@ -30,4 +31,8 @@ export const CLOSED_COPY: Readonly<Record<string, Readonly<{ title: string; note
     note: "No action needed. The agent won't write again.",
   },
   snoozed: { title: 'Snoozed', note: 'To reactivate later.' },
+  bounced: {
+    title: 'Invalid address',
+    note: "The email bounced: this address does not exist. It was added to your exclusions and the agent won't write to it again.",
+  },
 };

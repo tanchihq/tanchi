@@ -5,6 +5,7 @@ import type { EngineRepository } from "../../repository/engine/engine.repository
 import type { PgEngineIcp } from "../../repository/engine/engine.entities.ts";
 import {
   ANALYSTE_MAX_EDITS,
+  ANALYSTE_MAX_REJECTIONS,
   ANALYSTE_MAX_EXAMPLES,
   ANALYSTE_PLAYBOOK_MAX_TOKENS,
   ANALYSTE_TEMPERATURE,
@@ -45,7 +46,7 @@ export class AnalysteService {
     icp: PgEngineIcp,
     outreachLanguage: string
   ): Promise<boolean> {
-    const [rows, edits, previousPlaybook] = await Promise.all([
+    const [rows, edits, rejections, previousPlaybook] = await Promise.all([
       this.engineRepository.getSentMessageOutcomesForIcp(
         organizationId,
         icp.id,
@@ -56,10 +57,17 @@ export class AnalysteService {
         icp.id,
         ANALYSTE_MAX_EDITS
       ),
+      this.engineRepository.getRecentRejectionsForIcp(
+        organizationId,
+        icp.id,
+        ANALYSTE_MAX_REJECTIONS
+      ),
       this.engineRepository.getLatestPlaybook(organizationId, icp.id),
     ]);
 
-    if (rows.length === 0 && edits.length === 0) return false;
+    if (rows.length === 0 && edits.length === 0 && rejections.length === 0) {
+      return false;
+    }
 
     const examples = rows
       .filter((row) => row.positive)
@@ -74,6 +82,7 @@ export class AnalysteService {
           statsText: buildStatsText(rows),
           examples,
           edits,
+          rejections,
           previousPlaybook,
           outreachLanguage,
           today: todayLabel(),

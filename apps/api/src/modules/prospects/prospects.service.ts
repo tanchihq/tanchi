@@ -31,7 +31,11 @@ type SendResult =
   | Readonly<{ ok: false; reason: "noDraft" | "noSender" | "sendFailed" }>;
 
 type DeliveryResult =
-  | Readonly<{ ok: true; senderId: string | null }>
+  | Readonly<{
+      ok: true;
+      senderId: string | null;
+      emailMessageId: string | null;
+    }>
   | Readonly<{ ok: false; reason: "noSender" | "sendFailed" }>;
 
 function toCredentials(sender: PgSenderCred): MailboxCredentials {
@@ -235,14 +239,24 @@ export class ProspectsService {
     );
     if (draft === null) return { ok: false, reason: "noDraft" };
 
+    const claimed = await this.prospectsRepository.claimDraft(
+      organizationId,
+      draft.id
+    );
+    if (!claimed) return { ok: false, reason: "noDraft" };
+
     const delivery = await this.deliver(lead, draft, organizationId, senderId);
-    if (!delivery.ok) return { ok: false, reason: delivery.reason };
+    if (!delivery.ok) {
+      await this.prospectsRepository.releaseDraft(organizationId, draft.id);
+      return { ok: false, reason: delivery.reason };
+    }
 
     await this.prospectsRepository.markMessageSentAndRecord({
       messageId: draft.id,
       senderId: delivery.senderId,
       organizationId,
       leadId: lead.id,
+      emailMessageId: delivery.emailMessageId,
     });
     await recordActivity({
       organizationId,
@@ -260,36 +274,56 @@ export class ProspectsService {
     senderId: string | undefined
   ): Promise<DeliveryResult> {
     if (lead.channel !== "email" || lead.email === null) {
-      return { ok: true, senderId: null };
+      return { ok: true, senderId: null, emailMessageId: null };
     }
 
-    const sender =
-      senderId === undefined
-        ? await this.prospectsRepository.getFirstActiveSenderByOrganization(
-            organizationId
-          )
-        : await this.prospectsRepository.getActiveSenderById(
-            organizationId,
-            senderId
-          );
+    const sender = await this.pickSender(organizationId, lead.id, senderId);
     if (sender === null) return { ok: false, reason: "noSender" };
 
+    const thread = await this.prospectsRepository.getThreadMessageIds(
+      organizationId,
+      lead.id
+    );
     try {
-      await sendEmail(toCredentials(sender), {
+      const sent = await sendEmail(toCredentials(sender), {
         fromName: sender.from_name,
         fromEmail: sender.from_email,
         to: lead.email,
         subject: draft.subject ?? "",
         text: appendSignature(draft.body, sender.signature),
+        inReplyTo: thread.at(-1) ?? null,
+        references: thread,
       });
+      return { ok: true, senderId: sender.id, emailMessageId: sent.messageId };
     } catch (error) {
       console.error(
         `[prospects] deliver failed leadId=${lead.id}: ${errorMessage(error)}`
       );
       return { ok: false, reason: "sendFailed" };
     }
+  }
 
-    return { ok: true, senderId: sender.id };
+  private async pickSender(
+    organizationId: string,
+    leadId: string,
+    senderId: string | undefined
+  ): Promise<PgSenderCred | null> {
+    if (senderId !== undefined) {
+      return this.prospectsRepository.getActiveSenderById(
+        organizationId,
+        senderId
+      );
+    }
+    const previous = await this.prospectsRepository.getLastActiveSenderForLead(
+      organizationId,
+      leadId
+    );
+    return (
+      previous ??
+      this.prospectsRepository.getFirstActiveSenderByOrganization(
+        organizationId
+      )
+    );
   }
 
   private async assembleDetail(

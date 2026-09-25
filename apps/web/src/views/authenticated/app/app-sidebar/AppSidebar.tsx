@@ -3,7 +3,7 @@ import {
   Ban,
   BarChart3,
   GraduationCap,
-  History,
+  Inbox,
   LogOut,
   MessageSquare,
   Moon,
@@ -15,14 +15,21 @@ import {
 import { cn } from '@/utils/lib/utils';
 import { useAuth } from '@/store/context/auth.context';
 import { useTheme } from '@/store/context/theme.context';
+import { useAppStatus } from '../store/app-status.context';
 import EnginePreparationCard from './engine-preparation-card/EnginePreparationCard';
+
+const QUEUE_PATH = '/app/messages';
+const MAX_BADGE_COUNT = 99;
+
+const badgeLabel = (count: number): string =>
+  count > MAX_BADGE_COUNT ? `${MAX_BADGE_COUNT}+` : String(count);
 
 type NavEntry = Readonly<{ to: string; label: string; icon: LucideIcon; end?: boolean }>;
 
 const NAV: ReadonlyArray<NavEntry> = [
   { to: '/app', label: 'Pipeline', icon: BarChart3, end: true },
   { to: '/app/chat', label: 'Copilot', icon: MessageSquare },
-  { to: '/app/messages', label: 'Messages', icon: History },
+  { to: '/app/messages', label: 'Queue', icon: Inbox },
   { to: '/app/learnings', label: 'Learnings', icon: GraduationCap },
   { to: '/app/exclusions', label: 'Exclusions', icon: Ban },
   { to: '/app/mailbox', label: 'Mailbox', icon: Server },
@@ -40,6 +47,8 @@ const initialsFromName = (name: string): string =>
 const AppSidebar = () => {
   const { state, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { status } = useAppStatus();
+  const pendingReview = status?.pendingReview ?? 0;
   const name = state.user?.name ?? 'You';
   const isDark = theme === 'dark';
 
@@ -95,7 +104,15 @@ const AppSidebar = () => {
                   )}
                 />
                 <Icon size={17} className={isActive ? 'text-brand-400' : 'text-app-faint'} />
-                {label}
+                <span className="flex-1">{label}</span>
+                {to === QUEUE_PATH && pendingReview > 0 && (
+                  <span
+                    aria-label={`${pendingReview} messages to review`}
+                    className="bg-brand-600 min-w-[20px] rounded-full px-1.5 py-px text-center text-[11px] font-medium text-white"
+                  >
+                    {badgeLabel(pendingReview)}
+                  </span>
+                )}
               </>
             )}
           </NavLink>

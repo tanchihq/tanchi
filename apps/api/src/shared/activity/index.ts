@@ -9,7 +9,8 @@ export type ActivityType =
   | "sent"
   | "reply"
   | "follow_up"
-  | "closed";
+  | "closed"
+  | "bounced";
 
 export type ActivityInput = Readonly<{
   organizationId: string;

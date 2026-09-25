@@ -36,6 +36,8 @@ export function buildEnrichmentPrompt(
     "- Same for linkedinUrl / instagramUrl / phone: include only if you actually found them on a real page. If not found, use null.",
     "- Every contact MUST carry a sourceUrl (the page where you found their details).",
     "- No invented people. Prefer decision-makers relevant to outreach (founders, heads of, directors).",
+    "- Prefer a named decision-maker with their own work email. A shared inbox (contact@, hello@, info@) is only acceptable when no named decision-maker email is published.",
+    "- Never return a mailbox unrelated to a buying decision: lost and found, jobs or recruitment, press, customer support, invoices or accounting, newsletters, no-reply, privacy or legal. Leave email null rather than use one.",
     "",
     `Find up to ${count} contacts. It's fine to return fewer, or none, if you can't verify anyone.`,
     "",

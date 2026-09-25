@@ -14,6 +14,10 @@ import { queueRouter } from "./modules/queue/queue.module.ts";
 import { engineRouter, startEngineWorkers } from "./modules/engine/engine.module.ts";
 import { startRewardWorkers } from "./modules/reward/reward.module.ts";
 import { startSequencesWorkers } from "./modules/sequences/sequences.module.ts";
+import {
+  autopilotRouter,
+  startAutopilotWorkers,
+} from "./modules/autopilot/autopilot.module.ts";
 import { activityRouter } from "./modules/activity/activity.module.ts";
 import { suppressionRouter } from "./modules/suppression/suppression.module.ts";
 import { messagesRouter } from "./modules/messages/messages.module.ts";
@@ -100,6 +104,7 @@ api.route("/learnings", learningsRouter);
 api.route("/senders", sendersRouter);
 api.route("/prospects", prospectsRouter);
 api.route("/queue", queueRouter);
+api.route("/autopilot", autopilotRouter);
 api.route("/engine", engineRouter);
 api.route("/activity", activityRouter);
 api.route("/suppression", suppressionRouter);
@@ -138,7 +143,10 @@ if (env.RUN_WORKERS === "true") {
     startEngineWorkers();
     startRewardWorkers();
     startSequencesWorkers();
-    console.log("[workers] engine-nightly + reward-poll + sequences started");
+    startAutopilotWorkers();
+    console.log(
+      "[workers] engine-nightly + reward-poll + sequences + autopilot started"
+    );
   }
 }
 

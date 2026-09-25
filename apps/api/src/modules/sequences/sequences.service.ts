@@ -1,5 +1,6 @@
 import { recordActivity } from "@shared/activity";
 import { getBillingAccess } from "@shared/billing";
+import { replySubject } from "@shared/mail-parse";
 import type { LlmProvider } from "@shared/llm";
 import type { SequencesRepository } from "./repository/sequences/sequences.repository.ts";
 import type {
@@ -25,6 +26,15 @@ function fullName(lead: PgDueLead): string {
   return [lead.first_name, lead.last_name]
     .filter((part) => part !== null && part !== "")
     .join(" ");
+}
+
+function followUpSubject(
+  threadSubject: string | null,
+  generatedSubject: string | null
+): string | null {
+  if (threadSubject === null) return generatedSubject;
+  const threaded = replySubject(threadSubject);
+  return threaded === "" ? generatedSubject : threaded;
 }
 
 function leadLabel(lead: PgDueLead): string {
@@ -109,9 +119,10 @@ export class SequencesService {
     lead: PgDueLead,
     config: PgSequenceConfig
   ): Promise<void> {
-    const [facts, previousMessage] = await Promise.all([
+    const [facts, previousMessage, threadSubject] = await Promise.all([
       this.sequencesRepository.getFactsForLead(lead.id),
       this.sequencesRepository.getLastSentMessageBody(lead.id),
+      this.sequencesRepository.getThreadSubject(lead.id),
     ]);
     if (previousMessage === null) return;
 
@@ -130,7 +141,10 @@ export class SequencesService {
       leadId: lead.id,
       icpId: lead.icp_id,
       channel: lead.channel,
-      subject: lead.channel === "email" ? parsed.subject : null,
+      subject:
+        lead.channel === "email"
+          ? followUpSubject(threadSubject, parsed.subject)
+          : null,
       body: parsed.body,
       lengthBucket: lengthBucket(parsed.body),
       ctaType: parsed.ctaType,

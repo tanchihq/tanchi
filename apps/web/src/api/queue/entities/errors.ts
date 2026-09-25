@@ -5,5 +5,6 @@ export enum QueueErrors {
   noSender = 'noSender',
   editFailed = 'editFailed',
   sendFailed = 'sendFailed',
+  skipFailed = 'skipFailed',
   fetchFailed = 'fetchFailed',
 }

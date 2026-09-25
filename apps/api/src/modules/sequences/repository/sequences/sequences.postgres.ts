@@ -85,6 +85,26 @@ export class SequencesPostgres {
     }
   }
 
+  async getThreadSubject(leadId: string): Promise<string | null> {
+    try {
+      const result = await this.db<
+        ReadonlyArray<Readonly<{ subject: string | null }>>
+      >`
+        SELECT subject FROM messages
+        WHERE lead_id = ${leadId}
+          AND status = 'sent'
+          AND channel = 'email'
+          AND subject IS NOT NULL
+          AND subject <> ''
+        ORDER BY sent_at ASC NULLS LAST, created_at ASC
+        LIMIT 1
+      `;
+      return result[ARRAY.FIRST_INDEX]?.subject ?? null;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
   async createFollowUpDraft(
     input: CreateFollowUpDraftInput
   ): Promise<void> {

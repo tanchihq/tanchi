@@ -35,3 +35,45 @@ export const PUBLIC_EMAIL_DOMAINS = [
   "protonmail.com",
   "proton.me",
 ] as const;
+
+export const SUBJECT_MATCH_WINDOW_DAYS = 60;
+
+export const BOUNCE_EXCLUSION_REASON = "Email address does not exist (bounced)";
+
+export const BOUNCE_PROTECTED_STAGES: ReadonlyArray<string> = [
+  "replied",
+  "meeting",
+  "won",
+  "bounced",
+];
+
+export const GENERIC_MAILBOX_LOCAL_PARTS: ReadonlyArray<string> = [
+  "contact",
+  "contacts",
+  "info",
+  "infos",
+  "information",
+  "hello",
+  "hi",
+  "hey",
+  "bonjour",
+  "salut",
+  "team",
+  "equipe",
+  "office",
+  "admin",
+  "mail",
+  "email",
+  "general",
+  "enquiries",
+  "inquiries",
+  "sales",
+  "booking",
+  "bookings",
+  "reservation",
+  "reservations",
+  "events",
+  "event",
+  "communication",
+  "marketing",
+];

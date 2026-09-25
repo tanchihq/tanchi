@@ -27,10 +27,11 @@ export class CopywriterService {
   ) {}
 
   async write(lead: PgEngineLead, offer: EngineOffer): Promise<boolean> {
-    const [summary, facts, angle, playbook] = await Promise.all([
+    const [summary, facts, angle, rejectedDrafts, playbook] = await Promise.all([
       this.engineRepository.getDossierSummaryForLead(lead.id),
       this.engineRepository.getFactsForLead(lead.id),
       this.engineRepository.getChosenAngleForLead(lead.id),
+      this.engineRepository.getRejectedDraftsForLead(lead.id),
       lead.icp_id === null
         ? Promise.resolve(null)
         : this.engineRepository.getLatestPlaybook(
@@ -51,6 +52,7 @@ export class CopywriterService {
       summary,
       facts,
       angle,
+      rejectedDrafts,
       playbook,
       isExploration,
       today: todayLabel(),

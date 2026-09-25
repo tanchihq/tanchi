@@ -9,6 +9,7 @@ export const STAGE_LABEL: Readonly<Record<Stage, string>> = {
   won: 'Won',
   'not-interested': 'Not interested',
   snoozed: 'Snoozed',
+  bounced: 'Invalid address',
 };
 
 export const BOARD_STAGES: ReadonlyArray<Stage> = [
@@ -20,7 +21,7 @@ export const BOARD_STAGES: ReadonlyArray<Stage> = [
   'won',
 ];
 
-export const SIDE_STAGES: ReadonlyArray<Stage> = ['not-interested', 'snoozed'];
+export const SIDE_STAGES: ReadonlyArray<Stage> = ['not-interested', 'snoozed', 'bounced'];
 
 export const ALL_STAGES: ReadonlyArray<Stage> = [...BOARD_STAGES, ...SIDE_STAGES];
 
@@ -33,6 +34,7 @@ export const EMPTY_HINT: Readonly<Record<Stage, string>> = {
   won: 'Nothing won yet',
   'not-interested': 'Nobody here',
   snoozed: 'Nobody snoozed',
+  bounced: 'No bounced address',
 };
 
 export const CHANNEL_META: Readonly<

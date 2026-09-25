@@ -2,6 +2,7 @@ import type {
   PgCopyAngle,
   PgCopyFact,
   PgEngineLead,
+  PgRejectedDraft,
 } from "../../repository/engine/engine.entities.ts";
 import type { EngineOffer, MarketContext } from "../../engine.types.ts";
 
@@ -12,10 +13,33 @@ export type CopywriterContext = Readonly<{
   summary: string | null;
   facts: ReadonlyArray<PgCopyFact>;
   angle: PgCopyAngle | null;
+  rejectedDrafts: ReadonlyArray<PgRejectedDraft>;
   playbook: string | null;
   isExploration: boolean;
   today: string;
 }>;
+
+const REJECTION_LABELS: Readonly<Record<string, string>> = {
+  wrong_angle: "wrong angle",
+  too_generic: "too generic",
+};
+
+function rejectedDraftLines(
+  rejectedDrafts: ReadonlyArray<PgRejectedDraft>
+): ReadonlyArray<string> {
+  if (rejectedDrafts.length === 0) return [];
+  return [
+    "Drafts the user already rejected for this prospect. Write something clearly different, do not reuse their angle or wording:",
+    ...rejectedDrafts.map((draft, index) => {
+      const reason =
+        draft.skip_reason === null
+          ? "no reason given"
+          : (REJECTION_LABELS[draft.skip_reason] ?? draft.skip_reason);
+      return `#${index + 1} (${reason}):\n${draft.body}`;
+    }),
+    "",
+  ];
+}
 
 function fullName(lead: PgEngineLead): string {
   return [lead.first_name, lead.last_name]
@@ -24,8 +48,17 @@ function fullName(lead: PgEngineLead): string {
 }
 
 export function buildCopywriterPrompt(context: CopywriterContext): string {
-  const { lead, offer, market, summary, facts, angle, playbook, isExploration } =
-    context;
+  const {
+    lead,
+    offer,
+    market,
+    summary,
+    facts,
+    angle,
+    rejectedDrafts,
+    playbook,
+    isExploration,
+  } = context;
   const factLines = facts.map(
     (fact) => `- ${fact.text} (source: ${fact.source_url})`
   );
@@ -65,6 +98,7 @@ export function buildCopywriterPrompt(context: CopywriterContext): string {
       ? ""
       : `Angle to play: ${angle.title}${angle.note === null ? "" : ` — ${angle.note}`}`,
     "<<<END_PROSPECT_DATA>>>",
+    ...rejectedDraftLines(rejectedDrafts),
     playbook === null ? "" : `Playbook for this ICP (what converts):\n${playbook}`,
     "",
     "",

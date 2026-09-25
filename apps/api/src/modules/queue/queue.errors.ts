@@ -20,3 +20,12 @@ export enum ValidateQueueErrors {
   noSender = "noSender",
   sendFailed = "sendFailed",
 }
+
+export enum SkipQueueErrors {
+  invalidProspectId = "invalidProspectId",
+  invalidReason = "invalidReason",
+  noActiveOrganization = "noActiveOrganization",
+  inexistingDraft = "inexistingDraft",
+  notInMyOrg = "notInMyOrg",
+  skipFailed = "skipFailed",
+}

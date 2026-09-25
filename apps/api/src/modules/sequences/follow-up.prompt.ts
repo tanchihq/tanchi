@@ -28,7 +28,7 @@ export function buildFollowUpPrompt(context: FollowUpContext): string {
     "- Do not invent any fact about the prospect. Use only the verified facts below.",
     "- Polite, no guilt-tripping, one clear ask.",
     "",
-    `Write the email (subject and body) in this language: ${context.outreachLanguage}.`,
+    `Write the email body in this language: ${context.outreachLanguage}. It is sent as a reply in the same email thread as the previous message, so the subject is kept as is.`,
     "",
     `Our offer: ${context.companyName} — ${context.website}`,
     context.companyProfile === "" ? "" : `About us: ${context.companyProfile}`,

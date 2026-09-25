@@ -17,7 +17,11 @@ import {
   buildDiscoveryPrompt,
   buildEnrichmentPrompt,
 } from "./chasseur.prompt.ts";
-import { buildWinningProfileBrief } from "./chasseur.utils.ts";
+import {
+  buildWinningProfileBrief,
+  isIrrelevantMailbox,
+  rankContacts,
+} from "./chasseur.utils.ts";
 import {
   CHASSEUR_LEARNING_WINDOW_DAYS,
   COMPANIES_PER_ICP,
@@ -51,8 +55,10 @@ function aiContactToContact(
     phone: string | null;
   }>
 ): Contact | null {
+  const email =
+    raw.email !== null && isIrrelevantMailbox(raw.email) ? null : raw.email;
   const channel =
-    raw.email !== null
+    email !== null
       ? "email"
       : raw.linkedinUrl !== null
         ? "linkedin"
@@ -66,8 +72,8 @@ function aiContactToContact(
     firstName: raw.firstName,
     lastName: raw.lastName,
     role: raw.role,
-    email: raw.email,
-    emailStatus: raw.email === null ? "none" : "guessed",
+    email,
+    emailStatus: email === null ? "none" : "guessed",
     linkedinUrl: raw.linkedinUrl,
     instagramUrl: raw.instagramUrl,
     phone: raw.phone,
@@ -231,13 +237,13 @@ export class ChasseurService {
     maxLeads: number
   ): Promise<number> {
     const cap = Math.min(MAX_LEADS_PER_COMPANY, maxLeads);
-    const contacts = (await this.getContacts(company, domain, cap))
-      .filter(
+    const contacts = rankContacts(
+      (await this.getContacts(company, domain, cap)).filter(
         (contact) =>
           contact.email === null ||
           !existingEmails.has(contact.email.toLowerCase())
       )
-      .slice(0, cap);
+    ).slice(0, cap);
     if (contacts.length === 0) return 0;
 
     const companyId = await this.engineRepository.createOneCompany({
@@ -285,6 +291,7 @@ export class ChasseurService {
       const emails = await this.tryEnrich(sourcing, domain);
       return emails
         .filter((email) => (email.confidence ?? 0) >= HUNTER_MIN_CONFIDENCE)
+        .filter((email) => !isIrrelevantMailbox(email.email))
         .map((email) => ({
           firstName: email.firstName,
           lastName: email.lastName,

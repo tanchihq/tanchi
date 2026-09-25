@@ -37,5 +37,6 @@ export function buildStatusDto(
       sent: row?.sent_today ?? 0,
       replies: row?.replies_today ?? 0,
     },
+    pendingReview: row?.pending_review ?? 0,
   };
 }
