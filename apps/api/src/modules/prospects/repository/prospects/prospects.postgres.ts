@@ -1,7 +1,9 @@
 import type { DbClient } from "@shared/db";
 import { ARRAY, throwSanitizeError } from "@shared/utils";
+import { SEND_CLAIM_TTL_MINUTES } from "../../prospects.constants.ts";
 import type {
   ExcludeProspectInput,
+  MarkMessageSentInput,
   PgDraftMessage,
   PgLeadListRow,
   PgLeadRow,
@@ -191,7 +193,8 @@ export class ProspectsPostgres {
   ): Promise<ReadonlyArray<PgProspectMessage>> {
     try {
       const result = await this.db<ReadonlyArray<PgProspectMessage>>`
-        SELECT id, channel, subject, body, status, sent_at, created_at
+        SELECT id, channel, subject, body, status, sent_at, sent_automatically,
+               created_at
         FROM messages
         WHERE lead_id = ${leadId}
         ORDER BY created_at ASC
@@ -207,7 +210,7 @@ export class ProspectsPostgres {
   ): Promise<ReadonlyArray<PgProspectOutcome>> {
     try {
       const result = await this.db<ReadonlyArray<PgProspectOutcome>>`
-        SELECT stage_signal, classification, reply_text, created_at
+        SELECT stage_signal, classification, reply_text, reply_from, created_at
         FROM outcomes
         WHERE lead_id = ${leadId}
         ORDER BY created_at ASC
@@ -270,20 +273,95 @@ export class ProspectsPostgres {
     }
   }
 
-  async markMessageSentAndRecord(
-    input: Readonly<{
-      messageId: string;
-      senderId: string | null;
-      organizationId: string;
-      leadId: string;
-    }>
-  ): Promise<void> {
+  async getLastActiveSenderForLead(
+    organizationId: string,
+    leadId: string
+  ): Promise<PgSenderCred | null> {
+    try {
+      const result = await this.db<ReadonlyArray<PgSenderCred>>`
+        SELECT s.id, s.from_name, s.from_email, s.smtp_host, s.smtp_port,
+               s.smtp_secure, s.imap_host, s.imap_port, s.imap_secure,
+               s.username, s.secret_encrypted, s.signature
+        FROM messages m
+        JOIN senders s ON s.id = m.sender_id
+        WHERE m.lead_id = ${leadId}
+          AND m.organization_id = ${organizationId}
+          AND m.status = 'sent'
+          AND s.organization_id = ${organizationId}
+          AND s.status = 'active'
+        ORDER BY m.sent_at DESC NULLS LAST
+        LIMIT 1
+      `;
+      return result[ARRAY.FIRST_INDEX] ?? null;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async getThreadMessageIds(
+    organizationId: string,
+    leadId: string
+  ): Promise<ReadonlyArray<string>> {
+    try {
+      const result = await this.db<
+        ReadonlyArray<Readonly<{ email_message_id: string }>>
+      >`
+        SELECT email_message_id FROM messages
+        WHERE lead_id = ${leadId}
+          AND organization_id = ${organizationId}
+          AND status = 'sent'
+          AND channel = 'email'
+          AND email_message_id IS NOT NULL
+        ORDER BY sent_at ASC NULLS LAST
+      `;
+      return result.map((row) => row.email_message_id);
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async claimDraft(
+    organizationId: string,
+    messageId: string
+  ): Promise<boolean> {
+    try {
+      const result = await this.db<ReadonlyArray<Readonly<{ id: string }>>>`
+        UPDATE messages
+        SET send_claimed_at = NOW()
+        WHERE id = ${messageId}
+          AND organization_id = ${organizationId}
+          AND status IN ('draft', 'edited')
+          AND (
+            send_claimed_at IS NULL
+            OR send_claimed_at < NOW() - MAKE_INTERVAL(mins => ${SEND_CLAIM_TTL_MINUTES})
+          )
+        RETURNING id
+      `;
+      return result.length > ARRAY.EMPTY_LENGTH;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async releaseDraft(organizationId: string, messageId: string): Promise<void> {
+    try {
+      await this.db`
+        UPDATE messages SET send_claimed_at = NULL
+        WHERE id = ${messageId} AND organization_id = ${organizationId}
+      `;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async markMessageSentAndRecord(input: MarkMessageSentInput): Promise<void> {
     try {
       await this.db.begin(async (tx) => {
         await tx`
           UPDATE messages
           SET status = 'sent', sent_at = NOW(), sender_id = ${input.senderId},
-              updated_at = NOW()
+              email_message_id = ${input.emailMessageId},
+              send_claimed_at = NULL, updated_at = NOW()
           WHERE id = ${input.messageId}
             AND organization_id = ${input.organizationId}
         `;

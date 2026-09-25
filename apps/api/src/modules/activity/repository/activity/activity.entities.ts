@@ -13,6 +13,7 @@ type PgActivityStatusRow = Readonly<{
   drafted_today: number;
   sent_today: number;
   replies_today: number;
+  pending_review: number;
 }>;
 
 export type { PgActivity, PgActivityStatusRow };

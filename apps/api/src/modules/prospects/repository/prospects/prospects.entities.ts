@@ -14,7 +14,8 @@ type PgStage =
   | "meeting"
   | "won"
   | "not-interested"
-  | "snoozed";
+  | "snoozed"
+  | "bounced";
 
 type PgOrigin = "auto" | "manual";
 
@@ -97,6 +98,7 @@ type PgProspectMessage = Readonly<{
   body: string;
   status: string;
   sent_at: Date | null;
+  sent_automatically: boolean;
   created_at: Date;
 }>;
 
@@ -104,6 +106,7 @@ type PgProspectOutcome = Readonly<{
   stage_signal: string;
   classification: string | null;
   reply_text: string | null;
+  reply_from: string | null;
   created_at: Date;
 }>;
 
@@ -128,6 +131,14 @@ type PgDraftMessage = Readonly<{
   body: string;
 }>;
 
+type MarkMessageSentInput = Readonly<{
+  messageId: string;
+  senderId: string | null;
+  organizationId: string;
+  leadId: string;
+  emailMessageId: string | null;
+}>;
+
 type ExcludeProspectInput = Readonly<{
   organizationId: string;
   leadId: string;
@@ -140,6 +151,7 @@ type ExcludeProspectInput = Readonly<{
 
 export type {
   ExcludeProspectInput,
+  MarkMessageSentInput,
   PgChannel,
   PgDraftMessage,
   PgEmailStatus,

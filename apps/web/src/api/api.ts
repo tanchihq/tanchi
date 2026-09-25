@@ -3,6 +3,7 @@ import * as auth from './auth';
 import * as onboarding from './onboarding';
 import * as prospects from './prospects';
 import * as queue from './queue';
+import * as autopilot from './autopilot';
 import * as senders from './senders';
 import * as settings from './settings';
 import * as learnings from './learnings';
@@ -32,6 +33,12 @@ const validateProspectAxios = prospects.validateProspect(axiosInstance);
 const deleteProspectAxios = prospects.deleteProspect(axiosInstance);
 
 const editQueueItemAxios = queue.editQueueItem(axiosInstance);
+const getQueueAxios = queue.getQueue(axiosInstance);
+const validateQueueItemAxios = queue.validateQueueItem(axiosInstance);
+const skipQueueItemAxios = queue.skipQueueItem(axiosInstance);
+
+const getAutopilotAxios = autopilot.getAutopilot(axiosInstance);
+const updateAutopilotAxios = autopilot.updateAutopilot(axiosInstance);
 
 const getManySenderAxios = senders.getManySender(axiosInstance);
 const createOneSenderAxios = senders.createOneSender(axiosInstance);
@@ -80,6 +87,11 @@ export {
   validateProspectAxios,
   deleteProspectAxios,
   editQueueItemAxios,
+  getQueueAxios,
+  validateQueueItemAxios,
+  skipQueueItemAxios,
+  getAutopilotAxios,
+  updateAutopilotAxios,
   getManySenderAxios,
   createOneSenderAxios,
   editOneSenderAxios,

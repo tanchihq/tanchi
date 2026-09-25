@@ -1,6 +1,7 @@
 import type { ProspectsPostgres } from "./prospects.postgres.ts";
 import type {
   ExcludeProspectInput,
+  MarkMessageSentInput,
   PgDraftMessage,
   PgLeadListRow,
   PgLeadRow,
@@ -96,14 +97,32 @@ export class ProspectsRepository {
     return this.prospectsPostgres.getLatestDraftMessageByLead(leadId);
   }
 
-  markMessageSentAndRecord(
-    input: Readonly<{
-      messageId: string;
-      senderId: string | null;
-      organizationId: string;
-      leadId: string;
-    }>
-  ): Promise<void> {
+  getLastActiveSenderForLead(
+    organizationId: string,
+    leadId: string
+  ): Promise<PgSenderCred | null> {
+    return this.prospectsPostgres.getLastActiveSenderForLead(
+      organizationId,
+      leadId
+    );
+  }
+
+  getThreadMessageIds(
+    organizationId: string,
+    leadId: string
+  ): Promise<ReadonlyArray<string>> {
+    return this.prospectsPostgres.getThreadMessageIds(organizationId, leadId);
+  }
+
+  claimDraft(organizationId: string, messageId: string): Promise<boolean> {
+    return this.prospectsPostgres.claimDraft(organizationId, messageId);
+  }
+
+  releaseDraft(organizationId: string, messageId: string): Promise<void> {
+    return this.prospectsPostgres.releaseDraft(organizationId, messageId);
+  }
+
+  markMessageSentAndRecord(input: MarkMessageSentInput): Promise<void> {
     return this.prospectsPostgres.markMessageSentAndRecord(input);
   }
 }

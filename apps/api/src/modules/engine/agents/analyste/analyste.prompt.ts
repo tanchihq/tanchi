@@ -2,6 +2,7 @@ import type {
   PgEngineIcp,
   PgIcpEdit,
   PgMessageOutcomeRow,
+  PgRejectedDraft,
 } from "../../repository/engine/engine.entities.ts";
 
 export const PLAYBOOK_SYSTEM =
@@ -12,6 +13,7 @@ export type PlaybookPromptInput = Readonly<{
   statsText: string;
   examples: ReadonlyArray<PgMessageOutcomeRow>;
   edits: ReadonlyArray<PgIcpEdit>;
+  rejections: ReadonlyArray<PgRejectedDraft>;
   previousPlaybook: string | null;
   outreachLanguage: string;
   today: string;
@@ -37,12 +39,26 @@ function editLines(edits: ReadonlyArray<PgIcpEdit>): ReadonlyArray<string> {
   );
 }
 
+function rejectionLines(
+  rejections: ReadonlyArray<PgRejectedDraft>
+): ReadonlyArray<string> {
+  if (rejections.length === 0) return ["(none yet)"];
+  return rejections.map((rejection, index) => {
+    const reason =
+      rejection.skip_reason === "wrong_angle" ? "wrong angle" : "too generic";
+    const angle =
+      rejection.angle_type === null ? "" : `, angle: ${rejection.angle_type}`;
+    return `#${index + 1} (${reason}${angle})\n${rejection.body}`;
+  });
+}
+
 export function buildPlaybookPrompt(input: PlaybookPromptInput): string {
   const {
     icp,
     statsText,
     examples,
     edits,
+    rejections,
     previousPlaybook,
     outreachLanguage,
     today,
@@ -69,6 +85,9 @@ export function buildPlaybookPrompt(input: PlaybookPromptInput): string {
     "",
     "Human edits of AI drafts (the highest-value signal — what the human adds is usually a prospect-specific insight):",
     ...editLines(edits),
+    "",
+    "Drafts the human rejected before sending, with the reason they gave (a negative signal — tell the copywriter what to avoid):",
+    ...rejectionLines(rejections),
     "",
     previousPlaybook === null
       ? ""

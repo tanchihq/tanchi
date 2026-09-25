@@ -156,6 +156,12 @@ type PgIcpEdit = Readonly<{
   angle_type: string | null;
 }>;
 
+type PgRejectedDraft = Readonly<{
+  body: string;
+  skip_reason: string | null;
+  angle_type: string | null;
+}>;
+
 type PgProfileConversionRow = Readonly<{
   sector: string | null;
   size: string | null;
@@ -178,6 +184,7 @@ export type {
   PgIcpEdit,
   PgMessageOutcomeRow,
   PgProfileConversionRow,
+  PgRejectedDraft,
   PgEngineProfile,
   PgEngineRun,
   ProfileAngleInput,

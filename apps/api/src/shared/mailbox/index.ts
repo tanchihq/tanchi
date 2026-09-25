@@ -1,6 +1,9 @@
 import nodemailer from "nodemailer";
 import { ImapFlow } from "imapflow";
-import { htmlToText, isPublicHost } from "@shared/web";
+import { isPublicHost } from "@shared/web";
+import { parseInboundEmail, type InboundEmail } from "@shared/mail-parse";
+
+export type { InboundEmail } from "@shared/mail-parse";
 
 const ALLOWED_SMTP_PORTS: ReadonlySet<number> = new Set([25, 465, 587, 2525]);
 const ALLOWED_IMAP_PORTS: ReadonlySet<number> = new Set([143, 993]);
@@ -22,8 +25,12 @@ async function assertMailEndpoint(
   if (!(await isPublicHost(host))) throw new Error("mail host not allowed");
 }
 
+function hasLineBreak(value: string): boolean {
+  return /[\r\n]/.test(value);
+}
+
 function assertNoHeaderInjection(value: string): void {
-  if (/[\r\n]/.test(value)) throw new Error("mail header injection detected");
+  if (hasLineBreak(value)) throw new Error("mail header injection detected");
 }
 
 export type MailboxCredentials = Readonly<{
@@ -124,13 +131,29 @@ export type MailboxSendMessage = Readonly<{
   to: string;
   subject: string;
   text: string;
+  inReplyTo?: string | null;
+  references?: ReadonlyArray<string>;
 }>;
+
+export type MailboxSendResult = Readonly<{ messageId: string }>;
+
+function messageIdDomain(fromEmail: string): string {
+  const domain = fromEmail.slice(fromEmail.indexOf("@") + 1).trim().toLowerCase();
+  return /^[a-z0-9.-]+$/.test(domain) && domain !== "" ? domain : "tanchi.local";
+}
+
+function generateMessageId(fromEmail: string): string {
+  return `<${Bun.randomUUIDv7()}@${messageIdDomain(fromEmail)}>`;
+}
 
 export async function sendEmail(
   credentials: MailboxCredentials,
   message: MailboxSendMessage
-): Promise<void> {
+): Promise<MailboxSendResult> {
   const transporter = createSmtpTransport(credentials);
+  const messageId = generateMessageId(message.fromEmail);
+  const references = message.references ?? [];
+  const inReplyTo = message.inReplyTo ?? null;
   try {
     await assertMailEndpoint(
       credentials.smtpHost,
@@ -141,35 +164,97 @@ export async function sendEmail(
     assertNoHeaderInjection(message.subject);
     assertNoHeaderInjection(message.fromName);
     assertNoHeaderInjection(message.fromEmail);
+    if ([inReplyTo ?? "", ...references].some(hasLineBreak)) {
+      throw new Error("mail header injection detected");
+    }
     await transporter.sendMail({
       from: `"${message.fromName}" <${message.fromEmail}>`,
       to: message.to,
       subject: message.subject,
       text: message.text,
+      messageId,
+      ...(inReplyTo !== null && { inReplyTo }),
+      ...(references.length > 0 && { references: [...references] }),
     });
+    return { messageId };
   } finally {
     transporter.close();
   }
 }
 
-export type MailboxReply = Readonly<{
-  fromEmail: string;
-  subject: string;
-  text: string;
-  receivedAt: Date;
-}>;
+const ALL_MAIL_SPECIAL_USE = "\\All";
+const EXTRA_SCANNED_SPECIAL_USES: ReadonlyArray<string> = ["\\Archive", "\\Junk"];
 
-function extractBodyText(source: Buffer): string {
-  const raw = source.toString("utf8");
-  const separator = raw.indexOf("\r\n\r\n");
-  const body = separator === -1 ? raw : raw.slice(separator + 4);
-  return htmlToText(body).replace(/\u0000/g, "").slice(0, 5000);
+async function scannedMailboxPaths(
+  client: ImapFlow
+): Promise<ReadonlyArray<string>> {
+  const mailboxes = await client.list();
+  const pathFor = (specialUse: string): string | null =>
+    mailboxes.find((mailbox) => mailbox.specialUse === specialUse)?.path ?? null;
+  const allMail = pathFor(ALL_MAIL_SPECIAL_USE);
+  const extras = EXTRA_SCANNED_SPECIAL_USES.map(pathFor).filter(
+    (path): path is string => path !== null && path !== "INBOX"
+  );
+  return allMail === null
+    ? ["INBOX", ...extras]
+    : [allMail, ...extras.filter((path) => path !== allMail)];
+}
+
+async function fetchSourcesSince(
+  client: ImapFlow,
+  path: string,
+  since: Date
+): Promise<ReadonlyArray<Buffer>> {
+  const sources: Array<Buffer> = [];
+  const lock = await client.getMailboxLock(path);
+  try {
+    const uids = await client.search({ since }, { uid: true });
+    if (uids === false || uids.length === 0) return [];
+    for await (const message of client.fetch(
+      uids,
+      { source: true },
+      { uid: true }
+    )) {
+      if (message.source !== undefined) sources.push(message.source);
+    }
+  } finally {
+    lock.release();
+  }
+  return sources;
+}
+
+async function parseSources(
+  sources: ReadonlyArray<Buffer>
+): Promise<ReadonlyArray<InboundEmail>> {
+  const parsed = await Promise.all(
+    sources.map((source) =>
+      parseInboundEmail(source).catch((error: unknown) => {
+        console.error(
+          `[mailbox] could not parse an inbound message: ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+        return null;
+      })
+    )
+  );
+  const emails = parsed.filter(
+    (email): email is InboundEmail => email !== null && email.fromEmail !== ""
+  );
+  const seen = new Set<string>();
+  return emails.filter((email) => {
+    const key =
+      email.messageId ?? `${email.fromEmail}|${email.subject}|${email.text.slice(0, 200)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export async function fetchRecentReplies(
   credentials: MailboxCredentials,
   since: Date
-): Promise<ReadonlyArray<MailboxReply>> {
+): Promise<ReadonlyArray<InboundEmail>> {
   const client = new ImapFlow({
     host: credentials.imapHost,
     port: credentials.imapPort,
@@ -181,35 +266,20 @@ export async function fetchRecentReplies(
     console.error(`[mailbox] imap error: ${error.message}`);
   });
 
-  const replies: Array<MailboxReply> = [];
   await assertMailEndpoint(
     credentials.imapHost,
     credentials.imapPort,
     isAllowedImapPort
   );
   await client.connect();
-  const lock = await client.getMailboxLock("INBOX");
+  const sources: Array<Buffer> = [];
   try {
-    const uids = await client.search({ since }, { uid: true });
-    if (uids === false || uids.length === 0) return [];
-    for await (const message of client.fetch(
-      uids,
-      { envelope: true, source: true },
-      { uid: true }
-    )) {
-      const from = message.envelope?.from?.[0]?.address ?? null;
-      const source = message.source;
-      if (from === null || source === undefined) continue;
-      replies.push({
-        fromEmail: from.toLowerCase(),
-        subject: message.envelope?.subject ?? "",
-        text: extractBodyText(source),
-        receivedAt: message.envelope?.date ?? since,
-      });
+    const paths = await scannedMailboxPaths(client);
+    for (const path of paths) {
+      sources.push(...(await fetchSourcesSince(client, path, since)));
     }
   } finally {
-    lock.release();
     await client.logout();
   }
-  return replies;
+  return parseSources(sources);
 }

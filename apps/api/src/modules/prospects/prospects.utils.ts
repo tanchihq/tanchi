@@ -107,6 +107,8 @@ function buildHistory(
       channel: message.channel,
       subject: message.subject,
       body: message.body,
+      automatic: message.sent_automatically,
+      from: null,
     }));
 
   const replies: ReadonlyArray<ResponseDto.LeadDetailHistoryEntryDto> = outcomes
@@ -120,6 +122,8 @@ function buildHistory(
       channel: null,
       subject: null,
       body: outcome.reply_text,
+      automatic: false,
+      from: outcome.reply_from,
     }));
 
   return [...sent, ...replies].sort((a, b) =>
@@ -148,7 +152,9 @@ export function convertToLeadDetailDto(
   messages: ReadonlyArray<PgProspectMessage>,
   outcomes: ReadonlyArray<PgProspectOutcome>
 ): ResponseDto.LeadDetailDto {
-  const latestMessage = messages[messages.length - 1];
+  const latestMessage = messages
+    .filter((message) => message.status !== "skipped")
+    .at(-1);
   const reply = outcomes
     .filter((outcome) => outcome.reply_text !== null)
     .map((outcome) => outcome.reply_text)

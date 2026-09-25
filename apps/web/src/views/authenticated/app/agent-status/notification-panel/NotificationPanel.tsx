@@ -1,6 +1,7 @@
 import {
   Activity,
   Check,
+  MailX,
   MessageSquare,
   PenLine,
   Play,
@@ -21,6 +22,7 @@ const TYPE_META: Readonly<Record<string, ActivityMeta>> = {
   drafted: { icon: PenLine, color: 'var(--app-accent-fg)' },
   sent: { icon: Send, color: 'var(--app-success-fg)' },
   reply: { icon: MessageSquare, color: 'var(--app-success-fg)' },
+  bounced: { icon: MailX, color: 'var(--app-danger-fg)' },
 };
 
 const DEFAULT_META: ActivityMeta = { icon: Activity, color: 'var(--app-faint)' };

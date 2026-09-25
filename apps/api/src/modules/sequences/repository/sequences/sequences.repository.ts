@@ -24,6 +24,10 @@ export class SequencesRepository {
     return this.sequencesPostgres.getLastSentMessageBody(leadId);
   }
 
+  getThreadSubject(leadId: string): Promise<string | null> {
+    return this.sequencesPostgres.getThreadSubject(leadId);
+  }
+
   createFollowUpDraft(input: CreateFollowUpDraftInput): Promise<void> {
     return this.sequencesPostgres.createFollowUpDraft(input);
   }

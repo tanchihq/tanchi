@@ -12,9 +12,11 @@ import type {
   PgIcpEdit,
   PgMessageOutcomeRow,
   PgProfileConversionRow,
+  PgRejectedDraft,
   PgEngineProfile,
   PgEngineRun,
 } from "./engine.entities.ts";
+import { MAX_SKIPPED_DRAFTS_PER_LEAD } from "../../engine.constants.ts";
 
 export class EnginePostgres {
   constructor(private readonly db: DbClient) {}
@@ -400,7 +402,20 @@ export class EnginePostgres {
         WHERE l.organization_id = ${organizationId}
           AND l.excluded_at IS NULL
           AND EXISTS (SELECT 1 FROM dossiers d WHERE d.lead_id = l.id)
-          AND NOT EXISTS (SELECT 1 FROM messages m WHERE m.lead_id = l.id)
+          AND NOT EXISTS (
+            SELECT 1 FROM messages m
+            WHERE m.lead_id = l.id AND m.status <> 'skipped'
+          )
+          AND (
+            NOT EXISTS (SELECT 1 FROM messages m WHERE m.lead_id = l.id)
+            OR (
+              l.stage = 'identified'
+              AND (
+                SELECT COUNT(*) FROM messages m
+                WHERE m.lead_id = l.id AND m.status = 'skipped'
+              ) < ${MAX_SKIPPED_DRAFTS_PER_LEAD}
+            )
+          )
         ORDER BY l.created_at ASC
       `;
     } catch (error) {
@@ -603,6 +618,43 @@ export class EnginePostgres {
         WHERE e.organization_id = ${organizationId}
           AND m.icp_id = ${icpId}
         ORDER BY e.created_at DESC
+        LIMIT ${limit}
+      `;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async getRejectedDraftsForLead(
+    leadId: string
+  ): Promise<ReadonlyArray<PgRejectedDraft>> {
+    try {
+      return await this.db<ReadonlyArray<PgRejectedDraft>>`
+        SELECT body, skip_reason, angle_type FROM messages
+        WHERE lead_id = ${leadId}
+          AND status = 'skipped'
+          AND (skip_reason IS NULL OR skip_reason IN ('wrong_angle', 'too_generic'))
+        ORDER BY updated_at DESC
+        LIMIT ${MAX_SKIPPED_DRAFTS_PER_LEAD}
+      `;
+    } catch (error) {
+      return throwSanitizeError(error);
+    }
+  }
+
+  async getRecentRejectionsForIcp(
+    organizationId: string,
+    icpId: string,
+    limit: number
+  ): Promise<ReadonlyArray<PgRejectedDraft>> {
+    try {
+      return await this.db<ReadonlyArray<PgRejectedDraft>>`
+        SELECT body, skip_reason, angle_type FROM messages
+        WHERE organization_id = ${organizationId}
+          AND icp_id = ${icpId}
+          AND status = 'skipped'
+          AND skip_reason IN ('wrong_angle', 'too_generic')
+        ORDER BY updated_at DESC
         LIMIT ${limit}
       `;
     } catch (error) {

@@ -14,12 +14,20 @@ type PgRewardSender = Readonly<{
 type PgRewardLead = Readonly<{
   id: string;
   stage: string;
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
 }>;
 
-type PgRewardDomainLead = Readonly<{
-  id: string;
-  stage: string;
-  email: string;
+type PgRewardThreadMatch = Readonly<{
+  message_id: string;
+  lead_id: string;
+}>;
+
+type PgRewardSentSubject = Readonly<{
+  message_id: string;
+  lead_id: string;
+  subject: string;
 }>;
 
 type RecordReplyInput = Readonly<{
@@ -28,12 +36,32 @@ type RecordReplyInput = Readonly<{
   messageId: string;
   classification: "positive" | "negative" | "later" | "neutral";
   replyText: string;
+  replyMessageId: string;
+  replyFrom: string;
   stage: string;
 }>;
 
+type AdoptReplierInput = Readonly<{
+  organizationId: string;
+  leadId: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+}>;
+
+type MarkLeadBouncedInput = Readonly<{
+  organizationId: string;
+  leadId: string;
+  email: string;
+  reason: string;
+}>;
+
 export type {
-  PgRewardDomainLead,
+  AdoptReplierInput,
+  MarkLeadBouncedInput,
   PgRewardLead,
   PgRewardSender,
+  PgRewardSentSubject,
+  PgRewardThreadMatch,
   RecordReplyInput,
 };

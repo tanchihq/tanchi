@@ -16,10 +16,15 @@ export const lastSentKey = (
   return entry === undefined ? null : historyEntryKey(entry, lastSentIndex);
 };
 
+const senderName = (from: string): string => from.replace(/\s*<[^>]*>\s*$/, '').trim() || from;
+
 export const entryLabel = (
   entry: LeadHistoryEntryDto,
   contactName: string,
-): string => (entry.kind === 'sent' ? 'You sent' : `${contactName} replied`);
+): string => {
+  if (entry.kind === 'sent') return entry.automatic ? 'Sent automatically' : 'You sent';
+  return `${entry.from === null ? contactName : senderName(entry.from)} replied`;
+};
 
 export const previewOf = (body: string): string => {
   const flattened = body.replace(/\s+/g, ' ').trim();

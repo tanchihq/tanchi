@@ -591,3 +591,276 @@ describe("queue: authentication is required on every route", () => {
     expect(validate.status).toBe(401);
   });
 });
+
+const seedSentMessage = async (
+  input: Readonly<{
+    organizationId: string;
+    leadId: string;
+    subject: string;
+    body: string;
+    emailMessageId: string | null;
+    senderId?: string | null;
+  }>
+): Promise<void> => {
+  await db`
+    INSERT INTO messages (
+      id, organization_id, lead_id, channel, subject, body, status, sent_at,
+      email_message_id, sender_id
+    )
+    VALUES (
+      ${Bun.randomUUIDv7()}, ${input.organizationId}, ${input.leadId}, 'email',
+      ${input.subject}, ${input.body}, 'sent', NOW() - INTERVAL '4 days',
+      ${input.emailMessageId}, ${input.senderId ?? null}
+    )
+  `;
+  await db`
+    UPDATE leads SET sequence_step = 1, stage = 'following-up' WHERE id = ${input.leadId}
+  `;
+};
+
+const seedAngle = async (
+  input: Readonly<{ organizationId: string; leadId: string; ranks: ReadonlyArray<number>; chosenRank: number }>
+): Promise<void> => {
+  const dossierId = Bun.randomUUIDv7();
+  const factId = Bun.randomUUIDv7();
+  await db`
+    INSERT INTO dossiers (id, organization_id, lead_id)
+    VALUES (${dossierId}, ${input.organizationId}, ${input.leadId})
+  `;
+  await db`
+    INSERT INTO dossier_facts (id, dossier_id, text, source_url)
+    VALUES (${factId}, ${dossierId}, 'Opened a second venue last week.', 'https://globex.test/news')
+  `;
+  await Promise.all(
+    input.ranks.map((rank) => db`
+      INSERT INTO dossier_angles (id, dossier_id, rank, title, note, fact_id, chosen)
+      VALUES (
+        ${Bun.randomUUIDv7()}, ${dossierId}, ${rank}, ${`Angle ${rank}`},
+        ${`Note ${rank}`}, ${factId}, ${rank === input.chosenRank}
+      )
+    `)
+  );
+};
+
+const chosenAngleRank = async (leadId: string): Promise<number | null> => {
+  const rows = await db<ReadonlyArray<Readonly<{ rank: number }>>>`
+    SELECT da.rank FROM dossier_angles da
+    JOIN dossiers d ON d.id = da.dossier_id
+    WHERE d.lead_id = ${leadId} AND da.chosen
+  `;
+  return rows[0]?.rank ?? null;
+};
+
+const leadState = async (leadId: string) => {
+  const rows = await db<
+    ReadonlyArray<Readonly<{ stage: string; excluded_at: Date | null }>>
+  >`SELECT stage, excluded_at FROM leads WHERE id = ${leadId}`;
+  return rows[0];
+};
+
+const skipReason = async (messageId: string): Promise<string | null> => {
+  const rows = await db<ReadonlyArray<Readonly<{ skip_reason: string | null }>>>`
+    SELECT skip_reason FROM messages WHERE id = ${messageId}
+  `;
+  return rows[0]?.skip_reason ?? null;
+};
+
+describe("queue: swipe card context", () => {
+  it("describes a follow-up with the previous message it answers", async () => {
+    const account = await createAccount();
+    const seed = await seedQueueItem({
+      organizationId: account.organizationId,
+      subject: "Re: votre billetterie",
+      body: "Petite relance.",
+    });
+    await seedSentMessage({
+      organizationId: account.organizationId,
+      leadId: seed.leadId,
+      subject: "votre billetterie",
+      body: "Premier message.",
+      emailMessageId: "<first@sender.test>",
+    });
+
+    const body = await (await authedRequest("/api/v1/queue", account.cookie)).json();
+    const item = body.items[0];
+    expect(item.kind).toBe("follow-up");
+    expect(item.followUpNumber).toBe(1);
+    expect(item.previousMessage.subject).toBe("votre billetterie");
+    expect(item.previousMessage.body).toBe("Premier message.");
+    expect(item.previousMessage.sentAt).toBeString();
+  });
+
+  it("exposes the chosen angle with its sourced fact", async () => {
+    const account = await createAccount();
+    const seed = await seedQueueItem({ organizationId: account.organizationId });
+    await seedAngle({
+      organizationId: account.organizationId,
+      leadId: seed.leadId,
+      ranks: [1, 2],
+      chosenRank: 1,
+    });
+
+    const body = await (await authedRequest("/api/v1/queue", account.cookie)).json();
+    const item = body.items[0];
+    expect(item.kind).toBe("first-touch");
+    expect(item.previousMessage).toBeNull();
+    expect(item.chosenAngle).toEqual({
+      title: "Angle 1",
+      note: "Note 1",
+      fact: { text: "Opened a second venue last week.", sourceUrl: "https://globex.test/news" },
+    });
+  });
+
+  it("flags email items as automatic only when autopilot is on", async () => {
+    const account = await createAccount();
+    await db`
+      INSERT INTO organization_profile (organization_id, website, autopilot_enabled)
+      VALUES (${account.organizationId}, 'https://acme.test', TRUE)
+    `;
+    await seedQueueItem({ organizationId: account.organizationId, channel: "email" });
+    await seedQueueItem({ organizationId: account.organizationId, channel: "linkedin" });
+
+    const body = await (await authedRequest("/api/v1/queue", account.cookie)).json();
+    expect(body.autopilotEnabled).toBe(true);
+    expect(body.items.map((item: Readonly<{ channel: string; autoSend: boolean }>) => [item.channel, item.autoSend])).toEqual([
+      ["email", true],
+      ["linkedin", false],
+    ]);
+  });
+
+  it("hides drafts of leads that already replied or bounced", async () => {
+    const account = await createAccount();
+    const seed = await seedQueueItem({ organizationId: account.organizationId });
+    await db`UPDATE leads SET stage = 'replied' WHERE id = ${seed.leadId}`;
+    const body = await (await authedRequest("/api/v1/queue", account.cookie)).json();
+    expect(body.items).toEqual([]);
+  });
+});
+
+describe("queue: validate threads the email", () => {
+  it("stores the Message-ID returned by the mailbox", async () => {
+    const account = await createAccount();
+    await seedActiveSender(account.organizationId);
+    const seed = await seedQueueItem({
+      organizationId: account.organizationId,
+      email: "prospect@lead.test",
+    });
+
+    await authedRequest(`/api/v1/queue/${seed.leadId}/validate`, account.cookie, {
+      method: "POST",
+    });
+    const rows = await db<ReadonlyArray<Readonly<{ email_message_id: string | null; send_claimed_at: Date | null }>>>`
+      SELECT email_message_id, send_claimed_at FROM messages WHERE id = ${seed.messageId}
+    `;
+    expect(rows[0]?.email_message_id).toBe("mock-message-id");
+    expect(rows[0]?.send_claimed_at).toBeNull();
+  });
+
+  it("refuses to send a draft another process is already sending", async () => {
+    const account = await createAccount();
+    await seedActiveSender(account.organizationId);
+    const seed = await seedQueueItem({
+      organizationId: account.organizationId,
+      email: "prospect@lead.test",
+    });
+    await db`UPDATE messages SET send_claimed_at = NOW() WHERE id = ${seed.messageId}`;
+
+    const res = await authedRequest(`/api/v1/queue/${seed.leadId}/validate`, account.cookie, {
+      method: "POST",
+    });
+    expect(res.status).toBe(404);
+    expect(await messageStatus(seed.messageId)).toBe("draft");
+  });
+});
+
+describe("queue: skip (swipe left)", () => {
+  it("skips without a reason and lets the engine redraft", async () => {
+    const account = await createAccount();
+    const seed = await seedQueueItem({ organizationId: account.organizationId });
+
+    const res = await jsonRequest(`/api/v1/queue/${seed.leadId}/skip`, account.cookie, "POST", {});
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      id: seed.leadId,
+      messageId: seed.messageId,
+      reason: null,
+      nextStep: "redraft",
+    });
+    expect(await messageStatus(seed.messageId)).toBe("skipped");
+    expect((await leadState(seed.leadId))?.stage).toBe("identified");
+  });
+
+  it("wrong lead: excludes the person and hides the lead", async () => {
+    const account = await createAccount();
+    const seed = await seedQueueItem({
+      organizationId: account.organizationId,
+      email: "Wrong@Lead.test",
+    });
+
+    const res = await jsonRequest(`/api/v1/queue/${seed.leadId}/skip`, account.cookie, "POST", {
+      reason: "wrong_lead",
+    });
+    expect((await res.json()).nextStep).toBe("excluded");
+    expect(await skipReason(seed.messageId)).toBe("wrong_lead");
+    expect((await leadState(seed.leadId))?.excluded_at).not.toBeNull();
+    const exclusions = await db<ReadonlyArray<Readonly<{ email: string }>>>`
+      SELECT email FROM exclusions WHERE organization_id = ${account.organizationId}
+    `;
+    expect(exclusions.map((row) => row.email)).toEqual(["wrong@lead.test"]);
+  });
+
+  it("not now: snoozes the lead", async () => {
+    const account = await createAccount();
+    const seed = await seedQueueItem({ organizationId: account.organizationId });
+    const res = await jsonRequest(`/api/v1/queue/${seed.leadId}/skip`, account.cookie, "POST", {
+      reason: "not_now",
+    });
+    expect((await res.json()).nextStep).toBe("snoozed");
+    expect((await leadState(seed.leadId))?.stage).toBe("snoozed");
+  });
+
+  it("wrong angle: moves the chosen angle to the next one", async () => {
+    const account = await createAccount();
+    const seed = await seedQueueItem({ organizationId: account.organizationId });
+    await seedAngle({
+      organizationId: account.organizationId,
+      leadId: seed.leadId,
+      ranks: [1, 2, 3],
+      chosenRank: 1,
+    });
+
+    await jsonRequest(`/api/v1/queue/${seed.leadId}/skip`, account.cookie, "POST", {
+      reason: "wrong_angle",
+    });
+    expect(await chosenAngleRank(seed.leadId)).toBe(2);
+    expect(await skipReason(seed.messageId)).toBe("wrong_angle");
+  });
+
+  it("rejects an unknown reason (400 invalidReason)", async () => {
+    const account = await createAccount();
+    const seed = await seedQueueItem({ organizationId: account.organizationId });
+    const res = await jsonRequest(`/api/v1/queue/${seed.leadId}/skip`, account.cookie, "POST", {
+      reason: "because",
+    });
+    expect(res.status).toBe(400);
+    expect((await res.json()).message).toBe("invalidReason");
+    expect(await messageStatus(seed.messageId)).toBe("draft");
+  });
+
+  it("refuses to skip another organization's draft (403 notInMyOrg)", async () => {
+    const owner = await createAccount();
+    const intruder = await createAccount();
+    const seed = await seedQueueItem({ organizationId: owner.organizationId });
+    const res = await jsonRequest(`/api/v1/queue/${seed.leadId}/skip`, intruder.cookie, "POST", {
+      reason: "wrong_lead",
+    });
+    expect(res.status).toBe(403);
+    expect(await messageStatus(seed.messageId)).toBe("draft");
+    expect((await leadState(seed.leadId))?.excluded_at).toBeNull();
+  });
+
+  it("requires authentication", async () => {
+    const res = await jsonRequest(`/api/v1/queue/${UNKNOWN_UUID}/skip`, null, "POST", {});
+    expect(res.status).toBe(401);
+  });
+});

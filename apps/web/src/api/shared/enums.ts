@@ -14,7 +14,8 @@ export type Stage =
   | 'meeting'
   | 'won'
   | 'not-interested'
-  | 'snoozed';
+  | 'snoozed'
+  | 'bounced';
 
 export type Origin = 'auto' | 'manual';
 

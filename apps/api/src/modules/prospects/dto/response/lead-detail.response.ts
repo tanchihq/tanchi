@@ -40,6 +40,8 @@ export type LeadDetailHistoryEntryDto = Readonly<{
   channel: ChannelDto | null;
   subject: string | null;
   body: string;
+  automatic: boolean;
+  from: string | null;
 }>;
 
 export type LeadDetailDto = Readonly<{

@@ -6,6 +6,12 @@ type PgQueueChannel =
   | "sms"
   | "call";
 
+type PgQueueSkipReason =
+  | "wrong_lead"
+  | "wrong_angle"
+  | "too_generic"
+  | "not_now";
+
 type PgQueueRow = Readonly<{
   message_id: string;
   lead_id: string;
@@ -22,6 +28,18 @@ type PgQueueRow = Readonly<{
   message_created_at: Date;
   company_name: string | null;
   email: string | null;
+  linkedin_url: string | null;
+  instagram_url: string | null;
+  score: number | null;
+  qualification: string | null;
+  sequence_step: number;
+  previous_subject: string | null;
+  previous_body: string | null;
+  previous_sent_at: Date | null;
+  angle_title: string | null;
+  angle_note: string | null;
+  angle_fact_text: string | null;
+  angle_fact_source_url: string | null;
 }>;
 
 type PgQueueSenderCred = Readonly<{
@@ -44,6 +62,7 @@ type MarkSentAndAdvanceInput = Readonly<{
   messageId: string;
   leadId: string;
   senderId: string | null;
+  emailMessageId: string | null;
 }>;
 
 type PgQueueFact = Readonly<{
@@ -60,6 +79,14 @@ type ApplyEditInput = Readonly<{
   subject?: string | null;
 }>;
 
+type SkipDraftInput = Readonly<{
+  organizationId: string;
+  messageId: string;
+  leadId: string;
+  email: string | null;
+  reason: PgQueueSkipReason | null;
+}>;
+
 export type {
   ApplyEditInput,
   MarkSentAndAdvanceInput,
@@ -67,4 +94,6 @@ export type {
   PgQueueFact,
   PgQueueRow,
   PgQueueSenderCred,
+  PgQueueSkipReason,
+  SkipDraftInput,
 };

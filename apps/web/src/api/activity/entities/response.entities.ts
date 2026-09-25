@@ -1,10 +1,14 @@
 export type ActivityType =
   | 'run_started'
   | 'run_done'
+  | 'sourced'
   | 'profiled'
   | 'drafted'
   | 'sent'
-  | 'reply';
+  | 'reply'
+  | 'follow_up'
+  | 'closed'
+  | 'bounced';
 
 export type ActivityStatusDto = Readonly<{
   isRunning: boolean;
@@ -16,6 +20,7 @@ export type ActivityStatusDto = Readonly<{
     sent: number;
     replies: number;
   }>;
+  pendingReview: number;
 }>;
 
 export type ActivityItemDto = Readonly<{

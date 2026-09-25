@@ -20,6 +20,7 @@
 Tanchi takes the opposite stance to most AI prospecting tools:
 
 - **Email-first.** The only channel that is genuinely safe to automate. Everything else is assisted (the AI drafts, a human sends).
+- **Review or autopilot, your call.** Swipe through the morning queue (right to send, left to skip and say why), or switch email to autopilot: it sends on its own during business hours, within each mailbox's daily cap, and pauses a mailbox whose bounce rate climbs. Off by default.
 - **Verified intelligence.** Every fact in a prospect dossier is sourced from the prospect's own website or LinkedIn. Never invented, never a filled-in gap.
 - **Qualitative learning first.** We distill, in plain language, what converts per ICP before any statistics. Interpretable, correctable, effective from month one.
 - **We measure replies and meetings, never opens.**
